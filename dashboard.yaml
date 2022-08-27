@@ -1,8 +1,30 @@
 kiosk_mode:
   hide_header: false
-  hide_sidebar: true
   hide_overflow: true
   hide_menubutton: true
+  user_settings:
+    - users:
+        - derek
+        - another_user
+      hide_sidebar: true
+    - users:
+        - tablet
+      kiosk: false
+      hide_sidebar: true
+      ignore_entity_settings: true
+  entity_settings:
+    - entity:
+        input_boolean.fire_main_hide_sidebar: 'on'
+      hide_sidebar: true
+    - entity:
+        input_boolean.fire_main_hide_sidebar: 'off'
+      hide_sidebar: false
+    - entity:
+        input_boolean.fire_main_hide_header: 'on'
+      hide_header: true
+    - entity:
+        input_boolean.fire_main_hide_header: 'off'
+      hide_header: false
 button_card_templates:
   header_example_template:
     styles:
@@ -22,6 +44,8 @@ button_card_templates:
   generic_custom_button:
     show_icon: true
     show_name: true
+    show_state: false
+    triggers_update: all
     styles:
       card:
         - background-color: rgba(0, 0, 0, 0)
@@ -34,38 +58,33 @@ button_card_templates:
         ha-card {
           border: solid 1px var(--primary-text-color);
         }
+    tap_action:
+      action: toggle
+    hold_action:
+      action: more-info
+    double_tap_action:
+      action: none
   rgb_selector:
+    template: generic_custom_button
+    show_name: false
     show_icon: false
     styles:
       card:
-        - background-color: rgba(0, 0, 0, 0)
         - border-radius: 50%
         - height: 75px
         - width: 75px
-        - '--mdc-ripple-color': white
-        - '--mdc-ripple-press-opacity': 1.5
     tap_action:
       action: call-service
       service: light.turn_on
       service_data:
         entity_id: light.bedroom_lights
-    card_mod:
-      style: |
-        ha-card {
-          border: solid 1px var(--primary-text-color);
-        }
   brightness_selector:
+    template: generic_custom_button
     name: 100%
-    show_name: true
     show_icon: false
-    show_state: false
     styles:
       card:
-        - background-color: rgba(0, 0, 0, 0)
-        - border-radius: 20px
         - height: 75px
-        - '--mdc-ripple-color': white
-        - '--mdc-ripple-press-opacity': 0.5
       name:
         - font-weight: bold
         - font-size: 24px
@@ -73,13 +92,85 @@ button_card_templates:
       action: call-service
       service: light.turn_on
       service_data:
-        entity_id: light.bedroom_lights
         brightness_pct: 100
-    card_mod:
-      style: |
-        ha-card {
-          border: solid 1px var(--primary-text-color);
-        }
+  brightness_selector2:
+    template: generic_custom_button
+    name: 100%
+    show_icon: false
+    styles:
+      card:
+        - height: 75px
+      name:
+        - font-weight: bold
+        - font-size: 24px
+    variables:
+      var_entity: light.bedroom1
+      var_brightness: 254
+    state:
+      - operator: template
+        value: |
+          [[[ return states[variables.var_entity].attributes
+            && (states[variables.var_entity].attributes.brightness === variables.var_brightness) ]]]
+        styles:
+          name:
+            - color: yellow
+    tap_action:
+      action: call-service
+      service: light.turn_on
+      service_data:
+        brightness_pct: 100
+  battery_custom_button:
+    template: generic_custom_button
+    entity: sensor.derek_s_fire_10_battery_level
+    name: Tablet
+    tap_action:
+      action: none
+    variables:
+      var_color: |-
+        [[[ 
+          var battery_level=entity.state;
+          if (battery_level > 70) return 'lime';
+          else if (battery_level >= 30) return 'yellow';
+          else return 'red';
+        ]]]
+    custom_fields:
+      battery_percentage: |
+        [[[ return `${entity.state}%` ]]] 
+    styles:
+      icon:
+        - color: '[[[ return variables.var_color ]]]'
+        - animation: |
+            [[[ if (entity.state <= 10 ) return 'blink 2s ease infinite'; ]]]
+      custom_fields:
+        battery_percentage:
+          - align-self: right
+          - position: absolute
+          - right: 9%
+          - top: 3%
+          - font-size: 14px
+          - color: '[[[ return variables.var_color ]]]'
+  nodered_all_lights_to_rgb:
+    template: rgb_selector
+    tap_action:
+      action: call-service
+      service: nodered.trigger
+      service_data:
+        entity_id: switch.nodered_all_lights_to_rgb
+  nodered_all_lights_brightness:
+    template: generic_custom_button
+    name: 100%
+    show_icon: false
+    styles:
+      card:
+        - height: 75px
+      name:
+        - font-weight: bold
+        - font-size: 24px
+    tap_action:
+      action: call-service
+      service: nodered.trigger
+      service_data:
+        entity_id: switch.nodered_all_lights_to_rgb
   motion_detector_animated:
     entity: binary_sensor.bathroom_motion_detector_on_off
     name: Bathroom
@@ -105,6 +196,14 @@ button_card_templates:
             - color: white
           icon:
             - animation: blink 2s ease infinite
+      - color: rgb(28, 28, 28)
+        operator: '=='
+        value: unavailable
+        icon: mdi:walk
+        styles:
+          name:
+            - color: rgb(255, 255, 0)
+            - animation: blink 3s cubic-bezier(.2, 0, 1, 1) infinite
 views:
   - title: Living Room
     path: living-room
@@ -135,25 +234,20 @@ views:
                     cards:
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 10%
+                        name: 100%
                         tap_action:
                           service_data:
                             entity_id: light.living_room_lights
-                            brightness_pct: 10
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 25%
-                        tap_action:
-                          service_data:
-                            entity_id: light.living_room_lights
-                            brightness_pct: 25
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 50%
-                        tap_action:
-                          service_data:
-                            entity_id: light.living_room_lights
-                            brightness_pct: 50
+                            brightness_pct: 100
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.living_room_lights'].attributes
+                                && (states['light.living_room_lights'].attributes.brightness === 254) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
                         name: 75%
@@ -161,13 +255,63 @@ views:
                           service_data:
                             entity_id: light.living_room_lights
                             brightness_pct: 75
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.living_room_lights'].attributes
+                                && (states['light.living_room_lights'].attributes.brightness === 191) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 100%
+                        name: 50%
                         tap_action:
                           service_data:
                             entity_id: light.living_room_lights
-                            brightness_pct: 100
+                            brightness_pct: 50
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.living_room_lights'].attributes
+                                && (states['light.living_room_lights'].attributes.brightness === 128) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 25%
+                        tap_action:
+                          service_data:
+                            entity_id: light.living_room_lights
+                            brightness_pct: 25
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.living_room_lights'].attributes
+                                && (states['light.living_room_lights'].attributes.brightness === 64) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 10%
+                        tap_action:
+                          service_data:
+                            entity_id: light.living_room_lights
+                            brightness_pct: 10
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.living_room_lights'].attributes
+                                && (states['light.living_room_lights'].attributes.brightness === 26) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                     card_mod:
                       class: top-level-card
                   - type: vertical-stack
@@ -219,42 +363,50 @@ views:
                             entity_id: light.living_room_lights
                             color_temp: 288
                 state_color: true
+              - type: entities
+                entities:
+                  - entity: sensor.living_room_tradfri_power
+                  - entity: sensor.living_room_motion_detector_power
+                  - type: custom:template-entity-row
+                    icon: mdi:thermometer
+                    name: Temperature
+                    state: >-
+                      {{
+                      (states('sensor.living_room_motion_detector_temperature')
+                      | float * 1) | round(0) }} °F
+                  - entity: sensor.living_room_motion_detector_illuminance
+                show_header_toggle: false
+                state_color: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
             card_mod:
               class: top-level-card
           - type: grid
-            columns: 3
+            columns: 4
             square: false
             cards:
               - type: custom:button-card
                 template: generic_custom_button
-                entity: group.home_occupied
-                show_name: false
-                state:
-                  - color: rgb(255,0,0)
-                    operator: '=='
-                    value: away
-                    icon: mdi:home-outline
-                  - color: rgb(0,255,0)
-                    operator: '=='
-                    value: home
-                    icon: mdi:home
-              - type: custom:button-card
-                template: generic_custom_button
-                entity: input_boolean.automation_nighttime_motion_detectors
-                show_name: false
+                entity: input_boolean.guest_mode
+                show_name: true
                 state:
                   - color: rgb(255,0,0)
                     operator: '=='
                     value: 'off'
-                    icon: mdi:motion-sensor-off
+                    icon: mdi:home-outline
                   - color: rgb(0,255,0)
                     operator: '=='
                     value: 'on'
-                    icon: mdi:motion-sensor
+                    icon: mdi:home
               - type: custom:button-card
                 template: generic_custom_button
                 entity: input_boolean.automation_override
-                show_name: false
+                show_name: true
+                name: Automations
                 state:
                   - color: rgb(255,0,0)
                     operator: '=='
@@ -264,6 +416,20 @@ views:
                     operator: '=='
                     value: 'off'
                     icon: mdi:lightbulb-auto
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: input_boolean.automation_interior_motion_detectors
+                show_name: true
+                name: Motion Detectors
+                state:
+                  - color: rgb(255,0,0)
+                    operator: '=='
+                    value: 'off'
+                    icon: mdi:motion-sensor-off
+                  - color: rgb(0,255,0)
+                    operator: '=='
+                    value: 'on'
+                    icon: mdi:motion-sensor
               - type: custom:button-card
                 template: generic_custom_button
                 entity: light.kitchen
@@ -296,6 +462,185 @@ views:
                   service_data:
                     entity_id: media_player.43_tcl_roku_tv
         square: false
+  - theme: Derek Dark Theme
+    title: Kitchen
+    path: kitchen
+    type: panel
+    badges: []
+    cards:
+      - type: grid
+        columns: 2
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:layout-card
+                layout_type: grid
+                layout:
+                  grid-template-columns: 66% 17% 17%
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.kitchen_lights
+                    aspect_ratio: 2/2
+                    styles:
+                      card:
+                        - font-size: 30px
+                      icon:
+                        - width: 125%
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 100%
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            brightness_pct: 100
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.kitchen_lights'].attributes
+                                && (states['light.kitchen_lights'].attributes.brightness === 254) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 75%
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            brightness_pct: 75
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.kitchen_lights'].attributes
+                                && (states['light.kitchen_lights'].attributes.brightness === 191) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 50%
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            brightness_pct: 50
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.kitchen_lights'].attributes
+                                && (states['light.kitchen_lights'].attributes.brightness === 128) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 25%
+                        tap_action:
+                          service_data:
+                            entity_id: light.office_lights
+                            brightness_pct: 25
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.kitchen_lights'].attributes
+                                && (states['light.kitchen_lights'].attributes.brightness === 64) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 10%
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            brightness_pct: 10
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.kitchen_lights'].attributes
+                                && (states['light.kitchen_lights'].attributes.brightness === 26) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: rgb_selector
+                        styles:
+                          card:
+                            - background-color: rgba(255, 0, 0, 0.5)
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            color_name: red
+                      - type: custom:button-card
+                        template: rgb_selector
+                        styles:
+                          card:
+                            - background-color: rgba(0, 255, 0, 0.5)
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            color_name: green
+                      - type: custom:button-card
+                        template: rgb_selector
+                        square: true
+                        styles:
+                          card:
+                            - background-color: rgba(0, 0, 255, 0.5)
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            color_name: blue
+                      - type: custom:button-card
+                        template: rgb_selector
+                        styles:
+                          card:
+                            - background-color: rgba(255, 160, 0, 0.5)
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            kelvin: 2000
+                      - type: custom:button-card
+                        template: rgb_selector
+                        styles:
+                          card:
+                            - background-color: rgba(255, 255, 255, 0.5)
+                        tap_action:
+                          service_data:
+                            entity_id: light.kitchen_lights
+                            color_temp: 288
+              - type: entities
+                entities:
+                  - entity: sensor.kitchen_button_power
+                  - entity: sensor.kitchen_motion_detector_2_power
+                  - entity: sensor.kitchen_motion_detector_power
+                show_header_toggle: false
+                state_color: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.kitchen
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.stove
+        square: false
   - title: Bedroom
     path: bedroom
     type: panel
@@ -324,40 +669,80 @@ views:
                   - type: vertical-stack
                     cards:
                       - type: custom:button-card
-                        template: brightness_selector
-                        name: 10%
+                        template: brightness_selector2
+                        name: 100%
+                        state:
+                          - operator: template
+                            value: |
+                              [[[ return states['light.bedroom1'].attributes
+                                && (states['light.bedroom1'].attributes.brightness === 254) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                         tap_action:
                           service_data:
                             entity_id: light.bedroom_lights
-                            brightness_pct: 10
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 25%
-                        tap_action:
-                          service_data:
-                            entity_id: light.bedroom_lights
-                            brightness_pct: 25
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 50%
-                        tap_action:
-                          service_data:
-                            entity_id: light.bedroom_lights
-                            brightness_pct: 50
+                            brightness_pct: 100
                       - type: custom:button-card
                         template: brightness_selector
                         name: 75%
+                        state:
+                          - operator: template
+                            value: |
+                              [[[ return states['light.bedroom1'].attributes
+                                && (states['light.bedroom1'].attributes.brightness === 191) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                         tap_action:
                           service_data:
                             entity_id: light.bedroom_lights
                             brightness_pct: 75
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 100%
+                        name: 50%
+                        state:
+                          - operator: template
+                            value: |
+                              [[[ return states['light.bedroom1'].attributes
+                                && (states['light.bedroom1'].attributes.brightness === 128) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                         tap_action:
                           service_data:
                             entity_id: light.bedroom_lights
-                            brightness_pct: 100
+                            brightness_pct: 50
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 25%
+                        state:
+                          - operator: template
+                            value: |
+                              [[[ return states['light.bedroom1'].attributes
+                                && (states['light.bedroom1'].attributes.brightness === 64) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                        tap_action:
+                          service_data:
+                            entity_id: light.bedroom_lights
+                            brightness_pct: 25
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 10%
+                        state:
+                          - operator: template
+                            value: |
+                              [[[ return states['light.bedroom1'].attributes
+                                && (states['light.bedroom1'].attributes.brightness === 26) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                        tap_action:
+                          service_data:
+                            entity_id: light.bedroom_lights
+                            brightness_pct: 10
                   - type: vertical-stack
                     cards:
                       - type: custom:button-card
@@ -406,25 +791,69 @@ views:
                           service_data:
                             entity_id: light.bedroom_lights
                             color_temp: 288
-              - type: entities
-                entities:
-                  - entity: sensor.derek_s20_battery_level
-                  - entity: binary_sensor.derek_s20_is_charging
-                  - entity: sensor.derek_s20_next_alarm
-                  - entity: sensor.derek_s_fire_10_battery_level
-                  - entity: binary_sensor.derek_s_fire_10_is_charging
-                show_header_toggle: false
-                state_color: true
-                card_mod:
-                  style: |
-                    ha-card {
-                      border: solid 1px var(--primary-text-color);
-                      background-color: rgba(0, 0, 0, 0)
-                    }
+              - type: custom:layout-card
+                layout_type: grid
+                layout:
+                  grid-template-columns: 50% 50%
+                square: false
+                cards:
+                  - type: entities
+                    entities:
+                      - entity: sensor.derek_s20_battery_level
+                      - entity: binary_sensor.derek_s20_is_charging
+                      - entity: sensor.derek_s20_next_alarm
+                      - entity: sensor.derek_s_fire_10_battery_level
+                      - entity: binary_sensor.derek_s_fire_10_is_charging
+                    show_header_toggle: false
+                    state_color: true
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: solid 1px var(--primary-text-color);
+                          background-color: rgba(0, 0, 0, 0)
+                        }
           - type: vertical-stack
             cards:
+              - type: custom:layout-card
+                layout_type: grid
+                layout:
+                  grid-template-columns: 10% 50% 40%
+                square: false
+                cards:
+                  - type: custom:button-card
+                    tap_action:
+                      action: none
+                    hold_action: none
+                    styles:
+                      card:
+                        - font-size: 75px
+                        - height: 100%
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    show_state: true
+                    show_icon: false
+                    show_name: false
+                    tap_action: none
+                    hold_action: none
+                    entity: sensor.dashboard_date
+                    styles:
+                      card:
+                        - font-size: 70px
+                        - height: 100%
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    show_state: true
+                    show_icon: false
+                    show_name: false
+                    tap_action: none
+                    hold_action: none
+                    entity: sensor.time
+                    styles:
+                      card:
+                        - font-size: 75px
+                        - height: 100%
               - type: grid
-                columns: 3
+                columns: 4
                 square: false
                 cards:
                   - type: custom:button-card
@@ -452,8 +881,34 @@ views:
                     entity: light.office_lights
                     name: Office
                     icon: mdi:google-classroom
+                  - type: custom:button-card
+                    tap_action:
+                      action: none
+                    hold_action: none
+                    styles:
+                      card:
+                        - font-size: 75px
+                        - height: 100%
+                  - type: custom:button-card
+                    tap_action:
+                      action: none
+                    hold_action: none
+                    styles:
+                      card:
+                        - font-size: 75px
+                        - height: 100%
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.all_lights
+                    name: All Lights
+                    icon: mdi:lightbulb-group-outline
+                    state:
+                      - value: 'on'
+                        name: All Lights Off
+                      - value: 'off'
+                        name: All Lights On
               - type: grid
-                columns: 2
+                columns: 3
                 square: false
                 cards:
                   - type: custom:button-card
@@ -472,6 +927,10 @@ views:
                     color_type: card
                     color: black
                   - type: custom:button-card
+                    tap_action:
+                      action: none
+                    hold_action: none
+                  - type: custom:button-card
                     template: generic_custom_button
                     tap_action:
                       action: call-service
@@ -486,11 +945,28 @@ views:
                     name: Good Night
                     color_type: card
                     color: black
+              - type: grid
+                columns: 5
+                square: false
+                cards:
+                  - type: custom:button-card
+                    template: battery_custom_button
+                    entity: sensor.derek_s20_battery_level
+                    name: Phone
+                  - type: custom:button-card
+                    template: battery_custom_button
+                    entity: sensor.derek_s_fire_10_battery_level
+                    name: Tablet
+                  - type: custom:button-card
+                    template: battery_custom_button
+                    entity: sensor.quest_battery_level
+                    name: Quest
         square: false
-  - title: Office
+  - theme: Derek Dark Theme
     panel: true
     path: bedroom-room
-    theme: Derek Dark Theme
+    type: panel
+    icon: mdi:desktop-classic
     badges: []
     cards:
       - type: grid
@@ -516,25 +992,20 @@ views:
                     cards:
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 10%
+                        name: 100%
                         tap_action:
                           service_data:
                             entity_id: light.office_lights
-                            brightness_pct: 10
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 25%
-                        tap_action:
-                          service_data:
-                            entity_id: light.office_lights
-                            brightness_pct: 25
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 50%
-                        tap_action:
-                          service_data:
-                            entity_id: light.office_lights
-                            brightness_pct: 50
+                            brightness_pct: 100
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.office_lights'].attributes
+                                && (states['light.office_lights'].attributes.brightness === 254) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
                         name: 75%
@@ -542,13 +1013,63 @@ views:
                           service_data:
                             entity_id: light.office_lights
                             brightness_pct: 75
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.office_lights'].attributes
+                                && (states['light.office_lights'].attributes.brightness === 191) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 100%
+                        name: 50%
                         tap_action:
                           service_data:
                             entity_id: light.office_lights
-                            brightness_pct: 100
+                            brightness_pct: 50
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.office_lights'].attributes
+                                && (states['light.office_lights'].attributes.brightness === 128) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 25%
+                        tap_action:
+                          service_data:
+                            entity_id: light.office_lights
+                            brightness_pct: 25
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.office_lights'].attributes
+                                && (states['light.office_lights'].attributes.brightness === 64) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 10%
+                        tap_action:
+                          service_data:
+                            entity_id: light.office_lights
+                            brightness_pct: 10
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.office_lights'].attributes
+                                && (states['light.office_lights'].attributes.brightness === 26) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                   - type: vertical-stack
                     cards:
                       - type: custom:button-card
@@ -597,6 +1118,21 @@ views:
                           service_data:
                             entity_id: light.office_lights
                             color_temp: 288
+              - type: entities
+                entities:
+                  - entity: sensor.derek_s20_battery_level
+                  - entity: binary_sensor.derek_s20_is_charging
+                  - entity: sensor.derek_s20_next_alarm
+                  - entity: sensor.derek_s_fire_10_battery_level
+                  - entity: binary_sensor.derek_s_fire_10_is_charging
+                show_header_toggle: false
+                state_color: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
           - type: grid
             columns: 4
             square: false
@@ -610,11 +1146,14 @@ views:
               - type: custom:button-card
                 template: generic_custom_button
                 entity: light.desk
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.hallway
         square: false
-  - title: Bathroom
-    panel: true
+  - theme: Derek Dark Theme
     path: bathroom
-    theme: Derek Dark Theme
+    type: panel
+    icon: mdi:bathtub-outline
     badges: []
     cards:
       - type: grid
@@ -640,25 +1179,20 @@ views:
                     cards:
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 10%
+                        name: 100%
                         tap_action:
                           service_data:
                             entity_id: light.bathroom_lights
-                            brightness_pct: 10
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 25%
-                        tap_action:
-                          service_data:
-                            entity_id: light.bathroom_lights
-                            brightness_pct: 25
-                      - type: custom:button-card
-                        template: brightness_selector
-                        name: 50%
-                        tap_action:
-                          service_data:
-                            entity_id: light.bathroom_lights
-                            brightness_pct: 50
+                            brightness_pct: 100
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.bathroom_lights'].attributes
+                                && (states['light.bathroom_lights'].attributes.brightness === 254) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
                         name: 75%
@@ -666,13 +1200,63 @@ views:
                           service_data:
                             entity_id: light.bathroom_lights
                             brightness_pct: 75
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.bathroom_lights'].attributes
+                                && (states['light.bathroom_lights'].attributes.brightness === 191) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                       - type: custom:button-card
                         template: brightness_selector
-                        name: 100%
+                        name: 50%
                         tap_action:
                           service_data:
                             entity_id: light.bathroom_lights
-                            brightness_pct: 100
+                            brightness_pct: 50
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.bathroom_lights'].attributes
+                                && (states['light.bathroom_lights'].attributes.brightness === 128) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 25%
+                        tap_action:
+                          service_data:
+                            entity_id: light.bathroom_lights
+                            brightness_pct: 25
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.bathroom_lights'].attributes
+                                && (states['light.bathroom_lights'].attributes.brightness === 64) ]]]
+                            styles:
+                              name:
+                                - color: yellow
+                      - type: custom:button-card
+                        template: brightness_selector
+                        name: 10%
+                        tap_action:
+                          service_data:
+                            entity_id: light.bathroom_lights
+                            brightness_pct: 10
+                        state:
+                          - operator: template
+                            value: >
+                              [[[ return
+                              states['light.bathroom_lights'].attributes
+                                && (states['light.bathroom_lights'].attributes.brightness === 26) ]]]
+                            styles:
+                              name:
+                                - color: yellow
                   - type: vertical-stack
                     cards:
                       - type: custom:button-card
@@ -721,75 +1305,651 @@ views:
                           service_data:
                             entity_id: light.bathroom_lights
                             color_temp: 288
+              - type: entities
+                entities:
+                  - entity: sensor.bathroom_tradfri_power
+                  - entity: sensor.bathroom_door_power
+                  - entity: sensor.bathroom_motion_detector_power
+                  - type: custom:template-entity-row
+                    icon: mdi:thermometer
+                    name: Temperature
+                    state: >-
+                      {{ (states('sensor.bathroom_motion_detector_temperature')
+                      | float * 1) | round(0) }} °F
+                  - entity: sensor.bathroom_motion_detector_illuminance
+                show_header_toggle: false
                 state_color: true
-              - type: custom:mini-media-player
-                entity: media_player.bathroom
-                name: Bathroom Echo
-                artwork: material
-                icon: mdi:television-clean
-                volume_stateless: true
-                hide:
-                  volume: false
-                  source: false
-                  power_state: false
-                idle_view: '[object Object]'
-                scale: 1.1
-                state_color: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
           - type: vertical-stack
             cards:
               - type: grid
-                columns: 3
+                columns: 4
                 square: false
                 cards:
                   - type: custom:button-card
                     template: generic_custom_button
-                    entity: input_boolean.automation_override
-                    show_name: false
-                    state:
-                      - color: rgb(255,0,0)
-                        operator: '=='
-                        value: 'on'
-                        icon: mdi:lightbulb-auto-outline
-                      - color: rgb(0,255,0)
-                        operator: '=='
-                        value: 'off'
-                        icon: mdi:lightbulb-auto
+                    entity: light.bathroom1
                   - type: custom:button-card
                     template: generic_custom_button
-                    entity: input_boolean.automatically_turn_off_bathroom_lights
-                    name: Auto off
-                    show_name: true
-                    state:
-                      - color: rgb(255,0,0)
-                        operator: '=='
-                        value: 'off'
-                        icon: mdi:lightbulb-auto-outline
-                      - color: rgb(0,255,0)
-                        operator: '=='
-                        value: 'on'
-                        icon: mdi:lightbulb-auto
+                    entity: light.bathroom2
                   - type: custom:button-card
                     template: generic_custom_button
-                    entity: light.hallway
-              - type: vertical-stack
+                    entity: light.bathroom3
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.bathroom4
+              - type: custom:layout-card
+                layout_type: grid
+                square: true
+                layout:
+                  grid-template-columns: 50%
+                cards:
+                  - type: custom:mini-media-player
+                    entity: media_player.bathroom
+                    icon: mdi:music-box-outline
+                    artwork: card
+                    mini-media-player-scale: 2
+                    hide:
+                      power: true
+                      source: true
+                      controls: false
+                      volume: false
+                      progress: true
+  - theme: Derek Dark Theme
+    title: All Lights
+    path: default
+    type: panel
+    icon: mdi:lightbulb-group
+    badges: []
+    cards:
+      - type: grid
+        columns: 2
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:layout-card
+                layout_type: grid
+                layout:
+                  grid-template-columns: 60% 30% 17%
                 cards:
                   - type: entities
                     entities:
-                      - entity: sensor.bathroom_tradfri_power
-                        name: Tradfri power
-                        secondary_info: last-updated
-                      - entity: sensor.bathroom_motion_sensor_power
-                        name: Motion detector power
-                        secondary_info: last-updated
-                      - entity: binary_sensor.bathroom_motion_detector_on_off
-                        name: Motion detector status
-                        secondary_info: last-updated
-                    show_header_toggle: false
-                    state_color: true
-        square: false
+                      - entity: light.living_room1
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.living_room2
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.kitchen
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.stove
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.hallway
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.bathroom_lights
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.bedroom1
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.bedroom2
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.nightstand
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                      - entity: light.computer_room_light
+                        toggle: true
+                        type: custom:light-brightness-preset-row
+                        reverseButtons: true
+                        customSetpoints: true
+                        lowBrightness: 30
+                        medBrightness: 100
+                        hiBrightness: 225
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:layout-card
+                        layout_type: grid
+                        layout:
+                          grid-template-columns: 66% 17%
+                        cards:
+                          - type: vertical-stack
+                            cards:
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 100%
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      brightness_pct: 100
+                                state:
+                                  - operator: template
+                                    value: >
+                                      [[[ return
+                                      states['light.all_lights'].attributes
+                                        && (states['light.all_lights'].attributes.brightness === 254) ]]]
+                                    styles:
+                                      name:
+                                        - color: yellow
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 75%
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      brightness_pct: 75
+                                state:
+                                  - operator: template
+                                    value: >
+                                      [[[ return
+                                      states['light.all_lights'].attributes
+                                        && (states['light.all_lights'].attributes.brightness === 191) ]]]
+                                    styles:
+                                      name:
+                                        - color: yellow
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 50%
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      brightness_pct: 50
+                                state:
+                                  - operator: template
+                                    value: >
+                                      [[[ return
+                                      states['light.all_lights'].attributes
+                                        && (states['light.all_lights'].attributes.brightness === 128) ]]]
+                                    styles:
+                                      name:
+                                        - color: yellow
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 25%
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      brightness_pct: 25
+                                state:
+                                  - operator: template
+                                    value: >
+                                      [[[ return
+                                      states['light.all_lights'].attributes
+                                        && (states['light.all_lights'].attributes.brightness === 64) ]]]
+                                    styles:
+                                      name:
+                                        - color: yellow
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 10%
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      brightness_pct: 10
+                                state:
+                                  - operator: template
+                                    value: >
+                                      [[[ return
+                                      states['light.all_lights'].attributes
+                                        && (states['light.all_lights'].attributes.brightness === 26) ]]]
+                                    styles:
+                                      name:
+                                        - color: yellow
+                              - type: custom:button-card
+                                template: nodered_all_lights_brightness
+                                name: 'OFF'
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      service: turn_off
+                            card_mod:
+                              class: top-level-card
+                          - type: vertical-stack
+                            cards:
+                              - type: custom:button-card
+                                template: nodered_all_lights_to_rgb
+                                styles:
+                                  card:
+                                    - background-color: rgba(255, 0, 0, 0.5)
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      color_name: red
+                              - type: custom:button-card
+                                template: nodered_all_lights_to_rgb
+                                styles:
+                                  card:
+                                    - background-color: rgba(0, 255, 0, 0.5)
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      color_name: green
+                              - type: custom:button-card
+                                template: nodered_all_lights_to_rgb
+                                styles:
+                                  card:
+                                    - background-color: rgba(0, 0, 255, 0.5)
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      color_name: blue
+                              - type: custom:button-card
+                                template: nodered_all_lights_to_rgb
+                                styles:
+                                  card:
+                                    - background-color: rgba(255, 160, 0, 0.5)
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      kelvin: 2000
+                              - type: custom:button-card
+                                template: nodered_all_lights_to_rgb
+                                styles:
+                                  card:
+                                    - background-color: rgba(255, 255, 255, 0.5)
+                                tap_action:
+                                  service_data:
+                                    payload:
+                                      color_temp: 288
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.living_room_lights
+                name: Living Room
+                icon: mdi:television-classic
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.kitchen_lights
+                name: Kitchen
+                icon: mdi:countertop-outline
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.hallway
+                name: Hall
+                icon: mdi:wall-sconce-outline
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.bathroom_lights
+                name: Bathroom
+                icon: mdi:shower
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.office_lights
+                name: Office
+                icon: mdi:google-classroom
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: light.bedroom_lights
+                name: Bedroom
+                icon: mdi:bed-empty
+  - title: Automations
+    path: automations
+    type: panel
+    theme: Derek Dark Theme
+    icon: mdi:robot-outline
+    badges: []
+    cards:
+      - type: grid
+        columns: 1
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: grid
+                title: Automations
+                columns: 2
+                square: false
+                cards:
+                  - type: custom:auto-entities
+                    card:
+                      type: entities
+                      show_header_toggle: false
+                      state_color: true
+                      card_mod:
+                        style: |
+                          ha-card {
+                            border: solid 1px var(--primary-text-color);
+                            background-color: rgba(0, 0, 0, 0)
+                          }
+                    filter:
+                      include:
+                        - entity_id: input_boolean.automation*
+                          domain: input_boolean
+                      exclude: []
+                    sort:
+                      method: friendly_name
+                      reverse: false
+                  - type: custom:auto-entities
+                    card:
+                      type: entities
+                      show_header_toggle: false
+                      state_color: true
+                      card_mod:
+                        style: |
+                          ha-card {
+                            border: solid 1px var(--primary-text-color);
+                            background-color: rgba(0, 0, 0, 0)
+                          }
+                    filter:
+                      include:
+                        - entity_id: input_select.*
+                          domain: input_select
+                      exclude: []
+                    sort:
+                      method: friendly_name
+                      reverse: false
+                  - type: custom:auto-entities
+                    card:
+                      type: entities
+                      show_header_toggle: false
+                      state_color: true
+                      card_mod:
+                        style: |
+                          ha-card {
+                            border: solid 1px var(--primary-text-color);
+                            background-color: rgba(0, 0, 0, 0)
+                          }
+                    filter:
+                      include:
+                        - entity_id: input_datetime.*
+                          domain: input_datetime
+                      exclude: []
+                    sort:
+                      method: friendly_name
+                      reverse: false
+  - theme: Derek Dark Theme
+    title: Sensors
+    path: sensors
+    type: panel
+    icon: mdi:battery-unknown
+    badges: []
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: grid
+                layout:
+                  grid-template-columns: 25% 25% 25% 25%
+                title: Motion Detectors
+                columns: 4
+                square: false
+                cards:
+                  - type: custom:button-card
+                    template: motion_detector_animated
+                    entity: binary_sensor.living_room_motion_detector_on_off
+                    name: Living Room
+                  - type: custom:button-card
+                    template: motion_detector_animated
+                    entity: binary_sensor.kitchen_motion_detector_2_on_off
+                    name: Kitchen 2
+                  - type: custom:button-card
+                    template: motion_detector_animated
+                    entity: binary_sensor.computer_room_motion_detector_on_off
+                    name: Computer Room
+                  - type: custom:button-card
+                    template: motion_detector_animated
+                    entity: binary_sensor.bathroom_motion_detector_occupancy
+                    name: Bathroom
+              - type: grid
+                layout:
+                  grid-template-columns: 25% 25% 25% 25%
+                title: Temperatures
+                columns: 4
+                square: false
+                cards:
+                  - type: custom:bignumber-card
+                    entity: sensor.living_room_motion_detector_temperature
+                    title: Indoor
+                    from: bottom
+                    scale: 30px
+                    hideunit: true
+                    round: 0
+                    min: 35
+                    max: 100
+                    severity:
+                      - value: 65
+                        bnStyle: rgb(0,255,0)
+                      - value: 68
+                        bnStyle: rgb(255,255,0)
+                      - value: 76
+                        bnStyle: rgb(0,255,0)
+                      - value: 100
+                        bnStyle: rgb(255,0,0)
+                        color: '#FFFFFF'
+                  - type: custom:bignumber-card
+                    entity: sensor.openweathermap_forecast_temperature
+                    title: Outdoor
+                    from: bottom
+                    scale: 30px
+                    hideunit: true
+                    round: 0
+                    min: 10
+                    max: 100
+                    severity:
+                      - value: 50
+                        bnStyle: rgb(0,0,255)
+                      - value: 75
+                        bnStyle: rgb(0,255,0)
+                      - value: 85
+                        bnStyle: rgb(255,255,0)
+                      - value: 100
+                        bnStyle: rgb(255,0,0)
+                    color: FFFFFF
+                  - type: custom:bignumber-card
+                    entity: sensor.openweathermap_feels_like_temperature
+                    title: Feels Like
+                    from: bottom
+                    scale: 30px
+                    hideunit: true
+                    round: 0
+                    min: 10
+                    max: 100
+                    severity:
+                      - value: 50
+                        bnStyle: rgb(0,0,255)
+                      - value: 75
+                        bnStyle: rgb(0,255,0)
+                      - value: 85
+                        bnStyle: rgb(255,255,0)
+                      - value: 100
+                        bnStyle: rgb(255,0,0)
+                        color: '#FFFFFF'
+              - type: grid
+                layout:
+                  grid-template-columns: 50% 50%
+                title: Graphs
+                columns: 2
+                square: false
+                cards:
+                  - type: custom:mini-graph-card
+                    entities:
+                      - sensor.openweathermap_forecast_temperature
+                    name: Outside
+                    hours_to_show: 24
+                    points_per_hour: 0.25
+                    decimals: 0
+                    hour24: true
+                    line_width: 10
+                    font_size: 75
+                    color_thresholds:
+                      - value: 85
+                        color: red
+                      - value: 60
+                        color: yellow
+                      - value: 40
+                        color: blue
+                    show:
+                      fill: true
+                      icon: false
+                      name: true
+                      labels: true
+                  - type: custom:mini-graph-card
+                    entities:
+                      - sensor.living_room_door_temperature
+                    name: Inside
+                    hours_to_show: 24
+                    points_per_hour: 0.25
+                    decimals: 0
+                    hour24: true
+                    line_width: 10
+                    font_size: 75
+                    color_thresholds:
+                      - value: 85
+                        color: red
+                      - value: 60
+                        color: yellow
+                      - value: 40
+                        color: blue
+                    show:
+                      fill: true
+                      icon: false
+                      name: true
+                      labels: true
+          - type: custom:battery-state-card
+            title: Battery Levels under 50%
+            secondary_info: last_updated
+            sort_by_level: asc
+            tap_action: more-info
+            state_map:
+              - from: 'on'
+                to: 0
+              - from: 'off'
+                to: 100
+            filter:
+              include:
+                - name: entity_id
+                  value: sensor.*_power*
+                - name: entity_id
+                  value: sensor.*_battery_level*
+              exclude:
+                - name: state
+                  operator: '>='
+                  value: 50
+                - name: entity_id
+                  value: '*shellyplug*'
+          - type: grid
+            columns: 1
+            square: false
+            cards:
+              - type: custom:home-feed-card
+                title: Home Feed
+                show_empty: false
+                scrollbars_enabled: false
+                max_item_count: 6
+                entities:
+                  - entity: light.bedroom1
+                    icon: mdi:lightbulb
+                    name: Bedroom 1
+                  - entity: light.bedroom2
+                    icon: mdi:lightbulb
+                    name: Bedroom 2
+  - title: Weather
+    path: weather
+    theme: Derek Dark Theme
+    icon: mdi:weather-partly-cloudy
+    type: panel
+    badges: []
+    cards:
+      - type: grid
+        columns: 2
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:simple-clock-card
+                use_military: true
+                hide_seconds: true
+                font_size: 4rem
+                padding_size: 32px
+              - type: weather-forecast
+                entity: weather.home
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
+              - type: custom:weather-card
+                entity: weather.openweathermap
+                current: true
+                details: false
+                forecast: true
+                daily: true
+                card_mod:
+                  style: |
+                    ha-card {
+                      border: solid 1px var(--primary-text-color);
+                      background-color: rgba(0, 0, 0, 0)
+                    }
+          - type: vertical-stack
+            cards:
+              - type: picture
+                image: >-
+                  https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/usday/animate.png
+                tap_action:
+                  action: none
+                hold_action:
+                  action: none
   - title: Network
     path: network
     theme: Derek Dark Theme
+    icon: mdi:lan
     badges: []
     cards:
       - type: grid
@@ -886,389 +2046,11 @@ views:
                     style="width: 12px; height: 12px; color: deepskyblue;">
                     </ha-icon><span>SD: <span style="color: var(--text-color-sensor);">${states['sensor.derek_s_fire_10_external_storage'].state}%</span></span>`
                 ]]]
-  - title: All Lights
-    path: default
-    theme: Derek Dark Theme
-    badges: []
-    cards:
-      - type: entities
-        entities:
-          - type: custom:slider-entity-row
-            entity: light.all_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.bathroom_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.bedroom_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.hallway
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.kitchen_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.living_room_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-          - type: custom:slider-entity-row
-            entity: light.office_lights
-            toggle: true
-            hide_when_off: true
-            haptic: light
-            min: 5
-            step: 20
-        state_color: true
-      - type: horizontal-stack
-        cards:
-          - type: entities
-            entities:
-              - entity: light.living_room1
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.living_room2
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.kitchen
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.stove
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.hallway
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bathroom_lights
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bedroom1
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bedroom2
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.nightstand
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.dresser
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.desk
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-  - title: Sensors
-    path: sensors
-    theme: Derek Dark Theme
-    type: panel
-    badges: []
-    cards:
-      - type: grid
-        columns: 3
-        cards:
-          - type: vertical-stack
-            cards:
-              - type: grid
-                title: Motion Detectors
-                columns: 4
-                square: false
-                cards:
-                  - type: custom:button-card
-                    template: motion_detector_animated
-                    entity: binary_sensor.bathroom_motion_detector_on_off
-                    name: Bathroom
-                  - type: custom:button-card
-                    template: motion_detector_animated
-                    entity: binary_sensor.kitchen_motion_detector_on_off
-                    name: Kitchen
-                  - type: custom:button-card
-                    template: motion_detector_animated
-                    entity: binary_sensor.living_room_motion_detector_on_off
-                    name: Living Room
-                  - type: custom:button-card
-                    template: motion_detector_animated
-                    entity: binary_sensor.hue_motion_detector_occupancy
-                    name: Hue
-              - type: grid
-                title: Temperatures
-                columns: 4
-                square: false
-                cards:
-                  - type: custom:bignumber-card
-                    entity: sensor.hue_motion_detector_temperature
-                    title: Indoor
-                    from: bottom
-                    scale: 30px
-                    hideunit: true
-                    round: 0
-                    min: 35
-                    max: 100
-                    severity:
-                      - value: 65
-                        bnStyle: rgb(0,255,0)
-                      - value: 68
-                        bnStyle: rgb(255,255,0)
-                      - value: 76
-                        bnStyle: rgb(0,255,0)
-                      - value: 100
-                        bnStyle: rgb(255,0,0)
-                        color: '#FFFFFF'
-                  - type: custom:bignumber-card
-                    entity: sensor.openweathermap_forecast_temperature
-                    title: Outdoor
-                    from: bottom
-                    scale: 30px
-                    hideunit: true
-                    round: 0
-                    min: 10
-                    max: 100
-                    severity:
-                      - value: 50
-                        bnStyle: rgb(0,0,255)
-                      - value: 75
-                        bnStyle: rgb(0,255,0)
-                      - value: 85
-                        bnStyle: rgb(255,255,0)
-                      - value: 100
-                        bnStyle: rgb(255,0,0)
-                        color: '#FFFFFF'
-                  - type: custom:bignumber-card
-                    entity: sensor.openweathermap_feels_like_temperature
-                    title: Feels Like
-                    from: bottom
-                    scale: 30px
-                    hideunit: true
-                    round: 0
-                    min: 10
-                    max: 100
-                    severity:
-                      - value: 50
-                        bnStyle: rgb(0,0,255)
-                      - value: 75
-                        bnStyle: rgb(0,255,0)
-                      - value: 85
-                        bnStyle: rgb(255,255,0)
-                      - value: 100
-                        bnStyle: rgb(255,0,0)
-                        color: '#FFFFFF'
-          - type: custom:battery-state-card
-            title: Battery Levels under 50%
-            secondary_info: last_updated
-            sort_by_level: asc
-            tap_action: more-info
-            state_map:
-              - from: 'on'
-                to: 0
-              - from: 'off'
-                to: 100
-            filter:
-              include:
-                - name: entity_id
-                  value: sensor.*_power*
-                - name: entity_id
-                  value: sensor.*_battery_level*
-              exclude:
-                - name: state
-                  operator: '>='
-                  value: 50
-                - name: entity_id
-                  value: '*shellyplug*'
-          - type: grid
-            columns: 1
-            square: false
-            cards:
-              - type: custom:home-feed-card
-                title: Home Feed
-                show_empty: false
-                scrollbars_enabled: false
-                max_item_count: 6
-                entities:
-                  - entity: light.bedroom1
-                    icon: mdi:lightbulb
-                    name: Bedroom 1
-                  - entity: light.bedroom2
-                    icon: mdi:lightbulb
-                    name: Bedroom 2
   - title: Test bed
     theme: Derek Dark Theme
+    icon: mdi:test-tube
     badges: []
     cards:
-      - type: horizontal-stack
-        cards:
-          - type: entities
-            entities:
-              - entity: light.living_room1
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.living_room2
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.kitchen
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.stove
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.hallway
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bathroom_lights
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bedroom1
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.bedroom2
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.nightstand
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.dresser
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-              - entity: light.desk
-                toggle: true
-                type: custom:light-brightness-preset-row
-                reverseButtons: true
-                customSetpoints: true
-                lowBrightness: 30
-                medBrightness: 100
-                hiBrightness: 225
-            card_mod:
-              style: |
-                ha-card {
-                  border: solid 1px var(--primary-text-color);
-                  background-color: rgba(0, 0, 0, 0)
-                }
       - type: horizontal-stack
         title: bedroom1
         card_mod:
@@ -1334,8 +2116,10 @@ views:
               }
         filter:
           include:
-            - entity_id: '*motion_detector_on_off'
+            - entity_id: '*motion_detector_o*'
           exclude: []
+        sort:
+          method: none
       - type: custom:button-card
         template: generic_custom_button
         show_header_toggle: false
@@ -1369,41 +2153,79 @@ views:
               border: solid 1px var(--primary-text-color);
               background-color: rgba(0, 0, 0, 0)
             }
-  - title: Automations
-    path: automations
-    type: panel
+      - type: custom:button-card
+        template: generic_custom_button
+        show_state: true
+        show_icon: false
+        show_name: false
+        entity: sensor.time
+        styles:
+          card:
+            - font-size: 75px
+  - title: Old
+    path: old
+    icon: mdi:file-cabinet
     theme: Derek Dark Theme
-    icon: mdi:robot-outline
+    visible:
+      - user: 533e51fcaca94bfbbc41b474e0b127af
+      - user: 9cc90fc411104e49b7bf982112f41ed0
+      - user: 97554fcc559e468d93ae3ebfd3542dbf
     badges: []
     cards:
-      - type: grid
-        columns: 1
-        cards:
-          - type: vertical-stack
-            cards:
-              - type: grid
-                title: Automations
-                columns: 2
-                square: false
-                cards:
-                  - type: custom:auto-entities
-                    card:
-                      type: entities
-                      show_header_toggle: false
-                      state_color: true
-                    filter:
-                      include:
-                        - entity_id: input_boolean.automation*
-                          domain: input_boolean
-                      exclude: []
-                    sort:
-                      method: friendly_name
-                      reverse: false
-  - title: Weather
-    path: weather
-    theme: Derek Dark Theme
-    icon: mdi:weather-partly-cloudy
-    type: panel
+      - type: entities
+        entities:
+          - type: custom:slider-entity-row
+            entity: light.all_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.bathroom_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.bedroom_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.hallway
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.kitchen_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.living_room_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+          - type: custom:slider-entity-row
+            entity: light.office_lights
+            toggle: true
+            hide_when_off: true
+            haptic: light
+            min: 5
+            step: 20
+        state_color: true
+  - title: temp
+    path: temp
     badges: []
     cards:
       - type: grid
@@ -1411,37 +2233,332 @@ views:
         cards:
           - type: vertical-stack
             cards:
-              - type: custom:simple-clock-card
-                use_military: true
-                hide_seconds: true
-                font_size: 4rem
-                padding_size: 32px
-              - type: weather-forecast
-                entity: weather.home
-                card_mod:
-                  style: |
-                    ha-card {
-                      border: solid 1px var(--primary-text-color);
-                      background-color: rgba(0, 0, 0, 0)
-                    }
-              - type: custom:weather-card
-                entity: weather.openweathermap
-                current: true
-                details: false
-                forecast: true
-                daily: true
-                card_mod:
-                  style: |
-                    ha-card {
-                      border: solid 1px var(--primary-text-color);
-                      background-color: rgba(0, 0, 0, 0)
-                    }
+              - type: custom:button-card
+                template: brightness_selector
+                name: 100%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 100
+              - type: custom:button-card
+                template: brightness_selector
+                name: 80%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 80
+              - type: custom:button-card
+                template: brightness_selector
+                name: 60%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 60
+              - type: custom:button-card
+                template: brightness_selector
+                name: 40%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 40
+              - type: custom:button-card
+                template: brightness_selector
+                name: 20%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 20
+              - type: custom:button-card
+                template: brightness_selector
+                name: 10%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.livingroom
+                    brightness_pct: 10
+              - type: custom:button-card
+                template: brightness_selector
+                name: 5%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.l
+                    brightness_pct: 5
           - type: vertical-stack
             cards:
-              - type: picture
-                image: >-
-                  https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/usday/animate.png
+              - type: custom:button-card
+                template: brightness_selector
+                name: 100%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
                 tap_action:
-                  action: none
-                hold_action:
-                  action: none
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 100
+              - type: custom:button-card
+                template: brightness_selector
+                name: 80%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 80
+              - type: custom:button-card
+                template: brightness_selector
+                name: 60%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 60
+              - type: custom:button-card
+                template: brightness_selector
+                name: 40%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 40
+              - type: custom:button-card
+                template: brightness_selector
+                name: 20%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 20
+              - type: custom:button-card
+                template: brightness_selector
+                name: 10%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 10
+              - type: custom:button-card
+                template: brightness_selector
+                name: 5%
+                styles: null
+                card:
+                  - font-size: 10px
+                icon:
+                  - width: 80%
+                tap_action:
+                  service_data:
+                    entity_id: group.kitchen
+                    brightness_pct: 5
+      - type: entities
+        entities:
+          - entity: binary_sensor.time_of_day
+          - entity: input_datetime.time_test
+      - type: grid
+        cards:
+          - type: custom:button-card
+            template: generic_custom_button
+            entity: sensor.derek_s20_battery_level
+            name: S20
+            styles:
+              icon:
+                - animation: |
+                    [[[
+                      if (states['binary_sensor.derek_s20_is_charging'].state === 'on') return 'blink 2s ease infinite';
+                    ]]]
+                - color: |
+                    [[[
+                      if (states['binary_sensor.derek_s20_is_charging'].state === 'on')
+                        return 'red';
+                    ]]] 
+          - type: custom:button-card
+            template: generic_custom_button
+            entity: sensor.derek_s20_battery_level
+            name: S20
+            variables:
+              var_color: |-
+                [[[ 
+                  var blevel=entity.state;
+                  if (blevel > 70) return 'lime';
+                  else if (blevel >= 30) return 'yellow';
+                  else return 'red';
+                ]]]
+            custom_fields:
+              battery_percentage: |
+                [[[
+                  return `${entity.state}%`
+                ]]] 
+            styles:
+              icon:
+                - color: '[[[ return variables.var_color ]]]'
+              custom_fields:
+                battery_percentage:
+                  - align-self: right
+                  - position: absolute
+                  - right: 9%
+                  - top: 3%
+                  - font-size: 14px
+                  - color: '[[[ return variables.var_color ]]]'
+          - type: custom:button-card
+            custom_fields:
+              battery: |
+                [[[
+                  var i = states['sensor.derek_s20_battery_level'].attributes.icon;
+                  var b = states['sensor.derek_s20_battery_level'].state;
+                  return `${b}%`
+                ]]] 
+            entity: sensor.derek_s20_battery_level
+            name: S20
+            triggers_update: all
+            styles:
+              name:
+                - font-size: 16px
+              label:
+                - font-size: 8px
+              custom_fields:
+                battery:
+                  - align-self: right
+                  - position: absolute
+                  - right: 2%
+                  - top: 2%
+                  - font-size: 12px
+                  - color: >-
+                      [[[ if (states["sensor.derek_s20_battery_level"].state <
+                      30) return "#e45649"; if
+                      (states["sensor.derek_s20_battery_level"].state < 50)
+                      return "#ffa229"; if
+                      (states["sensor.derek_s20_battery_level"].state < 101)
+                      return "#50A14F"; else return "#ffc640"]]]
+  - theme: Backend-selected
+    title: Kiosk Settings
+    path: kiosk-settings
+    icon: mdi:tablet-dashboard
+    type: panel
+    badges: []
+    cards:
+      - type: grid
+        columns: 2
+        cards:
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: input_boolean.fire_main_hide_sidebar
+                name: Hide Sidebar
+                show_name: true
+                state:
+                  - color: rgb(255,0,0)
+                    operator: '=='
+                    value: 'off'
+                    icon: mdi:home-outline
+                  - color: rgb(0,255,0)
+                    operator: '=='
+                    value: 'on'
+                    icon: mdi:home
+              - type: custom:button-card
+                template: generic_custom_button
+                entity: input_boolean.fire_main_hide_header
+                name: Hide Header
+                show_name: true
+                state:
+                  - color: rgb(255,0,0)
+                    operator: '=='
+                    value: 'on'
+                    icon: mdi:lightbulb-auto-outline
+                  - color: rgb(0,255,0)
+                    operator: '=='
+                    value: 'off'
+                    icon: mdi:lightbulb-auto
+        square: false
+  - theme: Backend-selected
+    icon: mdi:video-vintage
+    type: panel
+    visible:
+      - user: 533e51fcaca94bfbbc41b474e0b127af
+      - user: f1ff35aa97074588beee1542d27c4d95
+    badges: []
+    cards:
+      - type: custom:plex-meets-homeassistant
+        protocol: http
+        sort: ''
+        playTrailer: false
+        showExtras: false
+        showSearch: false
+        ip: 10.10.10.6
+        token: oy2q4xNfXKpeBz1T2_eE
+        port: '32500'
+        entity:
+          - media_player.plex_plex_web_firefox_windows
+        libraryName: Recently Added
+        maxCount: '20'
+        maxRows: ''
+        useHorizontalScroll: 'No'
+        useShuffle: 'No'
+        displayTitleMain: 'Yes'
+        displaySubtitleMain: 'Yes'
+        minWidth: ''
+        minEpisodeWidth: ''
+        minExpandedWidth: ''
+        fontSize1: ''
+        fontSize2: ''
+        fontSize3: ''
+        fontSize4: ''
+        minExpandedHeight: ''
+        title: Plex
+        runBefore: ''
+        runAfter: ''
