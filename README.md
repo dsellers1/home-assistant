@@ -4,6 +4,7 @@
 
 ### Mushroom template card with custom icon color and icon
 This card will show five different color levels and three different icons based on the battery level of an entity.
+
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/aa58c764-d9e0-4b6d-abb6-f05512bdde1a)
 
 <details><summary>YAML code</summary>
@@ -130,5 +131,43 @@ styles:
           var h = r * 0x10000 + g * 0x100 + b * 0x1;
           return '#' + ('000000' + h.toString(16)).slice(-6);
         ]]]
+```
+</details>
+
+## Card Mod
+
+### Card modding a button card to reflect the background as light's RGB
+This example will determine a light's RGB value and set the background to that color. Includes behaviors for non-RGB and off states.
+![firefox_G98uXi71A2](https://github.com/dsellers1/home-assistant/assets/67642332/095a7dd7-a81e-4041-bf8a-300b95c237d2)
+<details><summary>YAML code</summary>
+
+```yaml
+type: button
+show_name: true
+show_icon: true
+tap_action: 
+  action: toggle
+entity: light.living_room_lights
+card_mod:
+  style: |
+    ha-card {
+      background: none;
+      {% if state_attr(config.entity, "color_mode") == "xy" %}
+        {% set r = state_attr(config.entity, 'rgb_color')[0] %}
+        {% set g = state_attr(config.entity, 'rgb_color')[1] %}
+        {% set b = state_attr(config.entity, 'rgb_color')[2] %}
+        background: rgba( {{r}}, {{g}}, {{b}}, 0.1 );
+        --card-mod-icon-color: rgba( {{r}}, {{g}}, {{b}}, 1 );
+        //--primary-text-color: rgba( {{r}}, {{g}}, {{b}}, 0.99 );
+        //--secondary-text-color: rgba( {{r}}, {{g}}, {{b}}, 0.50 );
+      {% elif state_attr(config.entity, "color_mode") == "color_temp" %}
+        --card-mod-icon-color: yellow;
+        --primary-text-color: white;
+      {% elif is_state(config.entity, 'off') %}
+        background: none;
+        --card-mod-icon-color: rgb(28, 28, 28);
+        --primary-text-color: rgb(128, 128, 128);
+      {%- endif %}
+    }
 ```
 </details>
