@@ -134,6 +134,107 @@ styles:
 ```
 </details>
 
+### custom:button-card with mapped icon and icon color based on weather condition
+This card is chooses an appropriate icon and color based on the state of a weather entity. The label shows the icon along with indoor and outdoor temperatures.
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/02029c83-938a-463c-bc8c-12160fd37d8b)
+<details><summary>YAML code</summary>
+
+```yaml
+type: custom:button-card
+entity: weather.home
+layout: vertical
+icon: '[[[ return variables.var_icon ]]]'
+show_icon: true
+show_name: false
+show_state: false
+show_label: true
+color_type: icon
+tap_action:
+  action: more-info
+styles:
+  icon:
+    - color: '[[[ return variables.var_color ]]]'
+  label:
+    - justify-self: center
+    - padding-left: 0px
+variables:
+  condition_weather_entity: weather.home
+  indoor_temp_entity: sensor.bedroom_temperature
+  outdoor_temp_entity: sensor.outside_temperature
+  temp_unit: F
+  var_color: |
+    [[[
+      let colors = {
+        "clear-night": "#FFF900", 
+        "cloudy": "#626567",
+        "fog": "#C0C0C0",
+        "hail": "white ",
+        "hazy": "grey ", 
+        "lightning": "#D9D401",
+        "lightning-rainy": "#D9D401",
+        "night-partly-cloudy": "#B3B6B7", 
+        "partlycloudy": "#B3B6B7",
+        "partly-lightning": "#D9D401", 
+        "partly-rainy": "#4E4DD8",
+        "partly-snowy": "#FFFFFF", 
+        "partly-snowy-rainy": "#FFFFFF", 
+        "pouring": "#2E9AFE",
+        "rainy": "#5757BE",
+        "snowy": "#FFFFFF",
+        "snowy-heavy": "#FFFFFF",
+        "snowy-rainy": "#FFFFFF",
+        "sunny": "#FFF900",
+        "windy": "grey"
+      };
+      var icon_color = colors[states[variables.condition_weather_entity].state];
+      if (typeof(icon_color) === 'undefined') {
+        var icon_color ="#FFFFFF"
+      }
+      return icon_color;
+    ]]]
+  var_icon: |
+    [[[         
+      let icons = {
+        "clear-night": "mdi:weather-night", 
+        "cloudy": "mdi:weather-cloudy",
+        "fog": "mdi:weather-fog",
+        "hail": "mdi:weather-hail",
+        "hazy": "mdi:weather-hazy", 
+        "lightning": "mdi:weather-lightning",
+        "lightning-rainy": "mdi:weather-lightning-rainy",
+        "night-partly-cloudy": "mdi:weather-night-partly-cloudy", 
+        "partlycloudy": "mdi:weather-partly-cloudy",
+        "partly-lightning": "mdi:weather-partly-lightning", 
+        "partly-rainy": "mdi:weather-partly-rainy",
+        "partly-snowy": "mdi:weather-partly-snowy", 
+        "partly-snowy-rainy": "mdi:weather-partly-snowy-rainy", 
+        "pouring": "mdi:weather-pouring",
+        "rainy": "mdi:weather-rainy",
+        "snowy": "mdi:weather-snowy",
+        "snowy-heavy": "mdi:weather-snowy-heavy",
+        "snowy-rainy": "mdi:weather-snowy-rainy",
+        "sunny": "mdi:weather-sunny",
+        "windy":  "mdi:weather-windy"
+      };
+      var icon = icons[states[variables.condition_weather_entity].state];
+      if (typeof(icon) === 'undefined') { 
+        var icon = "mdi:help" 
+      }
+      return icon;
+    ]]]
+label: |
+  [[[ 
+    var indoor = parseFloat(states[variables.indoor_temp_entity].state).toFixed(0) ;
+    var outdoor = parseFloat(states[variables.outdoor_temp_entity].state).toFixed(0);
+    return  `<ha-icon icon="${variables.var_icon}"
+      style="width: 25px; height: 25px; color: ${variables.var_color}; ">
+      </ha-icon>` + outdoor + ' °' + variables.temp_unit + ' | ' + indoor + ' °' + variables.temp_unit;
+  ]]]
+```
+</details>
+
+
 ## Card Mod
 
 ### Card modding a button card to reflect the background as light's RGB
