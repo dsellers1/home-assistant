@@ -1,9 +1,10 @@
 # Lovelace card examples
+![ajaj0077lines_bulletsconstruction](https://github.com/dsellers1/home-assistant/assets/67642332/c9896b41-9f86-46d4-93d5-b72c24d2c0fd)
 
 ## Mushroom cards
 
 ### Mushroom template card with custom icon color and icon
-This card will show five different color levels and three different icons based on the battery level of an entity.
+This card will show five different color levels and icons based on the battery level of an entity.
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/aa58c764-d9e0-4b6d-abb6-f05512bdde1a)
 
@@ -17,8 +18,10 @@ secondary: '{{ states(entity) }} {{ state_attr(entity, "unit_of_measurement") }}
 layout: vertical
 icon: |
   {% set state = (states(entity) | int) %}
-  {% if state >= 75 %} mdi:battery-90
-  {% elif state >= 33 %} mdi:battery-40
+  {% if state >= 90 %} mdi:battery-90
+  {% elif state >= 70 %} mdi:battery-70
+  {% elif state >= 50 %} mdi:battery-40
+  {% elif state >= 30 %} mdi:battery-30
   {% else %} mdi:battery-10
   {% endif %}
 icon_color: |
@@ -239,6 +242,7 @@ label: |
 
 ### Card modding a button card to reflect the background as light's RGB
 This example will determine a light's RGB value and set the background to that color. Includes behaviors for non-RGB and off states.
+
 ![firefox_G98uXi71A2](https://github.com/dsellers1/home-assistant/assets/67642332/095a7dd7-a81e-4041-bf8a-300b95c237d2)
 <details><summary>YAML code</summary>
 
@@ -270,5 +274,90 @@ card_mod:
         --primary-text-color: rgb(128, 128, 128);
       {%- endif %}
     }
+```
+</details>
+
+### Card modding an entities card's icon and icon color
+This example demonstrates a couple of different behaviors that can be applied to an entities card's icon.
+
+![firefox_dBMzsxBxR2](https://github.com/dsellers1/home-assistant/assets/67642332/ca1e2fa7-7cd9-484d-a5f1-c0ae64bb9fc4)
+
+<details><summary>YAML code (one state)</summary>
+
+```yaml
+type: entities
+card_mod:
+  style: |
+    ha-card {
+      border: none;
+      background: transparent;
+    }
+entities:
+  - entity: light.hallway
+    name: Using one state
+    card_mod:
+      style: |-
+        :host {
+          {% if is_state('light.hallway', 'off') %}
+            --card-mod-icon: mdi:light-switch-off;
+            --card-mod-icon-color: red;
+          {% else %}
+            --card-mod-icon: mdi:light-switch;
+            --card-mod-icon-color: green;
+          {% endif %}
+        }
+```
+</details><details><summary>YAML code (two states)</summary>
+
+```yaml
+type: entities
+card_mod:
+  style: |
+    ha-card {
+      border: none;
+      background: transparent;
+    }
+entities:
+  - entity: light.hallway
+    name: Using two states
+    card_mod:
+      style: |-
+        :host {
+          {% if is_state('light.hallway', 'off') and is_state('person.derek', 'home') %}
+            --card-mod-icon: mdi:light-switch-off;
+            --card-mod-icon-color: red;
+          {% elif is_state('light.hallway', 'on') and is_state('light.living_room_lights', 'off') %}
+            --card-mod-icon: mdi:help;
+            --card-mod-icon-color: yellow;
+          {% else %}
+            --card-mod-icon: mdi:light-switch;
+            --card-mod-icon-color: green;
+          {% endif %}
+        }
+```
+</details><details><summary>YAML code (time range)</summary>
+
+```yaml
+type: entities
+card_mod:
+  style: |
+    ha-card {
+      border: none;
+      background: transparent;
+    }
+entities:
+  - entity: light.hallway
+    name: Using time range
+    card_mod:
+      style: |-
+        :host {
+          {% if today_at('12:00') < now() < today_at('18:00') %}
+            --card-mod-icon-color: green;
+            --card-mod-icon: mdi:check;
+          {% else %}
+            --card-mod-icon-color: red;
+            --card-mod-icon: mdi:window-close;
+          {% endif %}
+        }
 ```
 </details>
