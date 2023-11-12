@@ -2,6 +2,7 @@
 ![ajaj0077lines_bulletsconstruction](https://github.com/dsellers1/home-assistant/assets/67642332/c9896b41-9f86-46d4-93d5-b72c24d2c0fd)
 
 ## Mushroom cards
+[Mushroom cards](https://github.com/piitaya/lovelace-mushroom) by [@piitaya](https://github.com/piitaya) is a collection of cards for Home Assistant Dashboard UI.
 
 ### Mushroom template card with custom icon color and icon
 This card will show five different color levels and icons based on the battery level of an entity.
@@ -80,7 +81,44 @@ double_tap_action: none
 ```
 </details>
 
+### Mushroom template card with custom last-changed/last-updated time
+This card looks at an entity's last-changed or last-updated time and formats it so it is readable. In the examples, the last-changed shows time greater than a minute while the last-updated includes seconds 
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/eb2728b7-b243-43d9-b701-73620ecb4e12)
+
+<details><summary>YAML code (last-changed)</summary>
+
+```yaml
+type: custom:mushroom-template-card
+primary: 'Status: {{ states("light.living_room_lights") }}'
+secondary: |
+  {% set t = ((as_timestamp(now()) -as_timestamp(states.light.living_room_lights.last_changed)) | int) %}   
+  {% if t < 60 %}   
+  {% elif t < 3600 %} {{ t // 60 }} min    
+  {% elif t >= 3600 %} {{ t // 3600 }} hr {{ (t % 3600) // 60 }} min   
+  {% else %}
+  unknown    
+  {% endif %}
+```
+</details><details><summary>YAML code (last-updated)</summary>
+
+```yaml
+type: custom:mushroom-template-card
+primary: 'Travel time: {{ states("sensor.waze_travel_time") }} minutes'
+secondary: |
+  Last updated: {% set t = ((as_timestamp(now()) - as_timestamp(states.sensor.waze_travel_time.last_updated)) | int) %}    
+  {% if t <= 10 %} Just now   
+  {% elif t <= 60 %} {{ t }} seconds   
+  {% elif t < 3600 %} {{ (t / 60) | int }} min {{ (t % 60) }} sec  
+  {% elif t >= 3600 %} {{ (t / 3600) | int }} hr {{ (t / 60) | int }} min {{ (t % 60) }} sec  
+  {% else %} 
+  error   
+  {% endif %}
+```
+</details>
+
 ## custom:button-cards
+[custom:button-card](https://github.com/custom-cards/button-card) by [@RomRider](https://github.com/RomRider)
 
 ### custom:button-card with custom icon color 
 This card will show five different color levels based on the battery level of an entity. The custom:button-card handles the icon accordingly based on level, charging status, and charging type.
@@ -239,6 +277,7 @@ label: |
 
 
 ## Card Mod
+[Card Mod](https://github.com/thomasloven/lovelace-card-mod) by [@thomasloven](https://github.com/thomasloven) allows you to apply CSS styles to various elements of the Home Assistant frontend.
 
 ### Card modding a button card to reflect the background as light's RGB
 This example will determine a light's RGB value and set the background to that color. Includes behaviors for non-RGB and off states.
@@ -278,9 +317,10 @@ card_mod:
 </details>
 
 ### Card modding an entities card's icon and icon color
+<!-- The screenshots and code used were contained in a custom:stack-in-card; this may affect appearance and coding. -->
 This example demonstrates a couple of different behaviors that can be applied to an entities card's icon.
 
-![firefox_dBMzsxBxR2](https://github.com/dsellers1/home-assistant/assets/67642332/ca1e2fa7-7cd9-484d-a5f1-c0ae64bb9fc4)
+![firefox_ptcDrPeqq7](https://github.com/dsellers1/home-assistant/assets/67642332/89fa1976-6754-4389-a9d5-24019cc04477)
 
 <details><summary>YAML code (one state)</summary>
 
@@ -323,7 +363,7 @@ entities:
     card_mod:
       style: |-
         :host {
-          {% if is_state('light.hallway', 'off') and is_state('person.derek', 'home') %}
+          {% if is_state('light.hallway', 'off') and is_state('light.living_room_lights', 'off') %}
             --card-mod-icon: mdi:light-switch-off;
             --card-mod-icon-color: red;
           {% elif is_state('light.hallway', 'on') and is_state('light.living_room_lights', 'off') %}
@@ -359,5 +399,316 @@ entities:
             --card-mod-icon: mdi:window-close;
           {% endif %}
         }
+```
+</details><details><summary>YAML code (comparing numbers)</summary>
+
+```yaml
+type: entities
+card_mod:
+  style: |
+    ha-card {
+      border: none;
+      background: transparent;
+    }
+entities:
+  - entity: sensor.s22_ultra_battery_level
+    name: Comparing numbers
+    show_name: true
+    show_icon: true
+    tap_action:
+      action: none
+    card_mod:
+      style: |-
+        :host {
+          {% set level = states('sensor.s22_ultra_battery_level') | int %}
+          {% if level >= 80 %}
+            --card-mod-icon: mdi:check;
+            --card-mod-icon-color: green;
+          {% elif level >= 40 %}
+            --card-mod-icon: mdi:thumb-up;
+            --card-mod-icon-color: yellow;
+          {% else %}
+            --card-mod-icon: mdi:thumb-down;
+            --card-mod-icon-color: red;
+          {% endif %}
+        }
+```
+</details>
+
+### Card modding a button card's icon and icon color
+<!-- The screenshots and code used were contained in a custom:stack-in-card; this may affect appearance and coding. -->
+Just like the example above, this one demonstrates a couple of different behaviors that can be applied to a button card's icon.
+
+![firefox_FXRn1gcRcp](https://github.com/dsellers1/home-assistant/assets/67642332/37a3b829-03f3-4fe2-8d33-f5050d98bcd3)
+
+<details><summary>YAML code (one state)</summary>
+
+```yaml
+type: button
+entity: light.hallway
+show_name: true
+show_icon: true
+tap_action:
+  action: toggle
+name: Using one state
+card_mod:
+  style: |-
+    ha-card {
+      {% if is_state('light.hallway', 'off') %}
+        --card-mod-icon: mdi:light-switch-off;
+        --card-mod-icon-color: red;
+      {% else %}
+        --card-mod-icon: mdi:light-switch;
+        --card-mod-icon-color: green;
+      {% endif %}
+    }
+```
+</details><details><summary>YAML code (two states)</summary>
+
+```yaml
+type: button
+name: Using two states
+show_name: true
+show_icon: true
+entity: light.hallway
+tap_action:
+  action: toggle
+card_mod:
+  style: |-
+    ha-card {
+      {% if is_state('light.hallway', 'off') and is_state('light.living_room_lights', 'off') %}
+        --card-mod-icon: mdi:light-switch-off;
+        --card-mod-icon-color: red;
+      {% elif is_state('light.hallway', 'on') and is_state('light.living_room_lights', 'off') %}
+        --card-mod-icon: mdi:help;
+        --card-mod-icon-color: yellow;
+      {% else %}
+        --card-mod-icon: mdi:light-switch;
+        --card-mod-icon-color: green;
+      {% endif %}
+    }
+```
+</details><details><summary>YAML code (time range)</summary>
+
+```yaml
+type: button
+name: Using time range
+show_name: true
+show_icon: true
+tap_action:
+  action: none
+card_mod:
+  style: |-
+    ha-card {
+      {% if today_at('06:00') < now() < today_at('12:00') %}
+        --card-mod-icon-color: green;
+        --card-mod-icon: mdi:check;
+      {% else %}
+        --card-mod-icon-color: red;
+        --card-mod-icon: mdi:window-close;
+      {% endif %}
+    }
+```
+</details><details><summary>YAML code (comparing numbers)</summary>
+
+```yaml
+type: button
+name: Comparing numbers
+show_name: true
+show_icon: true
+tap_action:
+  action: none
+card_mod:
+  style: |-
+    ha-card {
+      {% set level = states('sensor.s22_ultra_battery_level') | int %}
+      {% if level >= 80 %}
+        --card-mod-icon: mdi:check;
+        --card-mod-icon-color: green;
+      {% elif level >= 40 %}
+        --card-mod-icon: mdi:thumb-up;
+        --card-mod-icon-color: yellow;
+      {% else %}
+        --card-mod-icon: mdi:thumb-down;
+        --card-mod-icon-color: red;
+      {% endif %}
+    }
+```
+</details>
+
+### Card modding a gauge card to use a linear gradient
+<!-- The screenshots and code used were contained in a custom:stack-in-card; this may affect appearance and coding. -->
+This example shows how to appy a "linear" gradient to the scale of a gauge card. While it is possible to apply CSS to the scale, due to security restrictions in most browsers because CSS can contain HTML and JavaScript code, they will ignore it. Firefox 119.0 can show the CSS code. Because of this limitation, I hard-coded segment ranges to give the appearance of the gradient. 
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/50fcb573-26b2-448c-8496-33777eebf98e)
+
+<details><summary>YAML code (Red-to-green)</summary>
+
+```yaml
+type: gauge
+entity: sensor.s22_ultra_battery_level
+name: Red-to-green
+min: 0
+max: 100
+needle: true
+segments:
+  - from: 0
+    color: '#FF0000'
+  - from: 3
+    color: '#FF1100'
+  - from: 7
+    color: '#FF2200'
+  - from: 10
+    color: '#FF3300'
+  - from: 13
+    color: '#FF4400'
+  - from: 17
+    color: '#FF5500'
+  - from: 20
+    color: '#FF6600'
+  - from: 23
+    color: '#FF7700'
+  - from: 27
+    color: '#FF8800'
+  - from: 30
+    color: '#FF9900'
+  - from: 33
+    color: '#FFAA00'
+  - from: 37
+    color: '#FFBB00'
+  - from: 40
+    color: '#FFCC00'
+  - from: 43
+    color: '#FFDD00'
+  - from: 47
+    color: '#FFEE00'
+  - from: 50
+    color: '#FFFF00'
+  - from: 53
+    color: '#EEFF00'
+  - from: 57
+    color: '#DDFF00'
+  - from: 60
+    color: '#CCFF00'
+  - from: 63
+    color: '#BBFF00'
+  - from: 67
+    color: '#AAFF00'
+  - from: 70
+    color: '#99FF00'
+  - from: 73
+    color: '#88FF00'
+  - from: 77
+    color: '#77FF00'
+  - from: 80
+    color: '#66FF00'
+  - from: 83
+    color: '#55FF00'
+  - from: 87
+    color: '#44FF00'
+  - from: 90
+    color: '#33FF00'
+  - from: 93
+    color: '#22FF00'
+  - from: 97
+    color: '#11FF00'
+  - from: 100
+    color: '#00FF00'
+```
+</details><details><summary>YAML code (Green-to-red)</summary>
+
+```yaml
+type: gauge
+entity: sensor.s22_ultra_battery_level
+name: Green-to-red
+min: 0
+max: 100
+needle: true
+segments:
+  - from: 0
+    color: '#00FF00'
+  - from: 3
+    color: '#11FF00'
+  - from: 7
+    color: '#22FF00'
+  - from: 10
+    color: '#33FF00'
+  - from: 13
+    color: '#44FF00'
+  - from: 17
+    color: '#55FF00'
+  - from: 20
+    color: '#66FF00'
+  - from: 23
+    color: '#77FF00'
+  - from: 27
+    color: '#88FF00'
+  - from: 30
+    color: '#99FF00'
+  - from: 33
+    color: '#AAFF00'
+  - from: 37
+    color: '#BBFF00'
+  - from: 40
+    color: '#CCFF00'
+  - from: 43
+    color: '#DDFF00'
+  - from: 47
+    color: '#EEFF00'
+  - from: 50
+    color: '#FFFF00'
+  - from: 53
+    color: '#FFEE00'
+  - from: 57
+    color: '#FFDD00'
+  - from: 60
+    color: '#FFCC00'
+  - from: 63
+    color: '#FFBB00'
+  - from: 67
+    color: '#FFAA00'
+  - from: 70
+    color: '#FF9900'
+  - from: 73
+    color: '#FF8800'
+  - from: 77
+    color: '#FF7700'
+  - from: 80
+    color: '#FF6600'
+  - from: 83
+    color: '#FF5500'
+  - from: 87
+    color: '#FF4400'
+  - from: 90
+    color: '#FF3300'
+  - from: 93
+    color: '#FF2200'
+  - from: 97
+    color: '#FF1100'
+  - from: 100
+    color: '#FF0000'
+```
+</details><details><summary>YAML code (CSS version)</summary>
+
+```yaml
+type: gauge
+entity: sensor.s22_ultra_battery_level
+name: CSS
+min: 0
+max: 100
+segments:
+  - from: 0
+    color: var(--gauge-gradient)
+needle: true
+card_mod:
+  style: >
+    :host { --gauge-gradient: url("data:image/svg+xml,%3Csvg
+    xmlns='http://www.w3.org/2000/svg' width='100'
+    height='100'%3E%3Cdefs%3E%3ClinearGradient id='linear' x1='0%25'
+    y1='0%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25'
+    stop-color='red'/%3E%3Cstop offset='50%25'
+    stop-color='yellow'/%3E%3Cstop offset='100%25'
+    stop-color='green'/%3E%3C/linearGradient%3E%3C/defs%3E%3C/svg%3E#linear");
+    }
 ```
 </details>
