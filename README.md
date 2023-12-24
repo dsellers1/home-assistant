@@ -14,25 +14,15 @@ This example will show two different color levels and icons based on the battery
 ```yaml
 type: custom:mushroom-template-card
 entity: sensor.s22_ultra_battery_level
-primary: S22
-secondary: '{{ states(entity) }} {{ state_attr(entity, "unit_of_measurement") }}'
 layout: vertical
-icon: |
-  {% set state = (states(entity) | int) %}
-  {% if state >= 90 %} mdi:battery-90
-  {% elif state >= 70 %} mdi:battery-70
-  {% elif state >= 50 %} mdi:battery-40
-  {% elif state >= 30 %} mdi:battery-30
-  {% else %} mdi:battery-10
-  {% endif %}
-icon_color: |
-  {% set state = (states(entity) | int) %}
-  {% if state >= 90 %} green
-  {% elif state >= 70 %} light-green
-  {% elif state >= 50 %} orange
-  {% elif state >= 30 %} yellow
-  {% else %} red
-  {% endif %}
+primary: S22
+secondary: '{{ states(entity) }} %'
+icon: >-
+  {{ is_state('sensor.s22_ultra_battery_state', 'discharging') |
+  iif('mdi:battery', 'mdi:power-plug') }}
+icon_color: >-
+  {{ is_state('sensor.s22_ultra_battery_state', 'discharging') |  iif('red', 
+  'green') }}
 tap_action: none
 hold_action: none
 double_tap_action: none
