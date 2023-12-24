@@ -4,10 +4,46 @@
 ## Mushroom cards
 [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) by [@piitaya](https://github.com/piitaya) is a collection of cards for Home Assistant Dashboard UI.
 
+### Mushroom template card with simple icon color and icon
+This example will show two different color levels and icons based on the battery charging state of an entity. In this example, the card's icon will show a red battery icon if the battery state is discharging; otherwise, a green power plug icon will be shown.
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/aa32932e-6f2e-4679-975b-390e0e30bd7f)
+
+<details><summary>YAML code</summary>
+
+```yaml
+type: custom:mushroom-template-card
+entity: sensor.s22_ultra_battery_level
+primary: S22
+secondary: '{{ states(entity) }} {{ state_attr(entity, "unit_of_measurement") }}'
+layout: vertical
+icon: |
+  {% set state = (states(entity) | int) %}
+  {% if state >= 90 %} mdi:battery-90
+  {% elif state >= 70 %} mdi:battery-70
+  {% elif state >= 50 %} mdi:battery-40
+  {% elif state >= 30 %} mdi:battery-30
+  {% else %} mdi:battery-10
+  {% endif %}
+icon_color: |
+  {% set state = (states(entity) | int) %}
+  {% if state >= 90 %} green
+  {% elif state >= 70 %} light-green
+  {% elif state >= 50 %} orange
+  {% elif state >= 30 %} yellow
+  {% else %} red
+  {% endif %}
+tap_action: none
+hold_action: none
+double_tap_action: none
+```
+</details>
+
 ### Mushroom template card with custom icon color and icon
-This card will show five different color levels and icons based on the battery level of an entity.
+This example will show five different color levels and icons based on the battery level of an entity.
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/aa58c764-d9e0-4b6d-abb6-f05512bdde1a)
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/86c2c730-9293-4c3e-a3aa-5f0614fd9194)
 
 <details><summary>YAML code</summary>
 
@@ -40,7 +76,7 @@ double_tap_action: none
 </details>
 
 ### Mushroom template card with dynamic icon color and icon
-This card is similar to the one above but uses more templating to allow dynamic icon color and icon based on the battery level, charging status, and charging type. Primary line is templated to show the entity's friendly name in Title format. The secondary line shows the entity state and includes a percent sign. 
+This example is similar to the one above but uses more templating to allow dynamic icon color and icon based on the battery level, charging status, and charging type. Primary line is templated to show the entity's friendly name in Title format. The secondary line shows the entity state and includes a percent sign. 
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/fd3bab11-76cb-4ba4-99f0-73b9e64c3fc3)
 
@@ -82,7 +118,7 @@ double_tap_action: none
 </details>
 
 ### Mushroom template card with custom last-changed/last-updated time
-This card looks at an entity's last-changed or last-updated time and formats it so it is readable. In the examples, the last-changed shows time greater than a minute while the last-updated includes seconds 
+This example looks at an entity's last-changed or last-updated time and formats it so it is readable. In the examples, the last-changed shows time greater than a minute while the last-updated includes seconds 
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/eb2728b7-b243-43d9-b701-73620ecb4e12)
 
@@ -121,7 +157,7 @@ secondary: |
 [custom:button-card](https://github.com/custom-cards/button-card) by [@RomRider](https://github.com/RomRider)
 
 ### custom:button-card with custom icon color 
-This card will show five different color levels based on the battery level of an entity. The custom:button-card handles the icon accordingly based on level, charging status, and charging type.
+This example will show five different color levels based on the battery level of an entity. The custom:button-card handles the icon accordingly based on level, charging status, and charging type.
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/70265f06-c931-482a-bfcb-9862307c464f)
 
@@ -147,7 +183,7 @@ styles:
 </details>
 
 ### custom:button-card with dynamic icon color
-This card is similar to the one above but uses more templating to allow dynamic icon color based on the battery level. The custom:button-card handles the icon accordingly based on level, charging status, and charging type.
+This example is similar to the one above but uses more templating to allow dynamic icon color based on the battery level. The custom:button-card handles the icon accordingly based on level, charging status, and charging type.
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/9a3b238d-03ad-44e9-a101-fcd336f61e48)
 <details><summary>YAML code</summary>
