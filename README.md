@@ -712,3 +712,107 @@ card_mod:
     }
 ```
 </details>
+
+### Stack in Card
+[Stack in Card](https://github.com/custom-cards/stack-in-card) by [@RomRider](https://github.com/romrider) allows you to to group multiple cards into one card without the borders. 
+
+This example shows how to combine multiple cards and give the appearance of being a single card. Adding various layout-type cards inside the Stack in Card can allow more advanced card placement. 
+
+(Note: While I believe the Stack in Card was designed to handle the backgrounds and borders of the cards, it seems recent updates have broke that feature. To fix this, adding some card_mod code will assist in the overall appearance.)
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/d6d05461-ea35-4624-9e5e-a1f4d2f8b3d9)
+
+<details><summary>YAML code</summary>
+
+```yaml
+type: custom:stack-in-card
+mode: vertical
+card_mod:
+  style: |
+    ha-card {
+      --ha-card-background: none;
+    }
+cards:
+  - type: horizontal-stack
+    cards:
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: none
+        entity: null
+        icon: mdi:dice-1
+        name: Card 1
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: toggle
+        entity: null
+        icon: mdi:dice-2
+        name: Card 2
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: toggle
+        entity: null
+        icon: mdi:dice-3
+        name: Card 3
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+  - type: horizontal-stack
+    cards:
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: toggle
+        entity: null
+        icon: mdi:dice-4
+        name: Card 4
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: toggle
+        entity: null
+        icon: mdi:dice-5
+        name: Card 5
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+      - show_name: true
+        show_icon: true
+        type: button
+        tap_action:
+          action: toggle
+        entity: null
+        icon: mdi:dice-6
+        name: Card 6
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+            }
+```
