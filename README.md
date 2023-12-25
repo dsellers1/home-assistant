@@ -5,7 +5,7 @@
 [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) by [@piitaya](https://github.com/piitaya) is a collection of cards for Home Assistant Dashboard UI.
 
 ### Mushroom template card with simple icon color and icon
-This example will show two different color levels and icons based on the battery charging state of an entity. In this example, the card's icon will show a red battery icon if the battery state is discharging; otherwise, a green power plug icon will be shown.
+This example will show two colors and icons based on the battery charging state of an entity. In this example, the card's icon will show a red battery icon if the battery state is discharging; otherwise, a green power plug icon will be shown.
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/aa32932e-6f2e-4679-975b-390e0e30bd7f)
 
@@ -142,6 +142,29 @@ secondary: |
   {% endif %}
 ```
 </details>
+
+### Mushroom Chips template card with simple icon color and icon
+This example will show two colors and icons based on the state of an entity. In this example, the card's icon will show a green home icon if the  state is on; otherwise, a red home-off-outline icon will be shown.
+
+![firefox_IjzbZNi08C](https://github.com/dsellers1/home-assistant/assets/67642332/69dd0033-f286-4f08-afe4-4ec93d0032d7)
+
+<details><summary>YAML code</summary>
+
+```yaml
+type: custom:mushroom-chips-card
+chips:
+  - type: template
+    entity: input_boolean.guest_mode
+    content: Guest Mode
+    icon: |
+      {{ (states(entity)=="on") | iif("mdi:home", "mdi:home-off-outline") }}
+    icon_color: |
+      {{ (states(entity)=="on") | iif("green", "red") }}
+    press_action:
+      action: toggle
+```
+</details>
+
 
 ## custom:button-cards
 [custom:button-card](https://github.com/custom-cards/button-card) by [@RomRider](https://github.com/RomRider)
