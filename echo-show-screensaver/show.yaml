@@ -1,0 +1,49 @@
+type: custom:button-card
+entity: none
+show_state: false
+show_icon: false
+show_name: false
+styles:
+  card:
+    - width: 100vw
+    - height: 100vw
+    - max-width: 100%
+    - max-height: 100%
+    - background-image: url('/local/leaves.jpg')
+    - background-size: cover
+  custom_fields:
+    weather:
+      - font-size: 35px
+      - position: absolute
+      - left: 10%
+      - top: 10%
+    alarm:
+      - font-size: 35px
+      - position: absolute
+      - right: 10%
+      - top: 10%
+    time:
+      - font-size: 175px
+      - position: absolute
+      - top: 45%
+      - width: 100%
+    date:
+      - font-size: 60px
+      - position: absolute
+      - top: 65%
+      - width: 100%
+custom_fields:
+  weather: |
+    [[[
+      return `<ha-icon icon="mdi:weather-cloudy" style="width: 50px; height: 50px; color: white;"></ha-icon>
+      <span>${parseInt(states['sensor.outside_temperature'].state)}°</span>`
+    ]]]
+  alarm: |
+    [[[
+      var alarm_time = new Date(states["sensor.bedroom_dot_next_alarm"].state)
+      var alarm_time_formatted = (alarm_time.getHours() < 10 ? '0' : '') + alarm_time.getHours() + ":" + (alarm_time.getMinutes() < 10 ? '0' : '') + alarm_time.getMinutes() 
+      return `<ha-icon icon="mdi:alarm" style="width: 50px; height: 50px; color: white;"></ha-icon>
+      <span>${alarm_time_formatted}</span>`
+    ]]]
+  time: '[[[ return states["sensor.dashboard_time"].state ]]]'
+  date: '[[[ return states["sensor.dashboard_date"].state ]]]'
