@@ -103,7 +103,7 @@ custom_fields:
       } else {
         var options = { hour: "numeric", minute: "2-digit" };      
       }
-      return new Date().toLocaleTimeString([], options)
+      return new Date().toLocaleTimeString([], options).replace("AM","").replace("PM","")
     ]]]
   date: |
     [[[
