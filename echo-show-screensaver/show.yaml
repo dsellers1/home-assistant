@@ -1,8 +1,15 @@
 type: custom:button-card
+variables:
+  alarm_entity: sensor.bedroom_dot_next_alarm
+  var_weather_entity: weather.home
 entity: none
 show_state: false
 show_icon: false
 show_name: false
+triggers_update: all
+tap_action: none
+hold_action: none
+double_tap_action: none
 styles:
   card:
     - width: 100vw
@@ -22,12 +29,13 @@ styles:
       - position: absolute
       - right: 10%
       - top: 10%
-    time:
+    time_markdown:
       - font-size: 175px
+      - font-weight: bold
       - position: absolute
       - top: 45%
       - width: 100%
-    date:
+    date_markdown:
       - font-size: 60px
       - position: absolute
       - top: 65%
@@ -35,8 +43,50 @@ styles:
 custom_fields:
   weather: |
     [[[
-      return `<ha-icon icon="mdi:weather-cloudy" style="width: 50px; height: 50px; color: white;"></ha-icon>
-      <span>${parseInt(states['sensor.outside_temperature'].state)}°</span>`
+      var outdoor_temp = states[variables.var_weather_entity].attributes.temperature;
+      const weatherIconsDay  = {
+        "clear-night": "mdi:weather-night", 
+        "cloudy": "mdi:weather-cloudy",
+        "dust":"mdi:weather-dust",
+        "fog": "mdi:weather-fog",
+        "hail": "mdi:weather-hail",
+        "hazy": "mdi:weather-hazy", 
+        "hurricane": "mdi:weather-hurricane",
+        "lightning": "mdi:weather-lightning",
+        "lightning-rainy": "mdi:weather-lightning-rainy",
+        "partlycloudy": "mdi:weather-partly-cloudy",
+        "partly-lightning": "mdi:weather-partly-lightning", 
+        "partly-rainy": "mdi:weather-partly-rainy",
+        "partly-snowy": "mdi:weather-partly-snowy", 
+        "partly-snowy-rainy": "mdi:weather-partly-snowy-rainy", 
+        "pouring": "mdi:weather-pouring",
+        "rainy": "mdi:weather-rainy",
+        "snowy": "mdi:weather-snowy",
+        "snowy-heavy": "mdi:weather-snowy-heavy",
+        "snowy-rainy": "mdi:weather-snowy-rainy",
+        "sunny": "mdi:weather-sunny",
+        "tornado":"mdi:weather-tornado",
+        "windy":  "mdi:weather-windy",
+        "windy-variant": "mdi:weather-windy-variant",
+      };
+      const weatherIconsNight = {
+        ...weatherIconsDay,
+        clear: "mdi:weather-night",
+        sunny: "mdi:weather-night",
+        partlycloudy: "mdi:weather-night-partly-cloudy",
+      };
+      var condition = states[variables.var_weather_entity].state;
+      if (states['sun.sun'] === 'above_horizon') {
+        var weather_icon = weatherIconsDay[condition]; 
+      } else {
+        var weather_icon = weatherIconsNight[condition]; 
+      }
+      
+      if (typeof(weather_icon) === 'undefined') { 
+        var weather_icon = "mdi:help" 
+      }   
+      return `<ha-icon icon="${weather_icon}" style="width: 50px; height: 50px; color: white;"></ha-icon>
+      <span>${outdoor_temp}°</span>`
     ]]]
   alarm: |
     [[[
@@ -45,5 +95,23 @@ custom_fields:
       return `<ha-icon icon="mdi:alarm" style="width: 50px; height: 50px; color: white;"></ha-icon>
       <span>${alarm_time_formatted}</span>`
     ]]]
-  time: '[[[ return states["sensor.dashboard_time"].state ]]]'
-  date: '[[[ return states["sensor.dashboard_date"].state ]]]'
+  time_markdown:
+    card:
+      type: markdown
+      content: '{{ now().strftime("%H:%M") }}'
+      card_mod:
+        style: |
+          ha-card {
+            background-color: transparent;
+            border: none;
+          }
+  date_markdown:
+    card:
+      type: markdown
+      content: '{{ now().strftime("%a, %b %-d") }}'
+      card_mod:
+        style: |
+          ha-card {
+            background-color: transparent;
+            border: none;
+          }
