@@ -503,7 +503,7 @@ name: Using one state
 card_mod:
   style: |-
     ha-card {
-      {% if is_state('light.hallway', 'off') %}
+      {% if is_state(config.entity, 'off') %}
         --card-mod-icon: mdi:light-switch-off;
         --card-mod-icon-color: red;
       {% else %}
@@ -525,10 +525,10 @@ tap_action:
 card_mod:
   style: |-
     ha-card {
-      {% if is_state('light.hallway', 'off') and is_state('light.living_room_lights', 'off') %}
+      {% if is_state(config.entity, 'off') and is_state('light.living_room_lights', 'off') %}
         --card-mod-icon: mdi:light-switch-off;
         --card-mod-icon-color: red;
-      {% elif is_state('light.hallway', 'on') and is_state('light.living_room_lights', 'off') %}
+      {% elif is_state(config.entity, 'on') and is_state('light.living_room_lights', 'off') %}
         --card-mod-icon: mdi:help;
         --card-mod-icon-color: yellow;
       {% else %}
