@@ -585,6 +585,60 @@ card_mod:
 ```
 </details>
 
+### Card modding a tile card's icon and icon color
+This example demonstrates card_modding a tile card's icon and text.
+
+![firefox_L54I8avyLU](https://github.com/dsellers1/home-assistant/assets/67642332/b9185d64-dea5-4d7a-a42f-2029dd563859)
+
+<details><summary>YAML code</summary>
+
+```yaml
+type: tile
+entity: binary_sensor.living_room_door_on_off
+show_entity_picture: true
+vertical: false
+name: sliding door
+card_mod:
+  style: 
+    ha-tile-info$: |
+      .primary {
+        font-size: 20px !important;
+        font-family: arial;
+        font-weight: bold;
+        font-style: italic;
+        color: white !important;
+      }
+      .secondary {
+        font-size: 10px !important;
+        color: gray !important;
+      }
+    .icon-container .icon$: |
+      .shape { 
+        border-radius: 15px !important;
+        background: 
+          {% if is_state(config.entity, 'on') %}
+            rgba(255,0,0,0.2)
+          {% else %}
+            rgba(0,255,0,0.2)
+          {% endif %} !important;  
+      }
+    .: |
+      ha-card {
+        background: black;
+        width: 200px;
+      }
+      .icon {
+        --tile-icon-color: 
+          {% if is_state(config.entity, 'on') %}
+            red
+          {% else %}
+            green
+          {% endif %} !important;
+      }
+
+```
+</details>
+
 ### Card modding a gauge card to use a linear gradient
 <!-- The screenshots and code used were contained in a custom:stack-in-card; this may affect appearance and coding. -->
 This example shows how to appy a "linear" gradient to the scale of a gauge card. While it is possible to apply CSS to the scale, due to security restrictions in most browsers because CSS can contain HTML and JavaScript code, they will ignore it. Firefox 119.0 can show the CSS code. Because of this limitation, I hard-coded segment ranges to give the appearance of the gradient. 
