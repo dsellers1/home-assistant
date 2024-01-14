@@ -2,6 +2,7 @@ type: custom:button-card
 variables:
   alarm_entity: sensor.bedroom_dot_next_alarm
   var_weather_entity: weather.home
+  use_24_hour_time: false
 entity: none
 show_state: false
 show_icon: false
@@ -12,12 +13,12 @@ hold_action: none
 double_tap_action: none
 styles:
   card:
-    - width: 100vw
-    - height: 100vw
-    - max-width: 100%
-    - max-height: 100%
+    - width: 1280px
+    - height: 800px
     - background-image: url('/local/leaves.jpg')
     - background-size: cover
+    - border-radius: 0px
+    - border: none
   custom_fields:
     weather:
       - font-size: 35px
@@ -29,13 +30,13 @@ styles:
       - position: absolute
       - right: 10%
       - top: 10%
-    time_markdown:
+    time:
       - font-size: 175px
       - font-weight: bold
       - position: absolute
-      - top: 45%
+      - top: 35%
       - width: 100%
-    date_markdown:
+    date:
       - font-size: 60px
       - position: absolute
       - top: 65%
@@ -86,32 +87,26 @@ custom_fields:
         var weather_icon = "mdi:help" 
       }   
       return `<ha-icon icon="${weather_icon}" style="width: 50px; height: 50px; color: white;"></ha-icon>
-      <span>${outdoor_temp}°</span>`
+      <font color="white"><span>${outdoor_temp}°</span></font>`
     ]]]
   alarm: |
     [[[
       var alarm_time = new Date(states["sensor.bedroom_dot_next_alarm"].state)
       var alarm_time_formatted = (alarm_time.getHours() < 10 ? '0' : '') + alarm_time.getHours() + ":" + (alarm_time.getMinutes() < 10 ? '0' : '') + alarm_time.getMinutes() 
       return `<ha-icon icon="mdi:alarm" style="width: 50px; height: 50px; color: white;"></ha-icon>
-      <span>${alarm_time_formatted}</span>`
+      <font color="white"><span>${alarm_time_formatted}</span></font>`
     ]]]
-  time_markdown:
-    card:
-      type: markdown
-      content: '{{ now().strftime("%H:%M") }}'
-      card_mod:
-        style: |
-          ha-card {
-            background-color: transparent;
-            border: none;
-          }
-  date_markdown:
-    card:
-      type: markdown
-      content: '{{ now().strftime("%a, %b %-d") }}'
-      card_mod:
-        style: |
-          ha-card {
-            background-color: transparent;
-            border: none;
-          }
+  time: |
+    [[[
+      if (variables.use_24_hour_time) {
+        var options = { hour: "2-digit", minute: "2-digit", hour12: false };
+      } else {
+        var options = { hour: "numeric", minute: "2-digit" };      
+      }
+      return new Date().toLocaleTimeString([], options)
+    ]]]
+  date: |
+    [[[
+      const options = { weekday: "short", month: "short", day: "numeric", };
+      return new Date().toLocaleDateString([], options)
+    ]]]    
