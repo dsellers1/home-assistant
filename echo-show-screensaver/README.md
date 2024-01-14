@@ -1,7 +1,11 @@
 Work in progres
 
 Purpose: to replicate the screensaver shown on an Amazon Echo Show
-![img_8064-1024x768](https://github.com/dsellers1/home-assistant/assets/67642332/5e158acc-8ff1-41bc-b666-0e7e274a86fb)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/67642332/296517979-5e158acc-8ff1-41bc-b666-0e7e274a86fb.jpg" width=33% /> <br>
+<br>
+<ins><b><i> Amazon Echo Show 8</i></b></ins>
+</p>
 
 TODO:
 - Add weather icon handler
