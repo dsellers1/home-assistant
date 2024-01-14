@@ -8,7 +8,11 @@ Purpose: to replicate the screensaver shown on an Amazon Echo Show
 </p>
 
 TODO:
-- Add weather icon handler
-- Add actions
-- Add alarm handler when unavailable
-- Auto changing background or random choice
+- [x] Add weather icon handler
+- [ ] Add actions
+- [ ] Add alarm handler when unavailable
+- [ ] Auto changing background or random choice
+
+Requirements:
+- [custom:button-card](https://github.com/custom-cards/button-card)
+- [card_mod](https://github.com/thomasloven/lovelace-card-mod) 
