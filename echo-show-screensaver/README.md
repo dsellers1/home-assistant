@@ -9,10 +9,11 @@ Purpose: to replicate the screensaver shown on an Amazon Echo Show
 
 TODO:
 - [x] Add weather icon handler
+- [x] Add 12/24-hour handler
 - [ ] Add actions
 - [ ] Add alarm handler when unavailable
 - [ ] Auto changing background or random choice
+- [ ] Make card dynamic based on screen size; currently hard-coded
 
 Requirements:
 - [custom:button-card](https://github.com/custom-cards/button-card)
-- [card_mod](https://github.com/thomasloven/lovelace-card-mod) 
