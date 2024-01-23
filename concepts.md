@@ -1,7 +1,7 @@
 # Lovelace templating concepts
 When it comes to customizing lovelace cards, there are some basics to understand in order to be able to create the customization. This guide will focus on the included Home Assistant cards, Mushroom cards, and custom:button-cards. I feel these three examples should cover most use cases but the concepts should apply to most cards.
 
-- stock HA cards - least customizabled; customization can usually be done with [card_mod](https://github.com/thomasloven/lovelace-card-mod). 
+- stock HA cards - least customizable; customization can usually be done with [card_mod](https://github.com/thomasloven/lovelace-card-mod). 
 - [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) - somewhat customizable; Mushroom Template cards can be used; card-mod is another option
 - [custom:button-card](https://github.com/custom-cards/button-card) - the most customizable of the bunch; card-mod is an option but usually not needed
 
@@ -295,7 +295,7 @@ So far, we've specifically defined the entity in the IF statements. With the Mus
 - [ ] Working with last-updated/changed
     - https://www.home-assistant.io/docs/configuration/state_object/
 - [ ] is_state/state_attr
-- [ ] Rounding
+- [x] Rounding
 
 Footnotes:
 [^1]: IF statement https://www.computerhope.com/jargon/i/ifstatme.htm
