@@ -63,8 +63,8 @@ name: '[[[ return states["light.living_room_lights"].attributes.friendly_name ]]
 ### Using a basic IF statement
 An if statement is a programming conditional statement that, if proved true, performs a function or displays information[^1].
 
-Jinja: ```{% if condition_to_test %} value_to_return {% endif %}```<br>
-JavaScript:```[[[ if (condition_to_test) return value_to_return ]]]```
+Jinja: ```{% if (condition) %} value_to_return {% endif %}```<br>
+JavaScript:```[[[ if (condition) return value_to_return ]]]```
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/aacdf861-2452-4838-9618-cea7c4cefb83)
 
@@ -91,7 +91,7 @@ Else is a programming conditional statement that if previous conditions are not 
 
 Jinja: 
 ```jinja
-{% if condition_to_test %} 
+{% if (condition) %} 
   value_to_return 
 {% else %}
   other_value_to_return
@@ -100,7 +100,7 @@ Jinja:
 JavaScript: 
 ```javascript
 [[[
-  if (condition_to_test) 
+  if (condition) 
     return value_to_return;
   else return other_value_to_return;
 ]]]
@@ -138,9 +138,9 @@ Else if allows another condition to be evaluated within the original if statemen
 
 Jinja: 
 ```jinja
-{% if condition_to_test %} 
+{% if (condition) %} 
   value_to_return
-{% elif another_condition_to_test %}
+{% elif (another_condition) %}
   value_to_return
 {% else %}
   value_to_return
@@ -149,9 +149,9 @@ Jinja:
 JavaScript: 
 ```javascript
 [[[
-  if (condition_to_test) 
+  if (condition) 
     value_to_return;
-  else if (another_condition_to_test)
+  else if (another_condition)
     value_to_return
   else return value_to_return;
 ]]]
@@ -190,7 +190,7 @@ name: |
 ### Using shorthand IF/ELSE statements
 For simple IF/ELSE statements, you can use shorthand methods. These are useful to condense the number of lines needed to return a simple comparison on a single line but may be less readable.<br>
 
-Jinja: `return_if_true if condition else return_if_false`<br>
+Jinja: `return_if_true if (condition) else return_if_false`<br>
 Jinja piping to iif: `{{ (condition) | iif(return_if_true, return_if_false) }}`<br>
 JavaScript: `(condition) ? return_if_true : return_if_false`
 
@@ -282,6 +282,58 @@ name: '[[[ return parseFloat(123.456).toFixed(1) ]]]'
 ### Using variables with templates
 So far, we've specifically defined the entity in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This is convenient to be able minimize having to repeat the entity name.
 
+Jinja: `state_attr(config.entity, "friendly_name")`<br>
+JavaScript: `entity.attributes.friendly_name`
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/ded73014-38d0-42b3-b874-6022047e995b)
+
+<details><summary>Jinja example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+entity: light.living_room_lights
+primary: '{{ state_attr(config.entity, "friendly_name") }}'
+```
+
+</details><details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+entity: light.living_room_lights
+name: '[[[ return entity.attributes.friendly_name ]]]'
+show_icon: false
+```
+
+</details>
+
+Variables can also be defined within the template using `set` and `var`, respectively.
+
+Jinja: `set variable_name = value`<br>
+JavaScript: `var variable_name = value`
+
+<details><summary>Jinja example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: |
+  {% set variable = "light.living_room_lights" %}
+  {{ state_attr(variable, "friendly_name") }}
+```
+
+</details><details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+name: |
+  [[[ 
+    var variable = "light.living_room_lights";
+    return states[variable].attributes.friendly_name
+  ]]]
+```
+
+</details>
+
+
 ## TODO
 - [x] Getting a state
 - [x] Getting an attribute
@@ -291,7 +343,7 @@ So far, we've specifically defined the entity in the IF statements. With the Mus
 - [x] Convert to Int or Float
 - [ ] Working with Date/Time
 - [ ] Multiline/Single line/Use of quotation marks
-- [ ] Using variables/Internal variables
+- [x] Using variables/Internal variables
 - [ ] Working with last-updated/changed
     - https://www.home-assistant.io/docs/configuration/state_object/
 - [ ] is_state/state_attr
