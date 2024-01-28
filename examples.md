@@ -1,5 +1,9 @@
+
 # Lovelace card examples
-![ajaj0077lines_bulletsconstruction](https://github.com/dsellers1/home-assistant/assets/67642332/c9896b41-9f86-46d4-93d5-b72c24d2c0fd)
+
+<p align="center">
+  <img src="https://github.com/dsellers1/home-assistant/assets/67642332/c9896b41-9f86-46d4-93d5-b72c24d2c0fd" alt="Under Construction">
+</p>
 
 ## Mushroom cards
 [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) by [@piitaya](https://github.com/piitaya) is a collection of cards for Home Assistant Dashboard UI.
@@ -923,3 +927,6 @@ cards:
 
 # Special Thanks
 [ShareX](getsharex.com) is a free and open source program that lets you capture or record any area of your screen and share it with a single press of a key. It also allows uploading images, text or other types of files to many supported destinations you can choose from. 
+
+ 
+<p align="center"><a href="https://www.buymeacoffee.com/d_sellers1" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></p>
