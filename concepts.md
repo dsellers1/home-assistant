@@ -297,8 +297,12 @@ So far, we've specifically defined the entity in the IF statements. With the Mus
 - [ ] is_state/state_attr
 - [x] Rounding
 
+ 
+<p align="center"><a href="https://www.buymeacoffee.com/d_sellers1" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></p>
+
 Footnotes:
 [^1]: IF statement https://www.computerhope.com/jargon/i/ifstatme.htm
 [^2]: ELSE statment https://www.computerhope.com/jargon/e/else.htm
 [^3]: ELIF/ELSE IF statement https://www.computerhope.com/jargon/e/elseif.htm
 [^4]: Floating-point arithmetic https://en.wikipedia.org/wiki/Floating-point_arithmetic
+
