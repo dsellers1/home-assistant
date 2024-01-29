@@ -337,11 +337,11 @@ Operators are used to assign values, compare values, perform arithmetic operatio
 > The equal sign (=) is an assignment operator, not an *equal to* comparison operator.
 
 ### Using logical operators
-| Operator | Descripton | Example | Returns |
-|:---:|:---:|:---:|:---:|
-| && | AND | (1 < 2) AND (1 = 1) | true |
-| \|\| | OR | (1 < 2) OR ( 2 = 1) | true |
-| ! | NOT| !(1 = 1) | false |
+| Operator | Descripton |
+|:---:|:---:|
+| && | AND | 
+| \|\| | OR | 
+| ! | NOT|
 
 ### Using conditional (ternary) operators
 A conditional (ternary) operator assigns a value based on a condition. They are also known as shorthand IF/ELSE statements.<br>
