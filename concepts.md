@@ -1,20 +1,20 @@
 # Lovelace templating concepts
-When it comes to customizing lovelace cards, there are some basics to understand in order to be able to create the customization. This guide will focus on the included Home Assistant cards, Mushroom cards, and custom:button-cards. I feel these three examples should cover most use cases but the concepts should apply to most cards.
+When it comes to customizing Lovelace cards in Home Assistance, there are some basics to understand in order to be able to create the customization. This guide will focus on the included Home Assistant cards, Mushroom cards, and custom:button-cards. These three examples should cover most use cases but the concepts should apply to most cards.
 
 - stock HA cards - least customizable; customization can usually be done with [card_mod](https://github.com/thomasloven/lovelace-card-mod). 
 - [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) - somewhat customizable; Mushroom Template cards can be used; card-mod is another option
 - [custom:button-card](https://github.com/custom-cards/button-card) - the most customizable of the bunch; card-mod is an option but usually not needed
 
 ### Jinja vs Python
-Why did I include two third-party cards? These two cards are probably the most commonly used but they rely on different languages. The Mushroom cards (and most cards used in HA) use Jinja while the custom:button-card uses JavaScript. The concepts will be the same but the syntax will be different.
+Why are two third-party cards used in this guide? These two cards are probably the most commonly used but they rely on different languages. The Mushroom cards (and most cards used in HA) use Jinja while the custom:button-card uses JavaScript. The concepts will be the same but the syntax will be different.
 
 ## Some basics to get started
 
 ### Getting a state
-States can usually be on, off, true, false, unavailable, unknown, numbers, dates,, times, and more.
+States can usually be on, off, true, false, unavailable, unknown, numbers, dates, times, and more.
 
-Jinja: ```states("domain.entity_name")```<br>
-JavaScript: ```states["domain.entity_name"].state```
+Jinja: `states("domain.entity_name")`<br>
+JavaScript: `states["domain.entity_name"].state`
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/35427020-2e22-4d35-b8e3-bbf93699c10a)
 
@@ -37,8 +37,8 @@ name: '[[[ return states["light.living_room_lights"].state ]]]'
 ### Getting an attribute
 Attributes of an entity can be friendly_name, brightness, color_mode, color_temp, rgb_color, icon, device_class, hvac_modes, min_temp, max_temp, and more. Check Developer Tools > States to see an entity's attributes.
 
-Jinja: ```state_attr("domain.entity_name", attribute)```<br>
-JavaScript: ```states["domain.entity_name"].attributes.name_of_attribute_here```
+Jinja: `state_attr("domain.entity_name", attribute)`<br>
+JavaScript: `states["domain.entity_name"].attributes.name_of_attribute`
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/552b637e-4231-4293-bfaf-b69d33fe3574)
 
@@ -63,8 +63,8 @@ name: '[[[ return states["light.living_room_lights"].attributes.friendly_name ]]
 ### Using a basic IF statement
 An if statement is a programming conditional statement that, if proved true, performs a function or displays information[^1].
 
-Jinja: ```{% if (condition) %} value_to_return {% endif %}```<br>
-JavaScript:```[[[ if (condition) return value_to_return ]]]```
+Jinja: `{% if (condition) %} value_to_return {% endif %}`<br>
+JavaScript:`[[[ if (condition) return value_to_return ]]]`
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/aacdf861-2452-4838-9618-cea7c4cefb83)
 
@@ -187,38 +187,7 @@ name: |
 
 </details>
 
-### Using shorthand IF/ELSE statements
-For simple IF/ELSE statements, you can use shorthand methods. These are useful to condense the number of lines needed to return a simple comparison on a single line but may be less readable.<br>
-
-Jinja: `return_if_true if (condition) else return_if_false`<br>
-Jinja piping to iif: `{{ (condition) | iif(return_if_true, return_if_false) }}`<br>
-JavaScript: `(condition) ? return_if_true : return_if_false`
-
-<details><summary>Jinja example</summary>
-  
-```yaml
-type: custom:mushroom-template-card
-primary: '{{ "It''s on" if states("light.living_room_lights") == "on" else "It''s off" }}'
-```
-
-</details><details><summary>Jinja piping to iif example</summary>
-  
-```yaml
-type: custom:mushroom-template-card
-primary: '{{ (states("light.living_room_lights") == "on") | iif("It''s on", "It''s off") }}'
-```
-
-</details><details><summary>JavaScript example</summary>
-  
-```yaml
-type: custom:button-card
-name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on" : "It''s off" ]]]'
-```
-
-</details>
-
-> [!NOTE]
-> While shorthand IF/ELSE statements are useful, they won't be used in the remainder of the guide for readability purposes.
+## Working with numbers
 
 ### Converting strings to Intergers and Floats
 Before moving on to some more advanced comparisons, it should be noted that states and attributes are stored as strings. This can complicate operations that compare values to numbers because it won't work. To overcome this, you have to convert the string to a number, more specifically, an integer or a float. Basically, intergers are whole numbers while floats can have decimals.
@@ -277,10 +246,10 @@ name: '[[[ return parseFloat(123.456).toFixed(1) ]]]'
 > Don't forget that Home Assistant stores states and attributes as strings so values would need to be converted to floats before being able to perform the rounding.
 
 > [!CAUTION]
-> Rounding floats can generally be *problematic* given how computers deal with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately". Just be aware of this possibility.
+> Rounding floats can generally be *problematic* given how computers deal with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately." Just be aware of this possibility.
 
 ### Using variables with templates
-So far, we've specifically defined the entity in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This is convenient to be able minimize having to repeat the entity name.
+So far, entities have been specifically defined in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This can be used to minimize having to repeat the entity name.
 
 Jinja: `state_attr(config.entity, "friendly_name")`<br>
 JavaScript: `entity.attributes.friendly_name`
@@ -306,10 +275,10 @@ show_icon: false
 
 </details>
 
-Variables can also be defined within the template using `set` and `var`, respectively.
+Variables can also be defined within the template using `set` in Jinja and `var`, `let`, or `const` in JavaScript.
 
 Jinja: `set variable_name = value`<br>
-JavaScript: `var variable_name = value`
+JavaScript: `const variable_name = value`
 
 <details><summary>Jinja example</summary>
   
@@ -326,13 +295,86 @@ primary: |
 type: custom:button-card
 name: |
   [[[ 
-    var variable = "light.living_room_lights";
+    const variable = "light.living_room_lights";
     return states[variable].attributes.friendly_name
   ]]]
 ```
 
 </details>
 
+> [!NOTE]
+> In JavaScript, `var` was used from 1995 to 2015; `let` and `const` were added in 2015. `var` can be used to ensure compatibility with older browsers. The value of `const` cannot be changed once defined, while `let` can. If the value of the variable does not need to be changed while the code is being executed, use `const`.
+
+## Working with operators
+Operators are used to assign values, compare values, perform arithmetic operations, and more. They can be classified as arthmetic, assignment, comparison, logical, conditional, and type.[^5]
+
+### Using arithmetic operators
+| Operator | Description | Jinja | JavaScript| Example | Returns | 
+|:---:|---|:---:|:---:|:---:|:---:|
+| + | Addition | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 1 + 1 | 2 |
+| - | Subtraction | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 1 - 1 | 0 |
+| * | Multiplication | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 2 * 2 | 4 |
+| / | Division | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 2 / 2 | 1 |
+| // | Returns the quotient of division |  $${\color{green}&#x2713;}$$ | $${\color{red}&#x2717;}$$ | 5 // 2 | 2 |
+| ~~ | Returns the quotient of division |  $${\color{red}&#x2717;}$$ | $${\color{green}&#x2713;}$$ | ~~(5 / 2) | 2 |
+| % | Modulus (Division Remainder) | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 5 % 2 | 1 |
+| ** | Exponentiation | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 2 ** 3 | 8 |
+
+> [!CAUTION]
+> The equal sign (=) is an assignment operator, not an *equal to* arithemtic operator.
+
+### Using comparison operators
+| Operator | Description | Example | Returns |
+|:---:|---|:---:|:---:|
+| == | equal to | 1 == 1 | true |
+| != | not equal to | 1 != 1 | false |
+| > | greater than | 2 > 1 | true |
+| < | less than | 2 < 1 | false |
+| >= | greater than or equal to | 1 >= 2 | false |
+| <= | less than or equal to | 2 <= 1 | true |
+
+> [!CAUTION]
+> The equal sign (=) is an assignment operator, not an *equal to* comparison operator.
+
+### Using logical operators
+| Operator | Descripton | Example | Returns |
+|:---:|:---:|:---:|:---:|
+| && | AND | (1 < 2) AND (1 = 1) | true |
+| \|\| | OR | (1 < 2) OR ( 2 = 1) | true |
+| ! | NOT| !(1 = 1) | false |
+
+### Using conditional (ternary) operators
+A conditional (ternary) operator assigns a value based on a condition. They are also known as shorthand IF/ELSE statements.<br>
+
+Jinja: `return_if_true if (condition) else return_if_false`<br>
+Jinja piping to iif: `{{ (condition) | iif(return_if_true, return_if_false) }}`<br>
+JavaScript: `(condition) ? return_if_true : return_if_false`
+
+<details><summary>Jinja example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: '{{ "It''s on" if states("light.living_room_lights") == "on" else "It''s off" }}'
+```
+
+</details><details><summary>Jinja piping to iif example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: '{{ (states("light.living_room_lights") == "on") | iif("It''s on", "It''s off") }}'
+```
+
+</details><details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on" : "It''s off" ]]]'
+```
+
+</details>
+
+> [!NOTE]
+> While conditional operators are useful, they won't be used in the remainder of the guide for readability purposes.
 
 ## TODO
 - [x] Getting a state
@@ -348,6 +390,8 @@ name: |
     - https://www.home-assistant.io/docs/configuration/state_object/
 - [ ] is_state/state_attr
 - [x] Rounding
+- [ ] Link to example showing concept
+- [ ] Add references for more info
 
  
 <p align="center"><a href="https://www.buymeacoffee.com/d_sellers1" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></p>
@@ -357,4 +401,50 @@ Footnotes:
 [^2]: ELSE statment https://www.computerhope.com/jargon/e/else.htm
 [^3]: ELIF/ELSE IF statement https://www.computerhope.com/jargon/e/elseif.htm
 [^4]: Floating-point arithmetic https://en.wikipedia.org/wiki/Floating-point_arithmetic
-
+[^5]: JavaScript Operators Reference https://www.w3schools.com/jsref/jsref_operators.asp
+<!--
+This is the YAML code used to create the screenshots.
+type: horizontal-stack
+cards:
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: <center>Mushroom Template card
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+              background: transparent;
+            }
+            ha-markdown {
+              padding: 0 0 0 0  !important;
+            }
+      - type: custom:mushroom-template-card
+        primary: |
+          {% set variable = "light.living_room_lights" %}
+          {{ state_attr(variable, "friendly_name") }}
+  - type: vertical-stack
+    cards:
+      - type: markdown
+        content: <center>custom:button-card
+        card_mod:
+          style: |
+            ha-card {
+              border: none;
+              background: transparent;
+            }
+            ha-markdown {
+              padding: 0 0 0 0  !important;
+            }
+      - type: custom:button-card
+        name: |
+          [[[ 
+            var variable = "light.living_room_lights";
+            return states[variable].attributes.friendly_name
+          ]]]
+-->
+<!--
+HTML codes:
+&#x2713;  checkmark
+&#x2717;  fancy X
+-->
