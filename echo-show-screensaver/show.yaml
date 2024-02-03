@@ -3,113 +3,276 @@ variables:
   alarm_entity: sensor.bedroom_dot_next_alarm
   var_weather_entity: weather.home
   use_24_hour_time: false
-entity: none
-show_state: false
-show_icon: false
-show_name: false
+entity: input_boolean.tester
 triggers_update: all
-tap_action: none
-hold_action: none
-double_tap_action: none
+tap_action:
+  action: toggle
+show_name: false
 styles:
+  grid:
+    - grid-template-areas: '"weather alarm" "clock clock" "date date"'
+    - grid-template-rows: min-content 1fr min-content
+    - grid-template-columns: 1fr 1fr
+    - row-gap: .5rem
   card:
-    - width: 1280px
-    - height: 800px
-    - background-image: >-
+    - height: 100%
+    - padding: 2rem 2rem 3rem 2rem
+    - background: >-
+        center / cover no-repeat
         url('https://r4.wallpaperflare.com/wallpaper/230/410/477/landscape-macro-green-nature-wallpaper-99f098ad711a5debb627785f20d1c67d.jpg')
-    - background-size: cover
-    - border-radius: 0px
-    - border: none
+    - overflow: hidden
   custom_fields:
-    weather:
-      - font-size: 35px
+    filter1:
       - position: absolute
-      - left: 10%
-      - top: 10%
+      - top: 0px
+      - left: 0px
+      - height: 150%
+      - width: 150%
+      - backdrop-filter: brightness(50%)
+      - overflow: hidden
+      - z-index: 0
+    filter2:
+      - top: 0px
+      - left: 0px
+      - position: absolute
+      - height: 150%
+      - width: 150%
+      - backdrop-filter: brightness(100%)
+      - overflow: hidden
+      - z-index: 0
     alarm:
-      - font-size: 35px
+      - justify-self: end
+      - z-index: 2
+    assistant:
       - position: absolute
-      - right: 10%
-      - top: 10%
-    time:
-      - font-size: 175px
-      - font-weight: bold
-      - position: absolute
-      - top: 35%
-      - width: 100%
+      - justify-self: center
+      - z-index: 4
+      - bottom: 5%
+    clock:
       - color: white
+      - justify-self: center
+      - font-size: 10rem
+      - z-index: 2
     date:
-      - font-size: 60px
-      - position: absolute
-      - top: 65%
-      - width: 100%
-      - color: white
+      - justify-self: center
+      - align-self: center
+      - z-index: 2
+    weather:
+      - justify-self: start
+      - z-index: 2
+state:
+  - value: 'on'
+    styles:
+      custom_fields:
+        filter2:
+          - animation: brightness .5s ease-in-out forwards
+        assistant:
+          - animation: big .5s ease-in-out forwards
+extra_styles: |
+  @keyframes big {
+    100% { bottom: 50%; }
+  }
+  @keyframes brightness {
+    100% { backdrop-filter: brightness(50%); }
+  }
 custom_fields:
-  weather: |
-    [[[
-      var outdoor_temp = states[variables.var_weather_entity].attributes.temperature;
-      const weatherIconsDay  = {
-        "clear-night": "mdi:weather-night", 
-        "cloudy": "mdi:weather-cloudy",
-        "dust":"mdi:weather-dust",
-        "fog": "mdi:weather-fog",
-        "hail": "mdi:weather-hail",
-        "hazy": "mdi:weather-hazy", 
-        "hurricane": "mdi:weather-hurricane",
-        "lightning": "mdi:weather-lightning",
-        "lightning-rainy": "mdi:weather-lightning-rainy",
-        "partlycloudy": "mdi:weather-partly-cloudy",
-        "partly-lightning": "mdi:weather-partly-lightning", 
-        "partly-rainy": "mdi:weather-partly-rainy",
-        "partly-snowy": "mdi:weather-partly-snowy", 
-        "partly-snowy-rainy": "mdi:weather-partly-snowy-rainy", 
-        "pouring": "mdi:weather-pouring",
-        "rainy": "mdi:weather-rainy",
-        "snowy": "mdi:weather-snowy",
-        "snowy-heavy": "mdi:weather-snowy-heavy",
-        "snowy-rainy": "mdi:weather-snowy-rainy",
-        "sunny": "mdi:weather-sunny",
-        "tornado":"mdi:weather-tornado",
-        "windy":  "mdi:weather-windy",
-        "windy-variant": "mdi:weather-windy-variant",
-      };
-      const weatherIconsNight = {
-        ...weatherIconsDay,
-        clear: "mdi:weather-night",
-        sunny: "mdi:weather-night",
-        partlycloudy: "mdi:weather-night-partly-cloudy",
-      };
-      var condition = states[variables.var_weather_entity].state;
-      if (states['sun.sun'] === 'above_horizon') {
-        var weather_icon = weatherIconsDay[condition]; 
-      } else {
-        var weather_icon = weatherIconsNight[condition]; 
-      }
-      
-      if (typeof(weather_icon) === 'undefined') { 
-        var weather_icon = "mdi:help" 
-      }   
-      return `<ha-icon icon="${weather_icon}" style="width: 50px; height: 50px; color: white;"></ha-icon>
-      <font color="white"><span>${outdoor_temp}°</span></font>`
-    ]]]
-  alarm: |
-    [[[
-      var alarm_time = new Date(states["sensor.bedroom_dot_next_alarm"].state)
-      var alarm_time_formatted = (alarm_time.getHours() < 10 ? '0' : '') + alarm_time.getHours() + ":" + (alarm_time.getMinutes() < 10 ? '0' : '') + alarm_time.getMinutes() 
-      return `<ha-icon icon="mdi:alarm" style="width: 50px; height: 50px; color: white;"></ha-icon>
-      <font color="white"><span>${alarm_time_formatted}</span></font>`
-    ]]]
-  time: |
-    [[[
-      if (variables.use_24_hour_time) {
-        var options = { hour: "2-digit", minute: "2-digit", hour12: false };
-      } else {
-        var options = { hour: "numeric", minute: "2-digit" };      
-      }
-      return new Date().toLocaleTimeString([], options).replace("AM","").replace("PM","")
-    ]]]
-  date: |
-    [[[
-      const options = { weekday: "short", month: "short", day: "numeric", };
-      return new Date().toLocaleDateString([], options)
-    ]]]    
+  filter1: .
+  filter2: .
+  alarm:
+    card:
+      type: custom:button-card
+      show_name: true
+      show_icon: true
+      icon: mdi:alarm
+      name: |
+        [[[
+          if (states[variables.alarm_entity].state == "unknown") { return "Not set" }
+          var alarm_time = new Date(states[variables.alarm_entity].state)
+          var alarm_time_formatted = (alarm_time.getHours() < 10 ? '0' : '') + alarm_time.getHours() + ":" + (alarm_time.getMinutes() < 10 ? '0' : '') + alarm_time.getMinutes() 
+          return alarm_time_formatted
+        ]]]
+      styles:
+        grid:
+          - grid-template-areas: '"i n"'
+          - grid-template-columns: 1fr min-content
+          - column-gap: .5rem
+        card:
+          - height: 100%
+          - padding: 0
+          - background: none
+          - border: none
+        name:
+          - color: white
+          - justify-self: center
+          - align-self: center
+          - font-size: 1.25rem
+          - font-weight: 600
+        img_cell:
+          - justify-self: start
+          - align-self: center
+          - width: 1.25rem
+          - height: 1.25rem
+        icon:
+          - width: 100%
+          - color: white
+  clock:
+    card:
+      type: custom:button-card
+      show_name: true
+      name: |
+        [[[
+          if (variables.use_24_hour_time) {
+            var options = { hour: "2-digit", minute: "2-digit", hour12: false };
+          } else {
+            var options = { hour: "numeric", minute: "2-digit" };      
+          }
+          return new Date().toLocaleTimeString([], options).replace("AM","").replace("PM","")
+        ]]]
+      styles:
+        card:
+          - height: 100%
+          - padding: 1rem 0
+          - background: none
+          - border: none
+        name:
+          - color: white
+          - justify-self: center
+          - align-self: center
+          - font-size: 5vmax
+          - font-weight: 600
+  date:
+    card:
+      type: custom:button-card
+      show_name: true
+      name: |
+        [[[
+          const options = { weekday: "short", month: "short", day: "numeric", };
+          return new Date().toLocaleDateString([], options)
+        ]]]  
+      styles:
+        card:
+          - padding: 0
+          - background: none
+          - border: none
+        name:
+          - color: white
+          - justify-self: center
+          - align-self: center
+          - font-size: 1.25rem
+          - font-weight: 600
+  weather:
+    card:
+      type: custom:button-card
+      show_name: true
+      show_icon: true
+      icon: |
+        [[[
+           var outdoor_temp = states[variables.var_weather_entity].attributes.temperature;
+          const weatherIconsDay  = {
+            "clear": "mdi:weather-sunny", "cloudy": "mdi:weather-cloudy",
+            "dust":"mdi:weather-dust", "fog": "mdi:weather-fog", "hail": "mdi:weather-hail", 
+            "hazy": "mdi:weather-hazy", "hurricane": "mdi:weather-hurricane", "lightning": "mdi:weather-lightning",
+            "lightning-rainy": "mdi:weather-lightning-rainy","partlycloudy": "mdi:weather-partly-cloudy",
+            "partly-lightning": "mdi:weather-partly-lightning", "partly-rainy": "mdi:weather-partly-rainy",
+            "partly-snowy": "mdi:weather-partly-snowy", "partly-snowy-rainy": "mdi:weather-partly-snowy-rainy", 
+            "pouring": "mdi:weather-pouring", "rainy": "mdi:weather-rainy", "snowy": "mdi:weather-snowy", 
+            "snowy-heavy": "mdi:weather-snowy-heavy", "snowy-rainy": "mdi:weather-snowy-rainy", "sunny": "mdi:weather-sunny",
+            "tornado":"mdi:weather-tornado", "windy":  "mdi:weather-windy", "windy-variant": "mdi:weather-windy-variant",
+          };
+          const weatherIconsNight = {
+            ...weatherIconsDay,
+            clear: "mdi:weather-night", "clear-night": "mdi:weather-night", sunny: "mdi:weather-night", partlycloudy: "mdi:weather-night-partly-cloudy",
+          };
+          var condition = states[variables.var_weather_entity].state;
+          if (states["sun.sun"].state === "above_horizon") {
+            var weather_icon = weatherIconsDay[condition]; 
+          } else {
+            var weather_icon = weatherIconsNight[condition]; 
+          }
+          if (typeof(weather_icon) === 'undefined') { var weather_icon = "mdi:help" } 
+          return weather_icon    
+        ]]]
+      name: |
+        [[[ 
+          return states[variables.var_weather_entity].attributes.temperature + 
+          states[variables.var_weather_entity].attributes.temperature_unit
+        ]]]
+      styles:
+        grid:
+          - grid-template-areas: '"i n"'
+          - grid-template-columns: 1fr min-content
+          - column-gap: .5rem
+        card:
+          - height: 100%
+          - padding: 0
+          - background: none
+          - border: none
+        name:
+          - color: white
+          - justify-self: center
+          - align-self: center
+          - font-size: 1.25rem
+          - font-weight: 600
+        img_cell:
+          - justify-self: start
+          - align-self: center
+          - width: 1.25rem
+          - height: 1.25rem
+        icon:
+          - width: 100%
+          - color: |
+              [[[
+                let colors = {
+                  "clear": "#FFF900", "clear-night": "#FFF900", "cloudy": "#626567",
+                  "fog": "#C0C0C0", "hail": "white ", "hazy": "grey ", 
+                  "lightning": "#D9D401", "lightning-rainy": "#D9D401",
+                  "night-partly-cloudy": "#B3B6B7", "partlycloudy": "#B3B6B7",
+                  "partly-lightning": "#D9D401", "partly-rainy": "#4E4DD8",
+                  "partly-snowy": "#FFFFFF", "partly-snowy-rainy": "#FFFFFF", 
+                  "pouring": "#2E9AFE", "rainy": "#5757BE", "snowy": "#FFFFFF",
+                  "snowy-heavy": "#FFFFFF", "snowy-rainy": "#FFFFFF",
+                  "sunny": "#FFF900", "windy": "grey"
+                };
+                var icon_color = colors[states[variables.var_weather_entity].state];
+                if (typeof(icon_color) === 'undefined') { var icon_color = "#FFFFFF" }
+                return icon_color;
+              ]]]
+  assistant:
+    card:
+      type: custom:button-card
+      entity: input_boolean.tester
+      name: What can I do for you?
+      show_icon: false
+      tap_action:
+        action: none
+      styles:
+        card:
+          - height: .25rem
+          - width: 4rem
+          - border-radius: 500px
+          - padding: 0
+          - background: white
+          - transform: translate(0%, 50%)
+        name:
+          - opacity: 0
+      state:
+        - value: 'on'
+          styles:
+            card:
+              - animation: big2 .5s ease-in-out forwards
+              - animation-delay: .75s
+            name:
+              - animation: big3 .75s ease-in-out forwards
+              - animation-delay: 1s
+      extra_styles: |
+        @keyframes big2 {
+          0%{ height: .25rem; width: 4rem }
+          100% {
+            height: 3.25rem; width: 16rem;
+            transform: translate(0%, 50%);
+          }
+        }
+        @keyframes big3 {
+          0% { opacity: 0; }
+          100% {opacity: 1; }
+        }
