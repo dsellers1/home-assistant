@@ -15,7 +15,8 @@ styles:
   card:
     - width: 1280px
     - height: 800px
-    - background-image: url('/local/leaves.jpg')
+    - background-image: >-
+        url('https://r4.wallpaperflare.com/wallpaper/230/410/477/landscape-macro-green-nature-wallpaper-99f098ad711a5debb627785f20d1c67d.jpg')
     - background-size: cover
     - border-radius: 0px
     - border: none
@@ -36,11 +37,13 @@ styles:
       - position: absolute
       - top: 35%
       - width: 100%
+      - color: white
     date:
       - font-size: 60px
       - position: absolute
       - top: 65%
       - width: 100%
+      - color: white
 custom_fields:
   weather: |
     [[[
