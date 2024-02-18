@@ -20,11 +20,12 @@
 [NVIDIA Quadro P400 2GB](https://www.nvidia.com/content/dam/en-zz/Solutions/design-visualization/productspage/quadro/quadro-desktop/quadro-pascal-p400-data-sheet-us-nv-704503-r1.pdf) graphics card<br>
 [SanDisk SDCZ430-064G-G46](https://www.amazon.com/gp/product/B077VYCV37/) 64GB flash drive<br>
 [Kingston SA400S37/240G](https://www.amazon.com/gp/product/B01N5IB20Q/) 240GB 2.5" SATA drive *x2*<br>
-[Samsung 980](https://www.amazon.com/gp/product/B08V83JZH4/) 1TB NVMe M.2 SSD *x2*
+[Samsung 980](https://www.amazon.com/gp/product/B08V83JZH4/) 1TB NVMe M.2 SSD *x2*<br>
 [Coral USB Accelerator](https://www.amazon.com/gp/product/B07S214S5Y/)<br>
-Software: [Unraid Plus](https://unraid.net/product), [Plex](https://www.plex.tv/) (Lifetime Plex Pass)<br>
+[Hauppauge WinTV-quadHD 1609](https://www.amazon.com/gp/product/B01DZSVLTW/) TV tuner card<br>
+Software: [Unraid Plus](https://unraid.net/product), [Plex](https://www.plex.tv/) (Lifetime Plex Pass), [Jellyfin](https://jellyfin.org/)<br>
 
-### Home Assistant
+### Home Automation
 
 Raspberry Pi 4 GB<br>
 PoE+ hat<br>
@@ -32,3 +33,4 @@ SD card<br>
 [GoControl HUSBZB-1](https://www.amazon.com/gp/product/B01GJ826F8/) Zigbee/ZWave dongle<br>
 [Sengled B11-N1EW](https://www.amazon.com/gp/product/B08TG5X172/) Zigbee RGB E26 light bulb *x15*<br>
 [Philips Hue ‎570977](https://www.amazon.com/gp/product/B09KNQ5KTB/) Zigbee motion detector *x5*<br>
+Software/Add-ons: [Home Assistant](https://www.home-assistant.io/), [AdGuard-Home](https://github.com/hassio-addons/addon-adguard-home), Grafana, InfluxDB, [Mosquitto broker](https://github.com/home-assistant/addons/tree/master/mosquitto), [Node-RED](https://github.com/hassio-addons/addon-node-red)<br>
