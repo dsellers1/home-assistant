@@ -827,6 +827,9 @@ This example shows how to combine multiple cards and give the appearance of bein
 
 (Note: While I believe the Stack in Card was designed to handle the backgrounds and borders of the cards, it seems recent updates have broke that feature. To fix this, adding some card_mod code will assist in the overall appearance.)
 
+> [!TIP]
+> I recently started using a fork which has fixed handling the backgrounds and borders by [@ov1d1u](https://github.com/ov1d1u). Add this repository to HACS to download it: https://github.com/ov1d1u/stack-in-card. For the purposes of this example, the card_mod code will be left in place although not needed with this fork. 
+
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/d6d05461-ea35-4624-9e5e-a1f4d2f8b3d9)
 
 <details><summary>YAML code</summary>
