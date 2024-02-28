@@ -27,7 +27,7 @@ Software: [Unraid Plus](https://unraid.net/product), [Plex](https://www.plex.tv/
 
 ### Home Automation
 
-Raspberry Pi 4 GB<br>
+Raspberry Pi 4 8GB<br>
 PoE+ hat<br>
 SD card<br>
 [GoControl HUSBZB-1](https://www.amazon.com/gp/product/B01GJ826F8/) Zigbee/ZWave dongle<br>
