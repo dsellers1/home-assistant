@@ -24,6 +24,7 @@ JavaScript: `states["domain.entity_name"].state`
 type: custom:mushroom-template-card
 primary: '{{ states("light.living_room_lights") }}'
 ```
+[card_mod](https://github.com/thomasloven/lovelace-card-mod)
 
 </details><details><summary>JavaScript example</summary>
   
@@ -187,6 +188,9 @@ name: |
 
 </details>
 
+> [!TIP]
+> See also [conditional (ternary) operators](https://github.com/dsellers1/home-assistant/edit/main/concepts.md#using-conditional-ternary-operators) for another approach at simple, single-line IF/ELSE statements.
+
 ## Working with numbers
 
 ### Converting strings to Intergers and Floats
@@ -337,11 +341,11 @@ Operators are used to assign values, compare values, perform arithmetic operatio
 > The equal sign (=) is an assignment operator, not an *equal to* comparison operator.
 
 ### Using logical operators
-| Operator | Descripton |
-|:---:|:---:|
-| && | AND | 
-| \|\| | OR | 
-| ! | NOT|
+| Operator | Descripton | Example | Returns |
+|:---:|:---:|:---:|:---:|
+| && | AND | true && false | false |
+| \|\| | OR | true \|\| false | true |
+| ! | NOT| true && !false | true |
 
 ### Using conditional (ternary) operators
 A conditional (ternary) operator assigns a value based on a condition. They are also known as shorthand IF/ELSE statements.<br>
@@ -376,6 +380,19 @@ name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on
 > [!NOTE]
 > While conditional operators are useful, they won't be used in the remainder of the guide for readability purposes.
 
+## Single-line/Multiline Code and Using Quotation Marks
+
+When a single line of code is used, it must begin and end with a single quotation mark `'`. When using quotation marks within the code, using double quotation marks `"` or two consecutive single quotation marks `''` is required. 
+
+When code consists of multiple lines, single quotation marks are not needed at the beginning and end. Single or double quotation marks can be used within the code; two consecutive quotation marks are not needed. Using multiline code requires a *block style indicator* to indicate how new lines should behave. Using a pipe symbol `|` keeps the new lines as the literal style. The folded style uses a right-angle bracket `>` and new lines are replaced with spaces. A *chomping indicator* can also be used to control what happens with newlines at the end a a string. The default puts a single newline at the end of a string. Using `-` removes all newlines; `+` keeps them. 
+
+> [!CAUTION]
+> Sometimes HA has a habit of not following the block style or chomping indicators.
+
+> [!TIP]
+> For more information, see [YAML Multiline](https://yaml-multiline.info/).
+
+
 ## TODO
 - [x] Getting a state
 - [x] Getting an attribute
@@ -384,7 +401,7 @@ name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on
 - [ ] Working with operators and comparisons
 - [x] Convert to Int or Float
 - [ ] Working with Date/Time
-- [ ] Multiline/Single line/Use of quotation marks
+- [x] Multiline/Single line/Use of quotation marks
 - [x] Using variables/Internal variables
 - [ ] Working with last-updated/changed
     - https://www.home-assistant.io/docs/configuration/state_object/
