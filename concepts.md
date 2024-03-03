@@ -35,6 +35,9 @@ name: '[[[ return states["light.living_room_lights"].state ]]]'
 
 </details>
 
+> [!CAUTION]
+> It is important to remember that states (and attributes) are stored as strings even if the value is a number. See [Working with Numbers](#working-with-numbers) for more information.
+
 ### Getting an attribute
 Attributes of an entity can be friendly_name, brightness, color_mode, color_temp, rgb_color, icon, device_class, hvac_modes, min_temp, max_temp, and more. Check Developer Tools > States to see an entity's attributes.
 
