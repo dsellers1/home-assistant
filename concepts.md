@@ -192,7 +192,7 @@ name: |
 </details>
 
 > [!TIP]
-> See also [conditional (ternary) operators](https://github.com/dsellers1/home-assistant/edit/main/concepts.md#using-conditional-ternary-operators) for another approach at simple, single-line IF/ELSE statements.
+> See also [conditional (ternary) operators](#using-conditional-ternary-operators) for another approach at simple, single-line IF/ELSE statements.
 
 ## Working with numbers
 
