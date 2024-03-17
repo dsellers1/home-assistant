@@ -312,6 +312,27 @@ name: |
 > [!NOTE]
 > In JavaScript, `var` was used from 1995 to 2015; `let` and `const` were added in 2015. `var` can be used to ensure compatibility with older browsers. The value of `const` cannot be changed once defined, while `let` can. If the value of the variable does not need to be changed while the code is being executed, use `const`.
 
+### User-defined variables in a custom:button-card
+The custom:button-card has a useful feature of being able to define variables for use throughout the card. Variables defined in one section cannot be referenced by another section. (For example, setting a variable in `icon` cannot be used in `icon_color`.) This is known as the *scope* of a variable.
+
+![image](https://github.com/dsellers1/home-assistant/assets/67642332/0d2a2cca-ff4b-4a55-a93e-eafaacbd43ad)
+
+<details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+name: '[[[ return states[variables.var_name].attributes.friendly_name ]]]'
+label: '[[[ return states[variables.var_name].attributes.brightness + "%"]]]'
+show_label: true
+variables:
+  var_name: light.living_room_lights
+```
+
+</details>
+
+> [!CAUTION]
+> Variables are evaluated in their alphabetical order based on their name. That means a variable named b can depend on a variable named a, but variable named a can't depend on a variable named b.
+
 ## Working with operators
 Operators are used to assign values, compare values, perform arithmetic operations, and more. They can be classified as arthmetic, assignment, comparison, logical, conditional, and type.[^5]
 
