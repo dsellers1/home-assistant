@@ -32,6 +32,8 @@
 
 </details>
 
+---
+
 ### Safari
 
 <details><summary>Mac</summary>
@@ -48,6 +50,8 @@
 - Tap Remove All Website Data.
 
 </details>
+
+---
 
 ### Microsoft Edge
 <details><summary>Windows</summary>
@@ -80,7 +84,9 @@
 - Tap **Clear now**
 
 </details>
-  
+
+---
+
 ### Firefox
 
 <details><summary>Windows</summary>
@@ -114,6 +120,8 @@
 
 </details>
 
+---
+
 ### Home Assistant Companion App 
 
 <details><summary>Android</summary>
@@ -137,9 +145,11 @@
 
 </details>
 
+---
+
 ### Fully Kiosk Browser
 
-<details><summary>Amazon Fire</summary>
+<details><summary>Amazon FireOS</summary>
 
 - Exit Fully Kiosk Browser (swipe from the left side of the screen and tap **Exit Fully**, confirming if asked)
 - Go to **Settings** for the tablet (swipe down from the top of the screen twice and tap the Gear icon)
