@@ -71,6 +71,15 @@
 - Press the Back arrow twice to exit Settings
 
 </details>
+<details><summary>iOS</summary>
+
+- Tap Menu (the three dots at the bottom of the screen), and select **Settings**
+- Tap **Privacy and security**
+- Tap **Clear browsing data**
+- Uncheck everything except *Cached images and files*
+- Tap **Clear now**
+
+</details>
   
 ### Firefox
 
