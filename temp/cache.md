@@ -1,4 +1,4 @@
-### Google Chrome
+### Google Chrome (and most Chromium-based browsers)
 <details><summary>Windows</summary>
 
 - At the top right, click More and then **Settings**
