@@ -136,6 +136,9 @@ name: |
 
 </details>
 
+> [!TIP]
+> See also [conditional (ternary) operators](#using-conditional-ternary-operators) for another approach at simple, single-line IF/ELSE statements.
+
 ### Expanding the IF statement even further by using ELIF/ELSE IF
 Else if is a conditional statement performed after an if statement that, if true, performs a function.[^3]<br>
 Else if allows another condition to be evaluated within the original if statement. This is useful to test for on/off/other states or low/medium/high values. Multiple else ifs case be used, for example, to create a very_low/low/medium/high/very_high comparison.
@@ -190,9 +193,6 @@ name: |
 ```
 
 </details>
-
-> [!TIP]
-> See also [conditional (ternary) operators](#using-conditional-ternary-operators) for another approach at simple, single-line IF/ELSE statements.
 
 ## Working with numbers
 
