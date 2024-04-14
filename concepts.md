@@ -433,6 +433,8 @@ When code consists of multiple lines, single quotation marks are not needed at t
 - [x] Rounding
 - [ ] Link to example showing concept
 - [ ] Add references for more info
+- [ ] Template literals (Template strings)
+    - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 
  
 <p align="center"><a href="https://www.buymeacoffee.com/d_sellers1" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a></p>
