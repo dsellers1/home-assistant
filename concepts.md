@@ -407,7 +407,7 @@ name: "[[[ return (states['light.living_room_lights"].state == 'on') ? 'It&apos;
 
 ## Single-line/Multiline Code and Using Quotation Marks
 
-For single-line code, per Home Assistant's [YAML Style Guide](https://developers.home-assistant.io/docs/documenting/yaml-style-guide/#quoting-style), templates are strings and are double-quoted. Single quotes should be used inside the template. (Double quotes on the outside; single quotes on the inside.) When code consists of multiple lines, outside quotes are not used. Single or double quotation marks can be used within the code, but good practice dictates that single quotes should still be used inside the code. 
+Per Home Assistant's [YAML Style Guide](https://developers.home-assistant.io/docs/documenting/yaml-style-guide/#quoting-style), templates are strings and are double-quoted. Single quotes should be used inside the template. (Double quotes on the outside; single quotes on the inside.) When code consists of multiple lines, outside quotes are not used. Single or double quotation marks can be used within the code, but good practice dictates that single quotes should still be used inside the code. 
 
 When a return string, for example, contains a single quotation mark (or apostrophe), an escape character or two single quotation marks can be used with Jinja or an HTML Character Entity[^6] for JavaScript.
 
