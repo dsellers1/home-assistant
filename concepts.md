@@ -13,8 +13,8 @@ Why are two third-party cards used in this guide? These two cards are probably t
 ### Getting a state
 States can usually be on, off, true, false, unavailable, unknown, numbers, dates, times, and more.
 
-Jinja: `states("domain.entity_name")`<br>
-JavaScript: `states["domain.entity_name"].state`
+Jinja: `states('domain.entity_name')`<br>
+JavaScript: `states['domain.entity_name'].state`
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/35427020-2e22-4d35-b8e3-bbf93699c10a)
 
@@ -22,15 +22,14 @@ JavaScript: `states["domain.entity_name"].state`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ states("light.living_room_lights") }}'
+primary: "{{ states('light.living_room_lights') }}"
 ```
-[card_mod](https://github.com/thomasloven/lovelace-card-mod)
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ return states["light.living_room_lights"].state ]]]'
+name: "[[[ return states['light.living_room_lights'].state ]]]"
 ```
 
 </details>
@@ -41,8 +40,8 @@ name: '[[[ return states["light.living_room_lights"].state ]]]'
 ### Getting an attribute
 Attributes of an entity can be friendly_name, brightness, color_mode, color_temp, rgb_color, icon, device_class, hvac_modes, min_temp, max_temp, and more. Check Developer Tools > States to see an entity's attributes.
 
-Jinja: `state_attr("domain.entity_name", attribute)`<br>
-JavaScript: `states["domain.entity_name"].attributes.name_of_attribute`
+Jinja: `state_attr('domain.entity_name', attribute)`<br>
+JavaScript: `states['domain.entity_name'].attributes.name_of_attribute`
 
 ![image](https://github.com/dsellers1/temp/assets/67642332/552b637e-4231-4293-bfaf-b69d33fe3574)
 
@@ -50,14 +49,14 @@ JavaScript: `states["domain.entity_name"].attributes.name_of_attribute`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ state_attr("light.living_room_lights", "friendly_name") }}'
+primary: "{{ state_attr('light.living_room_lights', 'friendly_name') }}"
 ```
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ return states["light.living_room_lights"].attributes.friendly_name ]]]'
+name: "[[[ return states['light.living_room_lights'].attributes.friendly_name ]]]"
 ```
 
 </details>
@@ -76,14 +75,14 @@ JavaScript:`[[[ if (condition) return value_to_return ]]]`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{% if states("light.living_room_lights") == "on" %} It''s on {% endif %}'
+primary: "{% if states('light.living_room_lights') == 'on' %} It's on {% endif %}"
 ```
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ if (states["light.living_room_lights"].state == "on") return "It''s on" ]]]'
+name: "[[[ if (states['light.living_room_lights'].state == 'on') return 'It&apos;s on' ]]]"
 ```
 
 </details>
@@ -115,7 +114,7 @@ JavaScript:
 ```yaml
 type: custom:mushroom-template-card
 primary: |
-  {% if states("light.living_room_lights") == "on" %} 
+  {% if states('light.living_room_lights') == 'on' %} 
     It's on 
   {% else %}
     It's off
@@ -128,9 +127,9 @@ primary: |
 type: custom:button-card
 name: |
   [[[
-    if (states["light.living_room_lights"].state == "on") 
-      return "It's on";
-    else return "It's off";
+    if (states['light.living_room_lights'].state == 'on') 
+      return 'It&apos;s on';
+    else return 'It&apos;s off';
   ]]]
 ```
 
@@ -169,9 +168,9 @@ JavaScript:
 ```yaml
 type: custom:mushroom-template-card
 primary: |
-  {% if states("light.living_room_lights") == "on" %} 
+  {% if states('light.living_room_lights') == 'on' %} 
     It's on 
-  {% elif states("light.living_room_lights") == "off" %}
+  {% elif states('light.living_room_lights') == 'off' %}
     It's off
   {% else %}
     Unknown
@@ -184,11 +183,11 @@ primary: |
 type: custom:button-card
 name: |
   [[[
-    if (states["light.living_room_lights"].state == "on") 
-      return "It's on";
-    else if (states["light.living_room_lights"].state == "off") 
-      return "It's off";
-    else return "Unknown";
+    if (states['light.living_room_lights'].state == 'on') 
+      return 'It&apos;s on';
+    else if (states['light.living_room_lights'].state == 'off') 
+      return 'It&apos;s off';
+    else return 'Unknown';
   ]]]
 ```
 
@@ -208,14 +207,14 @@ JavaScript: `parseInt(value)` or `parseFloat(value)`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ 123.456 | int }}'
+primary: "{{ 123.456 | int }}"
 ```
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ return parseInt(123.456) ]]]'
+name: "[[[ return parseInt(123.456) ]]]"
 ```
 
 </details>
@@ -234,14 +233,14 @@ JavaScript: `value.toFixed(number_of_decimal_places)`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ 123.456 | round(1) }}'
+primary: "{{ 123.456 | round(1) }}"
 ```
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ return parseFloat(123.456).toFixed(1) ]]]'
+name: "[[[ return parseFloat(123.456).toFixed(1) ]]]"
 ```
 
 </details>
@@ -258,7 +257,7 @@ name: '[[[ return parseFloat(123.456).toFixed(1) ]]]'
 ### Using variables with templates
 So far, entities have been specifically defined in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This can be used to minimize having to repeat the entity name.
 
-Jinja: `state_attr(config.entity, "friendly_name")`<br>
+Jinja: `state_attr(config.entity, 'friendly_name')`<br>
 JavaScript: `entity.attributes.friendly_name`
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/ded73014-38d0-42b3-b874-6022047e995b)
@@ -268,7 +267,7 @@ JavaScript: `entity.attributes.friendly_name`
 ```yaml
 type: custom:mushroom-template-card
 entity: light.living_room_lights
-primary: '{{ state_attr(config.entity, "friendly_name") }}'
+primary: "{{ state_attr(config.entity, 'friendly_name') }}"
 ```
 
 </details><details><summary>JavaScript example</summary>
@@ -276,7 +275,7 @@ primary: '{{ state_attr(config.entity, "friendly_name") }}'
 ```yaml
 type: custom:button-card
 entity: light.living_room_lights
-name: '[[[ return entity.attributes.friendly_name ]]]'
+name: "[[[ return entity.attributes.friendly_name ]]]"
 show_icon: false
 ```
 
@@ -292,8 +291,8 @@ JavaScript: `const variable_name = value`
 ```yaml
 type: custom:mushroom-template-card
 primary: |
-  {% set variable = "light.living_room_lights" %}
-  {{ state_attr(variable, "friendly_name") }}
+  {% set variable = 'light.living_room_lights' %}
+  {{ state_attr(variable, 'friendly_name') }}
 ```
 
 </details><details><summary>JavaScript example</summary>
@@ -302,7 +301,7 @@ primary: |
 type: custom:button-card
 name: |
   [[[ 
-    const variable = "light.living_room_lights";
+    const variable = 'light.living_room_lights';
     return states[variable].attributes.friendly_name
   ]]]
 ```
@@ -321,8 +320,8 @@ The custom:button-card has a useful feature of being able to define variables fo
   
 ```yaml
 type: custom:button-card
-name: '[[[ return states[variables.var_name].attributes.friendly_name ]]]'
-label: '[[[ return states[variables.var_name].attributes.brightness + "%"]]]'
+name: "[[[ return states[variables.var_name].attributes.friendly_name ]]]"
+label: "[[[ return states[variables.var_name].attributes.brightness + '%']]]"
 show_label: true
 variables:
   var_name: light.living_room_lights
@@ -382,21 +381,23 @@ JavaScript: `(condition) ? return_if_true : return_if_false`
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ "It''s on" if states("light.living_room_lights") == "on" else "It''s off" }}'
+primary: |
+  {{ "It's on" if states('light.living_room_lights') == 'on' else "It's off" }}
 ```
 
 </details><details><summary>Jinja piping to iif example</summary>
   
 ```yaml
 type: custom:mushroom-template-card
-primary: '{{ (states("light.living_room_lights") == "on") | iif("It''s on", "It''s off") }}'
+primary: |
+  {{ (states('light.living_room_lights') == 'on') | iif("It's on", "It's off") }}
 ```
 
 </details><details><summary>JavaScript example</summary>
   
 ```yaml
 type: custom:button-card
-name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on" : "It''s off" ]]]'
+name: "[[[ return (states['light.living_room_lights"].state == 'on') ? 'It&apos;s on' : 'It&apos;s off' ]]]"
 ```
 
 </details>
@@ -406,9 +407,17 @@ name: '[[[ return (states["light.living_room_lights"].state == "on") ? "It''s on
 
 ## Single-line/Multiline Code and Using Quotation Marks
 
-When a single line of code is used, it must begin and end with a single quotation mark `'`. When using quotation marks within the code, using double quotation marks `"` or two consecutive single quotation marks `''` is required. 
+For single-line code, per Home Assistant's [YAML Style Guide](https://developers.home-assistant.io/docs/documenting/yaml-style-guide/#quoting-style), templates are strings and are double-quoted. Single quotes should be used inside the template. (Double quotes on the outside; single quotes on the inside.) When code consists of multiple lines, outside quotes are not used. Single or double quotation marks can be used within the code, but good practice dictates that single quotes should still be used inside the code. 
 
-When code consists of multiple lines, single quotation marks are not needed at the beginning and end. Single or double quotation marks can be used within the code; two consecutive quotation marks are not needed. Using multiline code requires a *block style indicator* to indicate how new lines should behave. Using a pipe symbol `|` keeps the new lines as the literal style. The folded style uses a right-angle bracket `>` and new lines are replaced with spaces. A *chomping indicator* can also be used to control what happens with newlines at the end a a string. The default puts a single newline at the end of a string. Using `-` removes all newlines; `+` keeps them. 
+When a return string, for example, contains a single quotation mark (or apostrophe), an escape character or two single quotation marks can be used with Jinja or an HTML Character Entity[^6] for JavaScript.
+
+Jinja: `'It\'s on'` or `'It''s on'`<br>
+JavaScript: `'It&apos; on'`
+
+> [!NOTE]
+> While creating this guide, I noticed that the mushroom-template-card does not properly handle the escape character or two single quotation marks to show an apostrophe within the strings. To get around this limitation, I had to deviate from the good practice and use double quotes around the strings inside a multiline template. (I hope this does not lead to confusion.)
+
+Using multiline code requires a *block style indicator* to indicate how new lines should behave. Using a pipe symbol `|` keeps the new lines as the literal style. The folded style uses a right-angle bracket `>` and new lines are replaced with spaces. A *chomping indicator* can also be used to control what happens with newlines at the end a a string. The default puts a single newline at the end of a string. Using `-` removes all newlines; `+` keeps them. 
 
 > [!CAUTION]
 > Sometimes HA has a habit of not following the block style or chomping indicators.
@@ -429,7 +438,8 @@ When code consists of multiple lines, single quotation marks are not needed at t
 - [x] Using variables/Internal variables
 - [ ] Working with last-updated/changed
     - https://www.home-assistant.io/docs/configuration/state_object/
-- [ ] is_state/state_attr
+- [ ] is_state/state_attr/is_state_attr
+    - not good for error handling
 - [x] Rounding
 - [ ] Link to example showing concept
 - [ ] Add references for more info
@@ -445,6 +455,7 @@ Footnotes:
 [^3]: ELIF/ELSE IF statement https://www.computerhope.com/jargon/e/elseif.htm
 [^4]: Floating-point arithmetic https://en.wikipedia.org/wiki/Floating-point_arithmetic
 [^5]: JavaScript Operators Reference https://www.w3schools.com/jsref/jsref_operators.asp
+[^6]: HTML Character Entities https://www.w3schools.com/html/html_entities.asp
 <!--
 This is the YAML code used to create the screenshots.
 type: horizontal-stack
