@@ -1,0 +1,188 @@
+alias: Auto Kitchen Lights
+description: ""
+trigger:
+  - platform: state
+    id: light_off_to_on
+    entity_id:
+      - light.kitchen_lights
+    from: "off"
+    to: "on"
+  - platform: state
+    id: light_on_to_off
+    entity_id:
+      - light.kitchen_lights
+    from: "on"
+    to: "off"
+  - platform: state
+    entity_id:
+      - binary_sensor.kitchen_motion_detector
+    from: "off"
+    to: "on"
+    id: motion_detected
+  - platform: state
+    entity_id:
+      - binary_sensor.kitchen_motion_detector
+    from: "on"
+    to: "off"
+    id: motion_cleared
+  - platform: event
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.automation_auto_kitchen_lights
+    id: timer_finished
+  - platform: state
+    entity_id:
+      - input_boolean.automation_auto_kitchen_lights
+    id: toggle_automation_off_to_on
+    from: "off"
+    to: "on"
+  - platform: state
+    entity_id:
+      - input_boolean.automation_auto_kitchen_lights
+    from: "on"
+    to: "off"
+    id: toggle_automation_on_to_off
+  - platform: state
+    entity_id:
+      - timer.automation_auto_kitchen_lights
+      - timer.tester
+    attribute: remaining
+    to: "1:00"
+    id: still_motion
+condition:
+  - alias: Automation enabled or just recently turned off
+    condition: or
+    conditions:
+      - condition: state
+        entity_id: input_boolean.automation_auto_kitchen_lights
+        state: "on"
+      - condition: template
+        value_template: |-
+          {{ is_state('input_boolean.automation_auto_kitchen_lights', 'off') and
+                 (now() - states.input_boolean.automation_auto_kitchen_lights.last_changed).total_seconds() < 10 }}
+action:
+  - alias: Choose between 6 triggers
+    choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - light_off_to_on
+        sequence:
+          - service: timer.start
+            data:
+              duration: >-
+                {{
+                states.input_number.automation_auto_kitchen_lights_duration.state
+                | int(0)*60 }}
+            target:
+              entity_id:
+                - timer.automation_auto_kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - light_on_to_off
+        sequence:
+          - service: timer.cancel
+            data: {}
+            target:
+              entity_id:
+                - timer.automation_auto_kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_detected
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.kitchen_lights
+                state: "off"
+            then:
+              - service: light.turn_on
+                data: {}
+                target:
+                  entity_id: light.kitchen_lights
+            else: []
+            alias: Are the lights on or off?
+          - alias: Is the timer already running?
+            if:
+              - condition: state
+                entity_id: timer.automation_auto_kitchen_lights
+                state: active
+            then:
+              - service: timer.start
+                target:
+                  entity_id: timer.automation_auto_kitchen_lights
+                data: {}
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_cleared
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.kitchen_lights
+                state: "on"
+            then:
+              - service: timer.start
+                data:
+                  duration: >
+                    {{
+                    states.input_number.automation_auto_kitchen_lights_duration.state
+                    | int(0)*60 }}
+                target:
+                  entity_id: timer.automation_auto_kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - timer_finished
+        sequence:
+          - service: light.turn_off
+            data: {}
+            target:
+              entity_id:
+                - light.kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - toggle_automation_off_to_on
+          - condition: state
+            entity_id: light.kitchen_lights
+            state: "on"
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.kitchen_lights
+                state: "on"
+            then:
+              - service: timer.start
+                data: {}
+                target:
+                  entity_id: timer.automation_auto_kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - toggle_automation_on_to_off
+          - condition: state
+            entity_id: light.kitchen_lights
+            state: "on"
+        sequence:
+          - service: timer.cancel
+            data: {}
+            target:
+              entity_id: timer.automation_auto_kitchen_lights
+      - conditions:
+          - condition: trigger
+            id:
+              - still_motion
+          - condition: state
+            entity_id: binary_sensor.kitchen_motion_detector
+            state: "on"
+            enabled: false
+        sequence:
+          - service: timer.start
+            metadata: {}
+            data:
+              duration: "5:00"
+            target:
+              entity_id: timer.automation_auto_kitchen_lights
+mode: single
