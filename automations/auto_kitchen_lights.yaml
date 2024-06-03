@@ -92,27 +92,56 @@ action:
             id:
               - motion_detected
         sequence:
-          - if:
-              - condition: state
-                entity_id: light.kitchen_lights
-                state: "off"
-            then:
-              - service: light.turn_on
-                data: {}
-                target:
-                  entity_id: light.kitchen_lights
-            else: []
-            alias: Are the lights on or off?
-          - alias: Is the timer already running?
-            if:
-              - condition: state
-                entity_id: timer.automation_auto_kitchen_lights
-                state: active
-            then:
-              - service: timer.start
-                target:
-                  entity_id: timer.automation_auto_kitchen_lights
-                data: {}
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.mini_pc_plex
+                    state: movie
+                    attribute: media_content_type
+                    alias: Confirm Plex is playing a movie
+                  - condition: state
+                    entity_id: light.kitchen_lights
+                    state: "off"
+                sequence:
+                  - service: light.turn_on
+                    metadata: {}
+                    data:
+                      brightness_pct: 50
+                    target:
+                      entity_id: light.stove
+                  - service: timer.start
+                    metadata: {}
+                    data:
+                      duration: "300"
+                    target:
+                      entity_id: timer.automation_auto_kitchen_lights
+                    alias: Start timer
+                alias: Plex is playing and kitchen lights are off
+              - conditions:
+                  - condition: state
+                    entity_id: light.kitchen_lights
+                    state: "off"
+                sequence:
+                  - service: light.turn_on
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: light.kitchen_lights
+                alias: Kitchen lights are off
+              - conditions:
+                  - condition: state
+                    entity_id: timer.automation_auto_kitchen_lights
+                    state: active
+                  - condition: state
+                    entity_id: light.kitchen_lights
+                    state: "on"
+                sequence:
+                  - service: timer.start
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: timer.automation_auto_kitchen_lights
+                alias: Kitchen lights are on and timer is running
       - conditions:
           - condition: trigger
             id:
