@@ -1,0 +1,691 @@
+anchors: 
+  popup_style_for_lights: &popup_style
+    timeout: 10000
+    card_mod: 
+      style: | 
+        ha-dialog {
+          --mdc-dialog-min-width: 1500px !important;
+          --mdc-dialog-max-width: 1500px !important;
+          --popup-border-width: 1px;
+          --popup-border-radius: 12px;
+          --popup-padding-x: 0px;
+          --popup-padding-y: 0px;
+          --dialog-backdrop-filter: hue-rotate(120deg) blur(0.8em) brightness(1.2); 
+          --dialog-backdrop-background-color: rgb(255,0,0);
+          --dialog-content-padding: 20px;
+        }
+        :host .content {
+          height: auto !important;
+          width: auto !important;
+        }
+
+  popup_entity_styling: &popup_entity
+    type: custom:slider-entity-row
+    hide_state: true
+    toggle: true
+    step: 5
+    min: 5
+
+  big-slider-card-style: &slider_style
+      name: "\_"
+      transition: 0.3
+      color: '#404040'
+      colorize: false
+      background_color: none
+      icon: none
+      height: 30
+      border_radius: '20px'
+      tap_action: none
+      hold_action: none
+
+button_card_templates: !include button-card-templates.yaml
+kiosk_mode: 
+  hide_sidebar: true
+  hide_header: true
+
+title: ViewSonic
+views:
+  - title: ViewSonic
+    type: panel 
+    background: black
+    theme: dark-mode
+    
+    cards:
+      - type: vertical-stack
+        cards:
+          - !include header.yaml
+          - type: custom:layout-card
+            layout_type: grid
+            layout:
+              grid-template-columns: 50% 50%
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.living_room_lights
+                        name: Living Room
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              <<: *popup_style
+                              content:
+                                type: vertical-stack
+                                cards:
+                                  - type: grid
+                                    columns: 2
+                                    cards:
+                                      - type: entities
+                                        state_color: true
+                                        show_header_toggle: false
+                                        entities:
+                                          - entity: light.living_room1
+                                            <<: *popup_entity
+                                          - entity: light.living_room2
+                                            <<: *popup_entity
+                                          - entity: light.living_room_corner_led_1
+                                            <<: *popup_entity
+                                          - entity: light.living_room_corner_led_2
+                                            <<: *popup_entity
+                      - type: custom:big-slider-card
+                        entity: light.living_room_lights
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.kitchen_lights
+                        name: Kitchen
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              <<: *popup_style
+                              content:
+                                type: vertical-stack
+                                cards:
+                                  - type: grid
+                                    columns: 2
+                                    cards:
+                                      - type: entities
+                                        state_color: true
+                                        show_header_toggle: false
+                                        entities:
+                                          - entity: light.kitchen
+                                            <<: *popup_entity
+                                          - entity: light.stove
+                                            <<: *popup_entity
+                                      - type: entities
+                                        state_color: true
+                                        show_header_toggle: false
+                                        entities:
+                                          - entity: automation.auto_kitchen_lights
+                                          - type: custom:slider-entity-row
+                                            entity: input_number.automation_auto_kitchen_lights_duration
+                                            name: Auto Lights Duration
+                                            hide_state: false
+                                            toggle: false
+                                            step: 5
+                      - type: custom:big-slider-card
+                        entity: light.kitchen_lights
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.hallway
+                        name: Hallway
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              card_mod: *popup_style
+                              content:
+                                type: entities
+                                state_color: true
+                                show_header_toggle: false
+                                entities:
+                                  - entity: light.hallway
+                                    <<: *popup_entity
+                                  - entity: automation.auto_hallway_lights
+                                  - type: custom:slider-entity-row
+                                    entity: input_number.automation_auto_hallway_lights_duration
+                                    name: Auto Lights Duration
+                                    hide_state: false
+                                    toggle: false
+                                    step: 5
+                      - type: custom:big-slider-card
+                        entity: light.hallway
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.office_lights
+                        name: Office
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              card_mod: *popup_style
+                              content:
+                                type: entities
+                                state_color: true
+                                show_header_toggle: false
+                                entities:
+                                  - entity: light.office1
+                                    <<: *popup_entity
+                                  - entity: light.office2
+                                    <<: *popup_entity
+                                  - entity: automation.auto_office_lights
+                                  - type: custom:slider-entity-row
+                                    entity: input_number.automation_auto_office_lights_duration
+                                    name: Auto Lights Duration
+                                    hide_state: false
+                                    toggle: false
+                                    step: 5
+                      - type: custom:big-slider-card
+                        entity: light.office_lights
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.bedroom_lights
+                        name: Bedroom
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              card_mod: *popup_style
+                              content:
+                                type: entities
+                                state_color: true
+                                show_header_toggle: false
+                                entities:
+                                  - entity: light.bedroom1
+                                    <<: *popup_entity
+                                  - entity: light.bedroom2
+                                    <<: *popup_entity
+                                  - entity: light.bedroom_floor_lamp
+                                    <<: *popup_entity
+                      - type: custom:big-slider-card
+                        entity: light.bedroom_lights
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.bathroom_lights
+                        name: Bathroom
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              card_mod: *popup_style
+                              content:
+                                type: entities
+                                state_color: true
+                                show_header_toggle: false
+                                entities:
+                                  - entity: light.bathroom1
+                                    <<: *popup_entity
+                                  - entity: light.bathroom2
+                                    <<: *popup_entity
+                                  - entity: light.bathroom3
+                                    <<: *popup_entity
+                                  - entity: light.bathroom4
+                                    <<: *popup_entity
+                                  - entity: automation.auto_bathroom_lights
+                                  - type: custom:slider-entity-row
+                                    entity: input_number.automation_auto_bathroom_lights_duration
+                                    name: Auto Lights Duration
+                                    hide_state: false
+                                    toggle: false
+                                    step: 5
+                      - type: custom:big-slider-card
+                        entity: light.bathroom_lights
+                        <<: *slider_style
+                  - type: vertical-stack
+                    cards:
+                      - type: custom:button-card
+                        template: generic_custom_button
+                        entity: light.all_lights
+                        hold_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              card_mod: *popup_style
+                              left_button: All ON
+                              left_button_action:
+                                service: light.turn_on
+                                data:
+                                  entity_id:
+                                    - light.all_lights
+                              right_button: All OFF
+                              right_button_action:
+                                service: light.turn_off
+                                data:
+                                  entity_id:
+                                    - light.all_lights
+                              content:
+                                type: entities
+                                state_color: true
+                                show_header_toggle: false
+                                entities:
+                                  - entity: light.living_room1
+                                    <<: *popup_entity
+                                  - entity: light.living_room2
+                                    <<: *popup_entity
+                                  - entity: light.kitchen
+                                    <<: *popup_entity
+                                  - entity: light.stove
+                                    <<: *popup_entity
+                                  - entity: light.hallway
+                                    <<: *popup_entity
+                                  - entity: light.office1
+                                    <<: *popup_entity
+                                  - entity: light.office2
+                                    <<: *popup_entity
+                                  - entity: light.bedroom_lights
+                                    <<: *popup_entity
+                                  - entity: light.bathroom_lights
+                                    <<: *popup_entity
+                      - type: custom:big-slider-card
+                        entity: light.all_lights_on
+                        <<: *slider_style
+
+
+              - type: conditional
+                conditions:
+                  - entity: media_player.xbox_plex
+                    state: playing
+                card:
+                    type: custom:button-card
+                    template: generic_custom_button
+                    entity: media_player.xbox_plex
+                    show_entity_picture: true
+                    show_name: false
+                    show_icon: false
+                    styles:
+                      card:
+                        - height: 120px
+                        - background: none
+                        - padding: 0
+                      grid:
+                        - grid-template-areas: |
+                            "image series" 
+                            "image episode"
+                            "image season_episode"
+                        - grid-template-rows: repeat(3, auto)
+                        - grid-template-columns: 100px 3fr
+                      custom_fields:
+                        series:
+                          - text-align: left
+                        episode:
+                          - text-align: left
+                        season_episode:
+                          - text-align: left
+                          - padding-bottom: 10px
+                        image: 
+                          - top: 0px
+                          - left: 0%
+                        timer-bar-card:
+                          - align-self: left
+                          - justify-self: left
+                          - position: absolute
+                          - width: 100%
+                          - left: 0px
+                          - bottom: "-16px"
+                          - opacity: 100%
+                    custom_fields:
+                      series: '[[[ return entity.attributes.media_series_title ]]]'
+                      episode: '[[[ return entity.attributes.media_title ]]]'
+                      season_episode: |
+                        [[[ 
+                          return `S${entity.attributes.media_season} - E${entity.attributes.media_episode}` 
+                        ]]]
+                      image:
+                        card:
+                          type: custom:button-card  
+                          entity: media_player.xbox_plex
+                          show_name: false
+                          styles:
+                            card:
+                              - background: '[[[return `url("${entity.attributes.entity_picture}")` ]]]'
+                              - background-size: contain
+                              - background-repeat: no-repeat
+                              - height: 120px
+                              - width: 100%
+                              - padding: 0
+                              - margins: 0
+                              - border: none
+                      timer-bar-card:
+                        card:
+                          type: custom:timer-bar-card
+                          entity: media_player.xbox_plex
+                          active_state: playing
+                          layout: full_row
+                          text_width: 0px
+                          bar_foreground: green
+                          bar_background: red
+                          duration:
+                            attribute: media_duration
+                            units: seconds
+                          position:
+                            attribute: media_position
+                            units: seconds
+
+          - type: custom:mod-card
+            card_mod:
+              style:
+                hui-grid-card:
+                  $: |
+                    .card-header {
+                      color: white !important;
+                      text-align: center !important; 
+                      font-family: Times New Roman !important;
+                      font-weight: 1000 !important;
+                      letter-spacing: 3px !important;
+                    }
+                $: |
+                  :host {
+                    --primary-text-color: white !important;
+                  }
+                .: |
+                  ha-card {
+                    border: none;
+                    background: transparent;
+                    position: fixed;
+                    bottom: 0px;
+                    left: 0px;
+                    width: 1200px;
+                  }
+            card:
+              type: vertical-stack
+              cards:
+
+                - type: grid
+                  layout:
+                    grid-template-columns: auto auto auto auto auto auto auto auto
+                  title: Doors
+                  columns: 8
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      template: door_animated
+                      entity: binary_sensor.living_room_door_on_off
+                      name: Living Room
+                      variables:
+                        var_battery_entity: sensor.living_room_door_battery_level
+                    - type: custom:button-card
+                      template: door_animated
+                      entity: binary_sensor.bathroom_door
+                      name: Bathroom
+                      show_name: true
+                      variables:
+                        var_battery_entity: sensor.bathroom_door_battery_level
+                        normally_closed: false
+                    - type: custom:button-card
+                      template: door_animated
+                      entity: binary_sensor.hallway_closet
+                      name: Hallway
+                      variables:
+                        var_battery_entity: sensor.hallway_closet_battery_level
+
+                - type: grid
+                  layout:
+                    grid-template-columns: auto auto auto auto auto auto auto auto
+                  title: Motion Detectors
+                  columns: 8
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      template: motion_detector_animated
+                      entity: binary_sensor.living_room_motion_detector_on_off
+                      name: Living Room
+                      variables:
+                        var_battery_entity: sensor.living_room_motion_detector_battery_level
+                    - type: custom:button-card
+                      template: motion_detector_animated
+                      entity: binary_sensor.office_motion_detector
+                      name: Office
+                      variables:
+                        var_battery_entity: sensor.office_motion_detector_battery_level
+                    - type: custom:button-card
+                      template: motion_detector_animated
+                      entity: binary_sensor.bathroom_motion_detector
+                      name: Bathroom
+                      variables:
+                        var_battery_entity: sensor.bathroom_motion_detector_battery_level
+                    - type: custom:button-card
+                      template: motion_detector_animated
+                      entity: binary_sensor.kitchen_motion_detector
+                      name: Kitchen
+                      variables:
+                        var_battery_entity: sensor.kitchen_motion_detector_battery_level
+                    - type: custom:button-card
+                      template: motion_detector_animated
+                      entity: binary_sensor.bedroom_motion_detector
+                      name: Bedroom
+                      variables:
+                        var_battery_entity: sensor.bedroom_motion_detector_battery_level
+
+                - type: grid
+                  layout:
+                    grid-template-columns: auto auto auto auto auto auto auto auto
+                  title: Temperatures
+                  columns: 8
+                  square: false
+                  cards:
+                    - type: custom:button-card
+                      template: temperature_sensor
+                      entity: sensor.living_room_motion_detector_temperature
+                      name: Living Room
+                    - type: custom:button-card
+                      template: temperature_sensor
+                      entity: sensor.office_motion_detector_temperature
+                      name: Office
+                    - type: custom:button-card
+                      template: temperature_sensor
+                      entity: sensor.bathroom_motion_detector_temperature
+                      name: Bathroom
+                    - type: custom:button-card
+                      template: temperature_sensor
+                      entity: sensor.kitchen_motion_detector_temperature
+                      name: Kitchen
+                    - type: custom:button-card
+                      template: temperature_sensor
+                      entity: sensor.bedroom_motion_detector_temperature
+                      name: Bedroom
+
+          - type: custom:mod-card
+            card_mod:
+              style: |
+                ha-card {
+                  border: none;
+                  background: transparent;
+                  position: fixed;
+                  bottom: 0px;
+                  right: 0px;
+                  width: 800px;
+                }
+            card:
+              type: vertical-stack
+              cards:
+                - type: grid
+                  columns: 3
+                  square: false
+                  cards:
+                    - type: custom:gap-card
+                    - type: custom:gap-card
+                    - type: custom:button-card
+                      custom_fields:
+                        camera:
+                          card:
+                            type: custom:webrtc-camera
+                            url: >-
+                              rtsp://wb:FVgrTtHMpGuAFEIDOpFBG80_rRfnHDdYILM0h8N0@10.10.10.6:8554/front-2
+                            style: '.header {top: 2px} .mode {position: absolute; bottom: 0px} .screenshot {display: none} .pictureinpicture {display: none}'
+                        overlay:
+                          card:
+                            type: custom:button-card
+                            entity: light.living_room_lights
+                            show_icon: true
+                            show_name: false
+                            tap_action:
+                              action: more-info
+                            hold_action: none
+                            styles:
+                              card:
+                                - width: 100vw
+                                - height: 100vh
+                                - background: rgba(255,0,0,0.0)
+                      styles:
+                        card:
+                          - padding: 0
+                        custom_fields:
+                          overlay:
+                            - z-index: 99
+                            - padding: 0
+                            - position: absolute
+                            - top: 0%
+                            - left: 0%
+                            - width: 100%
+                            - height: 100%
+                            - background: transparent
+
+
+                - type: conditional
+                  view_layout:
+                    grid-area: media
+                  conditions:
+                    - entity: media_player.mini_pc_plex
+                      state: playing
+                  card:
+                    type: custom:mushroom-media-player-card
+                    entity: media_player.mini_pc_plex
+                    collapsible_controls: false
+                    volume_controls: []
+                    show_volume_level: false
+                    use_media_info: true
+                    fill_container: true
+                    layout: horizontal
+                    icon_type: entity-picture
+                    tap_action: none
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border: solid 1px var(--primary-text-color);
+                          background-color: rgba(0, 0, 0, 0);
+                          height: 100px;
+                        }
+                - type: custom:mod-card
+                  card_mod:
+                    style: |
+                      ha-card {
+                        border: solid 1px var(--primary-text-color);
+                        border-radius: 10%
+                        background: transparent;
+                        width: 100%;
+                      }
+                  card:
+                    type: custom:layout-card
+                    layout_type: grid
+                    layout:
+                      grid-template-columns: 60% 40%
+                    cards:
+                      - type: weather-forecast
+                        entity: weather.home
+                        show_current: true
+                        show_forecast: true
+                        forecast_type: daily
+                        card_mod:
+                          style: |
+                            ha-card {
+                              border: none;
+                              background: transparent;
+                              width: 100%;
+                            }
+                        
+
+                      - type: custom:button-card
+                        triggers_update: automation.download_latest_gif
+                        styles:
+                          card:
+                            - background: '[[[return `url("/local/WU-animated.png?v=${Date.now()}")` ]]]'
+                            - background-size: contain
+                            - background-repeat: no-repeat
+                            - height: 250px
+                            - width: 325px
+                            - border: none
+                            - box-shadow: none
+                            - background-color: transparent
+                        tap_action:
+                          action: fire-dom-event
+                          browser_mod:
+                            service: browser_mod.popup
+                            data:
+                              <<: *popup_style
+                              content:
+                                type: vertical-stack
+                                cards:
+                                  - type: custom:weather-radar-card
+                                    map_style: Voyager
+                                    square_map: false
+                                    tap_action: none
+                                    hold_action: none
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          border: none;
+                                          background-color: transparent;
+                                        }
+                                  - type: custom:layout-card
+                                    layout_type: grid
+                                    layout:
+                                      grid-template-columns: 25% 25% 25% 25%
+                                    cards:
+                                      - type: picture
+                                        image: local/WU-animated.png
+                                        tap_action: none
+                                        hold_action: none
+                                        card_mod:
+                                          style: |
+                                            ha-card {
+                                              border: none;
+                                              background-color: transparent;
+                                              width: 100%;
+                                            }
+                                      - type: picture
+                                        image: local/CGL-Sandwich.gif
+                                        tap_action: none
+                                        hold_action: none
+                                        card_mod:
+                                          style: |
+                                            ha-card {
+                                              border: none;
+                                              background-color: transparent;
+                                              width: 100%;
+                                            }
+                                      - type: picture
+                                        image: local/CGL-Geocolor.gif
+                                        tap_action: none
+                                        hold_action: none
+                                        card_mod:
+                                          style: |
+                                            ha-card {
+                                              border: none;
+                                              background-color: transparent;
+                                              width: 100%;
+                                            }

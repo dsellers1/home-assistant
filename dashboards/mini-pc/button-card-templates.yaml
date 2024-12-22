@@ -1,0 +1,524 @@
+##  __       ___ ___  __           __        __   __     ___  ___        __            ___  ___  __  
+## |__) |  |  |   |  /  \ |\ |    /  `  /\  |__) |  \     |  |__   |\/| |__) |     /\   |  |__  /__` 
+## |__) \__/  |   |  \__/ | \|    \__, /~~\ |  \ |__/     |  |___  |  | |    |___ /~~\  |  |___ .__/ 
+##                                                                                                 
+generic_custom_button:
+  show_icon: true
+  show_name: true
+  show_state: false
+  color_type: icon
+  triggers_update: all
+  state:
+    - color: rgb(28, 28, 28)
+      id: generic_off
+      operator: '=='
+      value: 'off'
+      styles:
+        name:
+          - color: rgb(128, 128, 128)
+    - color: yellow
+      id: generic_on
+      operator: '=='
+      value: 'on'
+      styles:
+        name:
+          - color: white
+#    - operator: template
+#      value: "[[[ return typeof parseInt(entity.state) == 'number' && !isNaN(entity.state) ]]]"
+#      styles:
+#        name:
+#          - color: rgb(128, 128, 128)
+  styles:
+    card:
+      - background: rgba(255,255,255,0.1);
+      - '--ha-card-box-shadow': none
+      - border-radius: 20px
+      - '--mdc-ripple-color': white
+      - '--mdc-ripple-press-opacity': 1.5
+      - border: 1px solid var(--primary-text-color)
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+  double_tap_action:
+    action: none
+
+blank_custom_button:
+  show_icon: false
+  show_name: false
+  show_state: false
+  triggers_update: all
+  styles:
+    card:
+      - border: none
+      - '--ha-card-box-shadow': none
+  tap_action: none
+  hold_action: none
+  double_tap_action: none
+
+oversized_custom_button:
+  template: generic_custom_button
+  aspect_ratio: 2/2
+  custom_fields:
+    color_temp: |-
+      [[[ if ((entity.state === 'on')) ;
+          if (entity.attributes.color_mode == 'color_temp') return entity.attributes.color_temp_kelvin + 'K';
+          //if (entity.attributes.rgb_color != undefined) return 'RGB(' + entity.attributes.rgb_color + ')';
+          else return;
+      ]]] 
+    runtime: |-
+      [[[ if (entity.state === 'on') {
+          var last_changed_in_minutes = ((new Date().getTime() - new Date(entity.last_changed).getTime())/60000).toFixed(0);  
+          var days = Math.floor(last_changed_in_minutes / 1440);  
+          var hours = Math.floor((last_changed_in_minutes - days * 1440) / 60); 
+          var minutes = last_changed_in_minutes - days * 1440 - hours * 60;
+          if (last_changed_in_minutes < 1) return;
+          if (last_changed_in_minutes < 60) return last_changed_in_minutes + ' min';
+          if (last_changed_in_minutes >= 60 && last_changed_in_minutes < 1440 ) { 
+            return hours + ' hr ' + minutes + ' min'; }
+          if (last_changed_in_minutes >= 1440) { 
+            return days + ' d ' + hours + ' h ' + minutes + ' m' ; }
+        } ]]]
+  styles:
+    card:
+      - background: null
+      - font-size: 30px
+    icon:
+      - width: 125%
+    custom_fields:
+      color_temp:
+        - align-self: middle
+        - justify-self: right
+        - position: absolute
+        - right: 3%
+        - top: 8%
+        - font-size: 20px
+        - color: white
+        - transform: rotate(0deg)
+        - opacity: 33%
+      runtime:
+        - align-self: middle
+        - justify-self: right
+        - position: absolute
+        - right: 3%
+        - top: 3%
+        - font-size: 20px
+        - color: white
+        - transform: rotate(0deg)
+        - opacity: 33%
+  card_mod:
+    style: |
+      ha-card {
+        background: rgba(255,255,255,0.1);
+        {% if state_attr(config.entity, 'color_mode') == 'xy' %}
+          {% set r = state_attr(config.entity, 'rgb_color')[0] %}
+          {% set g = state_attr(config.entity, 'rgb_color')[1] %}
+          {% set b = state_attr(config.entity, 'rgb_color')[2] %}
+          background-color: rgba( {{r}}, {{g}}, {{b}}, 0.2 );
+          //--button-card-light-color: rgba( {{r}}, {{g}}, {{b}}, 1 );
+          //--button-card-light-color-no-temperature: rgba( {{r}}, {{g}}, {{b}}, 1 );
+          --card-mod-icon-color: rgba( {{r}}, {{g}}, {{b}}, 1 );
+          //--primary-text-color: rgba( {{r}}, {{g}}, {{b}}, 0.99 );
+          //--secondary-text-color: rgba( {{r}}, {{g}}, {{b}}, 0.50 );
+        {% elif state_attr(config.entity, 'color_mode') == 'color_temp' %}
+          --card-mod-icon-color: yellow;
+          --primary-text-color: white;
+        {% elif is_state(config.entity, 'off') %}
+          background: none;
+          --card-mod-icon-color: rgb(28, 28, 28);
+          --primary-text-color: rgb(128, 128, 128);
+        {%- endif %}
+      }
+
+oversized_custom_button_with_auto:
+  template: oversized_custom_button
+  variables:
+    var_auto_entity: input_boolean.automation_auto_kitchen_lights
+    var_timer_entity: timer.automation_auto_office_lights
+  custom_fields:
+    auto: |
+      [[[ if ((states[variables.var_auto_entity].state === 'on')) return 'Automatic'; ]]] 
+    countdown_timer:
+      card:
+        type: conditional
+        conditions:
+          - entity: "[[[ return variables.var_timer_entity ]]]"
+            state: active
+        card:
+          type: entities
+          entities:
+            - entity: "[[[ return variables.var_timer_entity ]]]"
+              name: "\_"
+              icon: none
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                border: none;
+                padding: 0px 0 0 0 
+              }
+    timer-bar-card:
+      card:
+        type: custom:timer-bar-card
+        entity: "[[[ return variables.var_timer_entity ]]]"
+        translations:
+          idle: "\_"
+        layout: full_row
+        invert: true
+        bar_background: none
+        bar_height: 6px
+        bar_radius: 5px
+        text_width: 0px
+        sync_issues: fix
+        tap_action:
+          action: none
+        modifications:
+          - remaining: 100%
+            bar_foreground: lime
+          - remaining: 75%
+            bar_foreground: orange
+          - remaining: 50%
+            bar_foreground: yellow
+          - remaining: 25%
+            bar_foreground: red
+  styles:
+    custom_fields:
+      auto:
+        - align-self: middle
+        - justify-self: left
+        - position: absolute
+        - left: 3%
+        - top: 3%
+        - font-size: 24px
+        - color: yellow
+        - transform: rotate(0deg)
+        - opacity: 33%
+      countdown_timer:
+        - align-self: left
+        - justify-self: left
+        - position: absolute
+        - left: 12%
+        - top: '-9px'
+        - font-size: 18px
+        - color: gray
+        - transform: rotate(0deg)
+        - opacity: 33%
+      timer-bar-card:
+        - align-self: left
+        - justify-self: left
+        - position: absolute
+        - width: 100%
+        - left: 0%
+        - bottom: '-16px'
+        - font-size: 18px
+        - transform: rotate(0deg)
+        - opacity: 75%
+  double_tap_action:
+    action: call-service
+    service: input_boolean.toggle
+    service_data:
+      entity_id: "[[[ return variables.var_auto_entity; ]]]"
+
+rgb_kelvin_color_selector_base:
+  template: generic_custom_button
+  variables:
+    var_color_name: null
+    var_color_temp: null
+    var_kelvin_value: null
+    var_entity_id: light.living_room_lights
+  show_name: false
+  show_icon: false
+  styles:
+    card:
+      - border-radius: 50%
+      - height: 75px
+      - width: 75px
+      - background-color: rgba(255, 0, 0, 0.5)
+  tap_action:
+    action: call-service
+    service: light.turn_on
+    service_data:
+      entity_id: "[[[ return variables.var_entity_id; ]]]"
+  hold_action:
+    action: call-service
+    service: nodered.trigger
+    service_data:
+      entity_id: switch.nodered_all_lights_to_rgb
+rgb_selector:
+  template: rgb_kelvin_color_selector_base
+  tap_action:
+    service_data:
+      color_name: "[[[ return variables.var_color_name; ]]]"
+  hold_action:
+    service_data:
+      message:
+        color_name: "[[[ return variables.var_color_name ]]]"
+kelvin_selector:
+  template: rgb_kelvin_color_selector_base
+  tap_action:
+    service_data:
+      kelvin: "[[[ return variables.var_kelvin_value; ]]]"
+  hold_action:
+    service_data:
+      message:
+        kelvin: "[[[ return variables.var_kelvin_value; ]]]"
+color_temp_selector:
+  template: rgb_kelvin_color_selector_base
+  tap_action:
+    service_data:
+      color_temp: "[[[ return variables.var_color_temp; ]]]"
+  hold_action:
+    service_data:
+      message:
+        color_temp: "[[[ return variables.var_color_temp; ]]]"
+brightness_selector:
+  template: generic_custom_button
+  variables:
+    var_value: 100
+    var_entity_id: light.living_room_lights
+  name: "[[[ return `${variables.var_value}%` ]]]"
+  show_icon: false
+  state:
+    - operator: template
+      value: |
+        [[[ 
+          return states[variables.var_entity_id].attributes.brightness <= Math.floor((variables.var_value + 5) * 2.55) &&
+          states[variables.var_entity_id].attributes.brightness >= Math.floor((variables.var_value - 5) * 2.55) &&
+          states[variables.var_entity_id].attributes.brightness != Math.floor((variables.var_value - 5) * 2.55) 
+        ]]]
+      styles:
+        name:
+          - color: yellow
+        card:
+          - box-shadow: inset 0px 0px 5px 1px yellow
+          - border: 1px solid yellow
+  styles:
+    card:
+      - height: 75px
+    name:
+      - font-weight: bold
+      - font-size: 24px
+  tap_action:
+    action: call-service
+    service: light.turn_on
+    service_data:
+      brightness_pct: "[[[ return variables.var_value; ]]]"
+      entity_id: "[[[ return variables.var_entity_id; ]]]"
+  hold_action:
+    action: call-service
+    service: nodered.trigger
+    service_data:
+      entity_id: switch.nodered_all_lights_to_rgb
+      message:
+        brightness_pct: "[[[ return variables.var_value; ]]]"
+battery_custom_button:
+  template: generic_custom_button
+  entity: sensor.tab_s7_fe_battery_level
+  name: Tablet
+  tap_action:
+    action: none
+  variables:
+    var_color: |-
+      [[[ 
+        var battery_level = entity.state;
+        if (battery_level > 70) return 'lime';
+        else if (battery_level >= 30) return 'yellow';
+        else return 'red';
+      ]]]
+  custom_fields:
+    battery_percentage: |
+      [[[ 
+        if (entity.state === 'unavailable') return ' ''; 
+        else return `${entity.state}%` 
+      ]]] 
+  styles:
+    card:
+      - border: none
+    icon:
+      - color: '[[[ return variables.var_color ]]]'
+      - animation: |
+          [[[ if (entity.state <= 10 ) return 'blink 2s ease infinite'; ]]]
+    custom_fields:
+      battery_percentage:
+        - align-self: middle
+        - justify-self: center
+        - position: absolute
+        - left: 5%
+        - top: 25%
+        - font-size: 14px
+        - color: '[[[ return variables.var_color ]]]'
+        - transform: rotate(90deg)
+motion_detector_animated:
+  entity: binary_sensor.bathroom_motion_detector_on_off
+  name: Bathroom
+  show_name: true
+  variables:
+    var_battery_entity: sensor.living_room_motion_detector_battery_level
+  custom_fields:
+    battery_percentage: |
+      [[[ return `<ha-icon icon="mdi:circle-small" style="width: 25px; height: 25px;"> </ha-icon>`; ]]]
+  styles:
+    custom_fields:
+      battery_percentage:
+        - position: absolute
+        - left: 5%
+        - top: 5%
+        - color: |
+            [[[ 
+              var battery_level = states[variables.var_battery_entity].state;
+              if (battery_level >= 80) return 'lime';
+              else if (battery_level >= 60) return 'greenyellow';
+              else if (battery_level >= 40) return 'yellow';
+              else if (battery_level >= 20) return 'orange';
+              else return 'red';
+            ]]]
+    card:
+      - background-color: rgb(17, 17, 17)
+      - border-radius: 20px
+  state:
+    - value: 'off'
+      operator: '=='
+      icon: mdi:walk
+      color: rgb(28, 28, 28)
+      styles:
+        name:
+          - color: rgb(28, 28, 28)
+    - value: 'on'
+      operator: '=='
+      icon: mdi:motion-sensor
+      color: rgb(255, 0, 0)
+      styles:
+        name:
+          - color: white
+        icon:
+          - animation: blink 2s ease infinite
+    - value: unavailable
+      operator: '=='
+      icon: mdi:walk
+      color: rgb(255, 255, 0)
+      styles:
+        name:
+          - color: rgb(255, 255, 0)
+          - animation: blink 3s cubic-bezier(.2, 0, 1, 1) infinite
+  tap_action: none
+  hold_action: none
+  double_tap_action: none
+
+door_animated:
+  entity: binary_sensor.bathroom_door
+  name: Bathroom
+  show_name: true
+  variables:
+    var_battery_entity: sensor.bathroom_door_battery_level
+    normally_closed: true
+  custom_fields:
+    battery_percentage: "[[[ return `<ha-icon icon='mdi:circle-small' style='width: 25px; height: 25px;'> </ha-icon>`; ]]]"
+  styles:
+    custom_fields:
+      battery_percentage:
+        - position: absolute
+        - left: 5%
+        - top: 5%
+        - color: |
+            [[[ 
+              var battery_level = states[variables.var_battery_entity].state;
+              if (battery_level >= 80) return 'lime';
+              else if (battery_level >= 60) return 'greenyellow';
+              else if (battery_level >= 40) return 'yellow';
+              else if (battery_level >= 20) return 'orange';
+              else return 'red';
+            ]]]
+    card:
+      - background-color: rgb(17, 17, 17)
+      - border-radius: 20px
+  state:
+      # This is for NC and currently closed and NO and currently open.
+    - value: |
+        [[[ if ((variables.normally_closed && entity.state == 'off') || (!variables.normally_closed && entity.state == 'on')) return true]]]
+      operator: template
+      icon: '[[[ return (variables.normally_closed) ? "mdi:door-closed" : "mdi:door-open" ]]]'
+      color: rgb(28, 28, 28)
+      styles:
+        name:
+          - color: rgb(28, 28, 28)
+      # This is for NC and currently open and NO and currently closed.
+    - value:  |
+        [[[ if ((variables.normally_closed && entity.state == 'on') || (!variables.normally_closed && entity.state == 'off')) return true ]]]
+      operator: template
+      icon: '[[[ return (!variables.normally_closed) ? "mdi:door-closed" : "mdi:door-open" ]]]'
+      color: rgb(255, 0, 0)
+      styles:
+        name:
+          - color: white
+        icon:
+          - animation: blink 2s ease infinite
+    - value: unavailable
+      operator: template
+      icon: mdi:door
+      color: rgb(255, 255, 0)
+      styles:
+        name:
+          - color: rgb(255, 255, 0)
+          - animation: blink 3s cubic-bezier(.2, 0, 1, 1) infinite
+  tap_action: none
+  hold_action: none
+  double_tap_action: none
+
+temperature_sensor:
+  template: generic_custom_button
+  show_icon: false
+  show_label: true
+  label: "[[[ return parseFloat(entity.state).toFixed(1) + ' °F' ]]]"
+  styles:
+    name:
+      - color: rgb(128, 128, 128)
+  tap_action: none
+  hold_action: none
+  double_tap_action: none
+
+chips:
+  tap_action:
+    action: more-info
+  show_icon: false
+  show_label: true
+  show_name: false
+  show_state: false
+  styles:
+    label:
+      - justify-self: center
+      - padding: 0px 6px
+      - font-weight: bold
+      - font-size: 14px
+    img_cell:
+      - width: 24px
+    grid:
+      - grid-template-areas: '''l'''
+    card:
+      - border-radius: 18px
+      - box-shadow: var(--box-shadow)
+      - height: 36px
+      - width: auto
+      - padding-left: 6px
+      - padding-right: 6px
+  size: 80%
+
+chip_icon_label:
+  template: chips
+  show_icon: true
+  size: 100%
+  styles:
+    card:
+      - padding-top: 6px
+      - padding-button: 6px
+      - padding-left: 12px
+    grid:
+      - grid-template-areas: '''i l'''
+      - grid-template-columns: max_content auto
+      - grid-template-rows: min-content
+    img_cell:
+      - place-self: center
+      - width: 14px
+      - height: 24px
+    label:
+      - font-size: 12px
+      - margin-left: 0px

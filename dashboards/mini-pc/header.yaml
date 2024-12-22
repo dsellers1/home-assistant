@@ -1,0 +1,190 @@
+#       ___       __   ___  __  
+# |__| |__   /\  |  \ |__  |__) 
+# |  | |___ /~~\ |__/ |___ |  \ 
+#
+anchors:
+  battery_level_color: &battery_chip_template
+    content: '{{ states(entity) }} {{ state_attr(entity, "unit_of_measurement") }}'
+    icon_color: |
+      {% set battery_level = (states(entity) | int) %}
+      {% if battery_level >= 90 %} green
+      {% elif battery_level >= 80 %} light-green
+      {% elif battery_level >= 68 %} orange
+      {% elif battery_level >= 56 %} yellow
+      {% elif battery_level >= 44 %} amber
+      {% elif battery_level >= 32 %} orange
+      {% elif battery_level >= 20 %} deep-orange
+      {% else %} red
+      {% endif %}
+    tap_action: none
+    hold_action: none
+    double_tap_action: none
+
+
+type: custom:layout-card
+layout_type: grid
+layout:
+  grid-template-columns: 25% 50% 25%
+cards:
+  - type: custom:gap-card
+  - type: custom:mushroom-chips-card
+    alignment: center
+    chips:
+      - type: entity
+        entity: person.derek
+        use_entity_picture: true
+        card_mod:
+          style: |
+            ha-card {
+              border: unset;
+              --chip-background: none;
+              --chip-font-size: 16px;
+              --chip-padding: 0 0.3em;
+              --chip-box-shadow: none;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+      - type: template
+        <<: *battery_chip_template
+        entity: sensor.s22_ultra_battery_level
+        icon: |
+          {% set battery_level = states('sensor.s22_ultra_battery_level') | int // 10 * 10 %}  
+          {% set charging_state = states('sensor.s22_ultra_charger_type') %}  
+          {% set is_charging = is_state('binary_sensor.s22_ultra_is_charging', 'on') | iif(True, False) %} 
+          {% set map = {"none":"", "ac":"charging-", "wireless":"charging-wireless-"} %} 
+          {% set charging = map[states('sensor.s22_ultra_charger_type')] %}
+          {% if battery_level == 100 and is_charging == True %} mdi:battery-charging  
+          {% elif battery_level == 100 %} mdi:battery    
+          {% elif battery_level >= 10 %} mdi:battery-{{charging}}{{battery_level}}    
+          {% elif battery_level >= 0 %}mdi:battery-{{charging}}outline    
+          {% else %} mdi:battery-unknown    
+          {% endif %}
+      - type: template
+        <<: *battery_chip_template
+        entity: sensor.watch5_battery_level
+        icon:  mdi:watch 
+      - type: template
+        <<: *battery_chip_template
+        entity: sensor.tab_s7_fe_battery_level
+        icon:  mdi:tablet 
+      - type: template
+        <<: *battery_chip_template
+        entity: sensor.envy_battery_percentage
+        icon:  mdi:laptop
+      - type: template
+        entity: input_boolean.guest_mode
+        content: Guest Mode
+        icon: '{{ (states(entity) == "on") | iif("mdi:home", "mdi:home-off-outline") }}'
+        icon_color: '{{ (states(entity) == "on") | iif("green", "red") }}'
+        press_action:
+          action: toggle
+        hold_action: none
+        double_tap_action: none  
+      - type: template
+        entity: input_boolean.automation_override
+        content: Automations
+        icon: '{{ (states(entity) == "off") | iif("mdi:lightbulb-auto", "mdi:lightbulb-auto-outline") }}'
+        icon_color: '{{ (states(entity) == "off") | iif("green", "red") }}'
+        press_action: toggle
+        hold_action: none
+        double_tap_action: none  
+      - type: template
+        entity: input_boolean.automation_interior_motion_detectors
+        content: Motion Detectors
+        icon: '{{ (states(entity) == "on") | iif("mdi:motion-sensor", "mdi:motion-sensor-off") }}'
+        icon_color: '{{ (states((entity)) == "on") | iif("green", "red") }}'
+        press_action: toggle
+        hold_action: none
+        double_tap_action: none 
+      - type: conditional
+        conditions:
+          - entity: binary_sensor.living_room_motion_detector_on_off
+            state: 'on'
+        chip:
+          type: template
+          icon_color: red
+          icon: mdi:motion-sensor
+          card_mod:
+            style: |
+              :host {
+                border: none;
+                position: fixed;
+                top: 1%;
+                left: 1%;
+                z-index: 99;
+              }
+              ha-card {
+                {% if is_state('binary_sensor.living_room_motion_detector_on_off', 'on') %}
+                    animation: ping 2s infinite
+                {% endif %}
+              }
+              @keyframes ping {
+                0% { box-shadow: inset 0 0 1px 0px rgba(255,0,0, 0.7); }
+                100% { box-shadow: inset 0 0 1px 10px transparent; }
+              }
+          tap_action: none
+          hold_action: none
+      - type: custom:state-switch
+        entity: template
+        template: |
+          {% if is_state('binary_sensor.living_room_door_on_off', 'on') and (as_timestamp(now()) - as_timestamp(states.binary_sensor.living_room_door_on_off.last_updated)) | int > 30 %}  
+            open_too_long
+          {% endif %}
+        states:
+          open_too_long:
+            type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                icon_color: red
+                icon: mdi:door-open
+                card_mod:
+                  style: |
+                    ha-card { 
+                    animation: blink 1s linear infinite; 
+                    --chip-icon-size: 0.6em; 
+                    }
+                hold_action:
+                  action: navigate
+                  navigation_path: /fire-main/sensors
+#  - type: markdown
+#    content: '{{ now().strftime("%A, %b %d %H:%M") }}'
+#    card_mod:
+#     style: |
+#        ha-markdown {
+#          font-size: 22px !important;
+#          font-weight: normal !important;
+#          line-height: 1.4 !important;
+#        }
+#        ha-card {
+#          background: transparent;
+#          border: none;
+#          box-shadow: none;
+#          text-align: right;
+#          padding: none !important;
+#          margin: -10px 0px 0px 0px  !important;
+#        }
+  - type: custom:button-card
+    show_state: false
+    show_icon: false
+    show_name: true
+    tap_action:
+      action: call-service
+      service: browser_mod.refresh
+    hold_action: none
+    name: |
+        [[[ return `${states["sensor.dashboard_date"].state} / ${states["sensor.time"].state}` ]]]
+    styles:
+      card:
+        - border: none
+        - background: transparent
+        - font-size: 50px
+        - font-family: stencil
+        - height: 65px
+        - padding-right: 20px
+        - text-shadow: 0px 0px 15px black;
+        - right: 0%
+      name:
+        - justify-self: right
+      
+
