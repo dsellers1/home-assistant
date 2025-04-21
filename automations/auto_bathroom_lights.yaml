@@ -1,0 +1,222 @@
+alias: Auto Bathroom Lights
+description: >-
+  Handle automatic bathroom lights based on motion, light and door sensor
+  states, if music starts/stops, and enabling/disabling toggle while lights are
+  on.
+triggers:
+  - id: light_off_to_on
+    entity_id:
+      - light.bathroom_lights
+    from: "off"
+    to: "on"
+    trigger: state
+  - id: light_on_to_off
+    entity_id:
+      - light.bathroom_lights
+    from: "on"
+    to: "off"
+    trigger: state
+  - entity_id:
+      - binary_sensor.bathroom_motion_detector
+    from: "off"
+    to: "on"
+    id: motion_detected
+    trigger: state
+  - entity_id:
+      - binary_sensor.bathroom_motion_detector
+    from: "on"
+    to: "off"
+    id: motion_cleared
+    trigger: state
+  - entity_id:
+      - binary_sensor.bathroom_door
+    to: "on"
+    id: door_opened
+    from: "off"
+    trigger: state
+  - entity_id:
+      - binary_sensor.bathroom_door
+    to: "off"
+    id: door_closed
+    from: "on"
+    trigger: state
+  - alias: When Bathroom timer expires
+    event_type: timer.finished
+    event_data:
+      entity_id: timer.automation_auto_bathroom_lights
+    id: timer_finished
+    trigger: event
+  - entity_id:
+      - input_boolean.automation_auto_bathroom_lights
+    from: "off"
+    to: "on"
+    id: toggle_automation_off_to_on
+    trigger: state
+  - entity_id:
+      - input_boolean.automation_auto_bathroom_lights
+    from: "on"
+    to: "off"
+    id: toggle_automation_on_to_off
+    trigger: state
+  - trigger: state
+    entity_id:
+      - media_player.bathroom_alexa
+    to: playing
+    id: alexa_starts_playing
+  - trigger: state
+    entity_id:
+      - media_player.bathroom_alexa
+    to: paused
+    from: playing
+    id: alexa_stops_playing
+conditions:
+  - alias: Automation enabled or just recently turned off
+    condition: or
+    conditions:
+      - condition: state
+        entity_id: input_boolean.automation_auto_bathroom_lights
+        state: "on"
+      - condition: template
+        value_template: >-
+          {{ is_state('input_boolean.automation_auto_bathroom_lights', 'off')
+          and (now() -
+          states.input_boolean.automation_auto_bathroom_lights.last_changed).total_seconds()
+          < 10 }}
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - light_off_to_on
+              - door_opened
+        sequence:
+          - data:
+              duration: >-
+                {{
+                states.input_number.automation_auto_bathroom_lights_duration.state
+                | int(0)*60 }}
+            target:
+              entity_id:
+                - timer.automation_auto_bathroom_lights
+            action: timer.start
+      - conditions:
+          - condition: trigger
+            id:
+              - light_on_to_off
+        sequence:
+          - data: {}
+            target:
+              entity_id:
+                - timer.automation_auto_bathroom_lights
+            action: timer.cancel
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_detected
+        sequence:
+          - metadata: {}
+            data: {}
+            target:
+              entity_id: light.bathroom_lights
+            action: light.turn_on
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_cleared
+        sequence:
+          - if:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "on"
+            then:
+              - data:
+                  duration: >-
+                    {{
+                    states.input_number.automation_auto_bathroom_lights_duration.state
+                    | int(0)*60 }}
+                target:
+                  entity_id:
+                    - timer.automation_auto_bathroom_lights
+                action: timer.start
+      - conditions:
+          - condition: trigger
+            id:
+              - timer_finished
+        sequence:
+          - data: {}
+            target:
+              entity_id:
+                - light.bathroom_lights
+            action: light.turn_off
+      - conditions:
+          - condition: trigger
+            id:
+              - door_closed
+              - alexa_starts_playing
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "off"
+            then:
+              - data: {}
+                target:
+                  entity_id: light.bathroom_lights
+                action: light.turn_on
+          - data: {}
+            target:
+              entity_id: timer.automation_auto_bathroom_lights
+            action: timer.cancel
+      - conditions:
+          - condition: trigger
+            id:
+              - toggle_automation_off_to_on
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "on"
+            then:
+              - data: {}
+                target:
+                  entity_id: timer.automation_auto_bathroom_lights
+                action: timer.start
+          - data:
+              message: >-
+                {{ ["The timer has been started.", "Automatic lights enabled.",
+                "The timer for the lights has been turned on."] | random }}
+            action: notify.alexa_media_bathroom
+      - conditions:
+          - condition: trigger
+            id:
+              - toggle_automation_on_to_off
+        sequence:
+          - if:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "on"
+            then:
+              - data: {}
+                target:
+                  entity_id: timer.automation_auto_bathroom_lights
+                action: timer.cancel
+          - data:
+              message: >-
+                {{ ["The timer has been stopped.", "Automatic lights disabled.",
+                "The timer for the lights has been turned off."] | random }}
+            action: notify.alexa_media_bathroom
+      - conditions:
+          - condition: trigger
+            id:
+              - alexa_stops_playing
+          - condition: state
+            entity_id: binary_sensor.bathroom_door
+            state: "on"
+        sequence:
+          - action: timer.start
+            metadata: {}
+            data: {}
+            target:
+              entity_id: timer.automation_auto_bathroom_lights
+        alias: If trigger by alexa_stops_playing and the door is open
+mode: single
