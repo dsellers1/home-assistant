@@ -1,5 +1,5 @@
 anchors: 
-  popup_style_for_lights: &popup_style
+  popup_style: &popup_style
     timeout: 10000
     card_mod: 
       style: | 
@@ -19,12 +19,29 @@ anchors:
           width: auto !important;
         }
 
+  popup_layout_card_options: &popup_layout_card_options
+    layout_type: grid
+    layout:
+      grid-template-columns: 5% 40% 10% 40% 5%
+      grid-template-rows: auto
+      grid-template-areas: |
+        ".  left  center  right  ."
+
   popup_entity_styling: &popup_entity
     type: custom:slider-entity-row
     hide_state: true
     toggle: true
     step: 5
     min: 5
+  
+  popup_entity_card_styling: &popup_entity_card_styling
+    state_color: true
+    show_header_toggle: false
+    card_mod:
+      style: |
+        ha-card {
+          border: none;
+        }
 
   big-slider-card-style: &slider_style
       name: "\_"
@@ -39,6 +56,7 @@ anchors:
       hold_action: none
 
 button_card_templates: !include button-card-templates.yaml
+
 kiosk_mode: 
   hide_sidebar: true
   hide_header: true
@@ -49,344 +67,406 @@ views:
     type: panel 
     background: black
     theme: dark-mode
-    
     cards:
-      - type: vertical-stack
+      - type: custom:layout-card
+        layout_type: grid
+        layout:
+          grid-template-columns: 50% 50% 
+          grid-template-rows: auto
+          grid-template-areas: |
+            "header       header"
+            "lights       media"
+            "column1      column2"
+            "bottom_left  bottom_right"
         cards:
           - !include header.yaml
-          - type: custom:layout-card
-            layout_type: grid
-            layout:
-              grid-template-columns: 50% 50%
+
+          # Lights section
+          - type: horizontal-stack
+            view_layout:
+              grid-area: lights
             cards:
-              - type: horizontal-stack
+              - type: vertical-stack
                 cards:
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.living_room_lights
-                        name: Living Room
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              <<: *popup_style
-                              content:
-                                type: vertical-stack
-                                cards:
-                                  - type: grid
-                                    columns: 2
-                                    cards:
-                                      - type: entities
-                                        state_color: true
-                                        show_header_toggle: false
-                                        entities:
-                                          - entity: light.living_room1
-                                            <<: *popup_entity
-                                          - entity: light.living_room2
-                                            <<: *popup_entity
-                                          - entity: light.living_room_corner_led_1
-                                            <<: *popup_entity
-                                          - entity: light.living_room_corner_led_2
-                                            <<: *popup_entity
-                      - type: custom:big-slider-card
-                        entity: light.living_room_lights
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.kitchen_lights
-                        name: Kitchen
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              <<: *popup_style
-                              content:
-                                type: vertical-stack
-                                cards:
-                                  - type: grid
-                                    columns: 2
-                                    cards:
-                                      - type: entities
-                                        state_color: true
-                                        show_header_toggle: false
-                                        entities:
-                                          - entity: light.kitchen
-                                            <<: *popup_entity
-                                          - entity: light.stove
-                                            <<: *popup_entity
-                                      - type: entities
-                                        state_color: true
-                                        show_header_toggle: false
-                                        entities:
-                                          - entity: automation.auto_kitchen_lights
-                                          - type: custom:slider-entity-row
-                                            entity: input_number.automation_auto_kitchen_lights_duration
-                                            name: Auto Lights Duration
-                                            hide_state: false
-                                            toggle: false
-                                            step: 5
-                      - type: custom:big-slider-card
-                        entity: light.kitchen_lights
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.hallway
-                        name: Hallway
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              card_mod: *popup_style
-                              content:
-                                type: entities
-                                state_color: true
-                                show_header_toggle: false
-                                entities:
-                                  - entity: light.hallway
-                                    <<: *popup_entity
-                                  - entity: automation.auto_hallway_lights
-                                  - type: custom:slider-entity-row
-                                    entity: input_number.automation_auto_hallway_lights_duration
-                                    name: Auto Lights Duration
-                                    hide_state: false
-                                    toggle: false
-                                    step: 5
-                      - type: custom:big-slider-card
-                        entity: light.hallway
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.office_lights
-                        name: Office
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              card_mod: *popup_style
-                              content:
-                                type: entities
-                                state_color: true
-                                show_header_toggle: false
-                                entities:
-                                  - entity: light.office1
-                                    <<: *popup_entity
-                                  - entity: light.office2
-                                    <<: *popup_entity
-                                  - entity: automation.auto_office_lights
-                                  - type: custom:slider-entity-row
-                                    entity: input_number.automation_auto_office_lights_duration
-                                    name: Auto Lights Duration
-                                    hide_state: false
-                                    toggle: false
-                                    step: 5
-                      - type: custom:big-slider-card
-                        entity: light.office_lights
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.bedroom_lights
-                        name: Bedroom
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              card_mod: *popup_style
-                              content:
-                                type: entities
-                                state_color: true
-                                show_header_toggle: false
-                                entities:
-                                  - entity: light.bedroom1
-                                    <<: *popup_entity
-                                  - entity: light.bedroom2
-                                    <<: *popup_entity
-                                  - entity: light.bedroom_floor_lamp
-                                    <<: *popup_entity
-                      - type: custom:big-slider-card
-                        entity: light.bedroom_lights
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.bathroom_lights
-                        name: Bathroom
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              card_mod: *popup_style
-                              content:
-                                type: entities
-                                state_color: true
-                                show_header_toggle: false
-                                entities:
-                                  - entity: light.bathroom1
-                                    <<: *popup_entity
-                                  - entity: light.bathroom2
-                                    <<: *popup_entity
-                                  - entity: light.bathroom3
-                                    <<: *popup_entity
-                                  - entity: light.bathroom4
-                                    <<: *popup_entity
-                                  - entity: automation.auto_bathroom_lights
-                                  - type: custom:slider-entity-row
-                                    entity: input_number.automation_auto_bathroom_lights_duration
-                                    name: Auto Lights Duration
-                                    hide_state: false
-                                    toggle: false
-                                    step: 5
-                      - type: custom:big-slider-card
-                        entity: light.bathroom_lights
-                        <<: *slider_style
-                  - type: vertical-stack
-                    cards:
-                      - type: custom:button-card
-                        template: generic_custom_button
-                        entity: light.all_lights
-                        hold_action:
-                          action: fire-dom-event
-                          browser_mod:
-                            service: browser_mod.popup
-                            data:
-                              card_mod: *popup_style
-                              left_button: All ON
-                              left_button_action:
-                                service: light.turn_on
-                                data:
-                                  entity_id:
-                                    - light.all_lights
-                              right_button: All OFF
-                              right_button_action:
-                                service: light.turn_off
-                                data:
-                                  entity_id:
-                                    - light.all_lights
-                              content:
-                                type: entities
-                                state_color: true
-                                show_header_toggle: false
-                                entities:
-                                  - entity: light.living_room1
-                                    <<: *popup_entity
-                                  - entity: light.living_room2
-                                    <<: *popup_entity
-                                  - entity: light.kitchen
-                                    <<: *popup_entity
-                                  - entity: light.stove
-                                    <<: *popup_entity
-                                  - entity: light.hallway
-                                    <<: *popup_entity
-                                  - entity: light.office1
-                                    <<: *popup_entity
-                                  - entity: light.office2
-                                    <<: *popup_entity
-                                  - entity: light.bedroom_lights
-                                    <<: *popup_entity
-                                  - entity: light.bathroom_lights
-                                    <<: *popup_entity
-                      - type: custom:big-slider-card
-                        entity: light.all_lights_on
-                        <<: *slider_style
-
-
-              - type: conditional
-                conditions:
-                  - entity: media_player.xbox_plex
-                    state: playing
-                card:
-                    type: custom:button-card
+                  - type: custom:button-card
                     template: generic_custom_button
-                    entity: media_player.xbox_plex
-                    show_entity_picture: true
-                    show_name: false
-                    show_icon: false
-                    styles:
-                      card:
-                        - height: 120px
-                        - background: none
-                        - padding: 0
-                      grid:
-                        - grid-template-areas: |
-                            "image series" 
-                            "image episode"
-                            "image season_episode"
-                        - grid-template-rows: repeat(3, auto)
-                        - grid-template-columns: 100px 3fr
-                      custom_fields:
-                        series:
-                          - text-align: left
-                        episode:
-                          - text-align: left
-                        season_episode:
-                          - text-align: left
-                          - padding-bottom: 10px
-                        image: 
-                          - top: 0px
-                          - left: 0%
-                        timer-bar-card:
-                          - align-self: left
-                          - justify-self: left
-                          - position: absolute
-                          - width: 100%
-                          - left: 0px
-                          - bottom: "-16px"
-                          - opacity: 100%
-                    custom_fields:
-                      series: '[[[ return entity.attributes.media_series_title ]]]'
-                      episode: '[[[ return entity.attributes.media_title ]]]'
-                      season_episode: |
-                        [[[ 
-                          return `S${entity.attributes.media_season} - E${entity.attributes.media_episode}` 
-                        ]]]
-                      image:
-                        card:
-                          type: custom:button-card  
-                          entity: media_player.xbox_plex
-                          show_name: false
-                          styles:
-                            card:
-                              - background: '[[[return `url("${entity.attributes.entity_picture}")` ]]]'
-                              - background-size: contain
-                              - background-repeat: no-repeat
-                              - height: 120px
-                              - width: 100%
-                              - padding: 0
-                              - margins: 0
-                              - border: none
-                      timer-bar-card:
-                        card:
-                          type: custom:timer-bar-card
-                          entity: media_player.xbox_plex
-                          active_state: playing
-                          layout: full_row
-                          text_width: 0px
-                          bar_foreground: green
-                          bar_background: red
-                          duration:
-                            attribute: media_duration
-                            units: seconds
-                          position:
-                            attribute: media_position
-                            units: seconds
+                    entity: light.living_room_lights
+                    name: Living Room
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.living_room1
+                                        <<: *popup_entity
+                                      - entity: light.living_room2
+                                        <<: *popup_entity
+                                      - entity: light.living_room_corner_led_1
+                                        <<: *popup_entity
+                                      - entity: light.living_room_corner_led_2
+                                        <<: *popup_entity
+                  - type: custom:big-slider-card
+                    entity: light.living_room_lights
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.kitchen_lights
+                    name: Kitchen
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.kitchen
+                                        <<: *popup_entity
+                                      - entity: light.stove
+                                        <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: right
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: automation.auto_kitchen_lights
+                                      - type: custom:slider-entity-row
+                                        entity: input_number.automation_auto_kitchen_lights_duration
+                                        name: Auto Lights Duration
+                                        hide_state: false
+                                        toggle: false
+                                        step: 5
+                  - type: custom:big-slider-card
+                    entity: light.kitchen_lights
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.hallway
+                    name: Hallway
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.hallway
+                                        <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: right
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: automation.auto_hallway_lights
+                                      - type: custom:slider-entity-row
+                                        entity: input_number.automation_auto_hallway_lights_duration
+                                        name: Auto Lights Duration
+                                        hide_state: false
+                                        toggle: false
+                                        step: 5
+                  - type: custom:big-slider-card
+                    entity: light.hallway
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.office_lights
+                    name: Office
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.office1
+                                        <<: *popup_entity
+                                      - entity: light.office2
+                                        <<: *popup_entity
 
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: right
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: automation.auto_office_lights
+                                      - type: custom:slider-entity-row
+                                        entity: input_number.automation_auto_office_lights_duration
+                                        name: Auto Lights Duration
+                                        hide_state: false
+                                        toggle: false
+                                        step: 5
+                  - type: custom:big-slider-card
+                    entity: light.office_lights
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.bedroom_lights
+                    name: Bedroom
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.bedroom1
+                                        <<: *popup_entity
+                                      - entity: light.bedroom2
+                                        <<: *popup_entity
+                                      - entity: light.bedroom_floor_lamp
+                                        <<: *popup_entity
+                  - type: custom:big-slider-card
+                    entity: light.bedroom_lights
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.bathroom_lights
+                    name: Bathroom
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          content:
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.bathroom1
+                                        <<: *popup_entity
+                                      - entity: light.bathroom2
+                                        <<: *popup_entity
+                                      - entity: light.bathroom3
+                                        <<: *popup_entity
+                                      - entity: light.bathroom4
+                                        <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: right
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: automation.auto_bathroom_lights
+                                      - type: custom:slider-entity-row
+                                        entity: input_number.automation_auto_bathroom_lights_duration
+                                        name: Auto Lights Duration
+                                        hide_state: false
+                                        toggle: false
+                                        step: 5
+                  - type: custom:big-slider-card
+                    entity: light.bathroom_lights
+                    <<: *slider_style
+              - type: vertical-stack
+                cards:
+                  - type: custom:button-card
+                    template: generic_custom_button
+                    entity: light.all_lights
+                    hold_action:
+                      action: fire-dom-event
+                      browser_mod:
+                        service: browser_mod.popup
+                        data:
+                          <<: *popup_style
+                          left_button: All ON
+                          left_button_action:
+                            service: light.turn_on
+                            data:
+                              entity_id:
+                                - light.all_lights
+                          right_button: All OFF
+                          right_button_action:
+                            service: light.turn_off
+                            data:
+                              entity_id:
+                                - light.all_lights
+                          content:
+                            type: entities
+                            <<: *popup_entity_card_styling
+                            entities:
+                              - entity: light.living_room1
+                                <<: *popup_entity
+                              - entity: light.living_room2
+                                <<: *popup_entity
+                              - entity: light.kitchen
+                                <<: *popup_entity
+                              - entity: light.stove
+                                <<: *popup_entity
+                              - entity: light.hallway
+                                <<: *popup_entity
+                              - entity: light.office1
+                                <<: *popup_entity
+                              - entity: light.office2
+                                <<: *popup_entity
+                              - entity: light.bedroom_lights
+                                <<: *popup_entity
+                              - entity: light.bathroom_lights
+                                <<: *popup_entity
+                  - type: custom:big-slider-card
+                    entity: light.all_lights_on
+                    <<: *slider_style
+
+          # Media section
+          - type: conditional
+            view_layout:
+              grid-area: media
+            conditions:
+              - entity: media_player.xbox_plex
+                state: playing
+            card:
+                type: custom:button-card
+                template: generic_custom_button
+                entity: media_player.xbox_plex
+                show_entity_picture: true
+                show_name: false
+                show_icon: false
+                styles:
+                  card:
+                    - height: 120px
+                    - background: none
+                    - padding: 0
+                  grid:
+                    - grid-template-areas: |
+                        "image series" 
+                        "image episode"
+                        "image season_episode"
+                    - grid-template-rows: repeat(3, auto)
+                    - grid-template-columns: 100px 3fr
+                  custom_fields:
+                    series:
+                      - text-align: left
+                    episode:
+                      - text-align: left
+                    season_episode:
+                      - text-align: left
+                      - padding-bottom: 10px
+                    image: 
+                      - top: 0px
+                      - left: 0%
+                    timer-bar-card:
+                      - align-self: left
+                      - justify-self: left
+                      - position: absolute
+                      - width: 100%
+                      - left: 0px
+                      - bottom: "-16px"
+                      - opacity: 100%
+                custom_fields:
+                  series: '[[[ return entity.attributes.media_series_title ]]]'
+                  episode: '[[[ return entity.attributes.media_title ]]]'
+                  season_episode: |
+                    [[[ 
+                      return `S${entity.attributes.media_season} - E${entity.attributes.media_episode}` 
+                    ]]]
+                  image:
+                    card:
+                      type: custom:button-card  
+                      entity: media_player.xbox_plex
+                      show_name: false
+                      styles:
+                        card:
+                          - background: '[[[return `url("${entity.attributes.entity_picture}")` ]]]'
+                          - background-size: contain
+                          - background-repeat: no-repeat
+                          - height: 120px
+                          - width: 100%
+                          - padding: 0
+                          - margins: 0
+                          - border: none
+                  timer-bar-card:
+                    card:
+                      type: custom:timer-bar-card
+                      entity: media_player.xbox_plex
+                      active_state: playing
+                      layout: full_row
+                      text_width: 0px
+                      bar_foreground: green
+                      bar_background: red
+                      duration:
+                        attribute: media_duration
+                        units: seconds
+                      position:
+                        attribute: media_position
+                        units: seconds
+
+          # Bottom left section
           - type: custom:mod-card
+            view_layout:
+              grid-area: bottom_left
             card_mod:
               style:
                 hui-grid-card:
@@ -414,7 +494,7 @@ views:
             card:
               type: vertical-stack
               cards:
-
+                # Door section
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -443,6 +523,7 @@ views:
                       variables:
                         var_battery_entity: sensor.hallway_closet_battery_level
 
+                # Motion detector section
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -481,6 +562,7 @@ views:
                       variables:
                         var_battery_entity: sensor.bedroom_motion_detector_battery_level
 
+                # Temperatures section
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -509,7 +591,10 @@ views:
                       entity: sensor.bedroom_motion_detector_temperature
                       name: Bedroom
 
+          # Bottom_right section
           - type: custom:mod-card
+            view_layout:
+              grid-area: bottom_right
             card_mod:
               style: |
                 ha-card {
@@ -523,6 +608,7 @@ views:
             card:
               type: vertical-stack
               cards:
+                # Camera section
                 - type: grid
                   columns: 3
                   square: false
@@ -565,7 +651,7 @@ views:
                             - height: 100%
                             - background: transparent
 
-
+                # Media player section
                 - type: conditional
                   view_layout:
                     grid-area: media
@@ -590,12 +676,16 @@ views:
                           background-color: rgba(0, 0, 0, 0);
                           height: 100px;
                         }
+
+                # Weather section
                 - type: custom:mod-card
                   card_mod:
                     style: |
                       ha-card {
                         border: solid 1px var(--primary-text-color);
-                        border-radius: 10%
+                        border-top-left-radius: 20px; 
+                        border-bottom-left-radius: 20px; 
+                        border-right-style: none;
                         background: transparent;
                         width: 100%;
                       }
@@ -618,7 +708,6 @@ views:
                               width: 100%;
                             }
                         
-
                       - type: custom:button-card
                         triggers_update: automation.download_latest_gif
                         styles:
