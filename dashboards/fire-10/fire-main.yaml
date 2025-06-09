@@ -5,63 +5,35 @@ animated_background:
         entity: text.text
         state_url:
           smoke:
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-effect-over-black-background-1967.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-light-smoke-in-the-dark-12496-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-pink-smoke-on-a-black-background-billows-45596-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-plume-of-smoke-in-lower-third-1962.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-billowing-from-the-bottom-left-of-frame-45297-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-billowing-with-pink-and-blue-light-45295-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-drifting-in-the-dark-8501-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-effect-over-black-background-1967.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-on-a-black-background-1961.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-rising-in-the-dark-8461-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-smoke-with-fluorescent-particles-on-black-background-12495-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-swirling-smoke-coloured-by-blue-and-pink-light-45296-medium.mp4
-            - >-
-              /local/backgrounds/smoke/mixkit-white-smoke-with-black-background-1960.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-effect-over-black-background-1967.mp4
+            - /local/backgrounds/smoke/mixkit-light-smoke-in-the-dark-12496-medium.mp4
+            - /local/backgrounds/smoke/mixkit-pink-smoke-on-a-black-background-billows-45596-medium.mp4
+            - /local/backgrounds/smoke/mixkit-plume-of-smoke-in-lower-third-1962.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-billowing-from-the-bottom-left-of-frame-45297-medium.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-billowing-with-pink-and-blue-light-45295-medium.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-drifting-in-the-dark-8501-medium.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-effect-over-black-background-1967.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-on-a-black-background-1961.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-rising-in-the-dark-8461-medium.mp4
+            - /local/backgrounds/smoke/mixkit-smoke-with-fluorescent-particles-on-black-background-12495-medium.mp4
+            - /local/backgrounds/smoke/mixkit-swirling-smoke-coloured-by-blue-and-pink-light-45296-medium.mp4
+            - /local/backgrounds/smoke/mixkit-white-smoke-with-black-background-1960.mp4
           halloween:
-            - >-
-              /local/backgrounds/halloween/mixkit-bats-and-the-full-moon-on-halloween-18024-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-bats-and-witches-on-halloween-2d-animation-18026-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-bats-flying-in-a-mysterious-night-18028-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-black-background-with-smoke-foreground-1968.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-creepy-graveyard-with-view-of-the-starry-sky-26969-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-creepy-halloween-pumpkin-in-dark-cloud-forest-33884.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-dark-dry-tree-forest-in-3d-under-a-big-moon-31515-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-dark-forest-under-the-moon-and-a-green-haze-31522-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-glowing-halloween-pumpkins-in-the-dark-32986-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-graveyard-under-the-moon-with-green-mist-14207-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-halloween-pumpkin-in-the-garden-33885.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-halloween-pumpkin-lit-up-surrounded-by-spiders-webs-and-smoke-47946-medium.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-scary-halloween-pumpkin-lit-up-in-the-dark-33882.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-smiling-silhouette-of-a-halloween-pumpkin-33881.mp4
-            - >-
-              /local/backgrounds/halloween/mixkit-spooky-illuminated-carved-pumpkins-48840-medium.mp4
+            - /local/backgrounds/halloween/mixkit-bats-and-the-full-moon-on-halloween-18024-medium.mp4
+            - /local/backgrounds/halloween/mixkit-bats-and-witches-on-halloween-2d-animation-18026-medium.mp4
+            - /local/backgrounds/halloween/mixkit-bats-flying-in-a-mysterious-night-18028-medium.mp4
+            - /local/backgrounds/halloween/mixkit-black-background-with-smoke-foreground-1968.mp4
+            - /local/backgrounds/halloween/mixkit-creepy-graveyard-with-view-of-the-starry-sky-26969-medium.mp4
+            - /local/backgrounds/halloween/mixkit-creepy-halloween-pumpkin-in-dark-cloud-forest-33884.mp4
+            - /local/backgrounds/halloween/mixkit-dark-dry-tree-forest-in-3d-under-a-big-moon-31515-medium.mp4
+            - /local/backgrounds/halloween/mixkit-dark-forest-under-the-moon-and-a-green-haze-31522-medium.mp4
+            - /local/backgrounds/halloween/mixkit-glowing-halloween-pumpkins-in-the-dark-32986-medium.mp4
+            - /local/backgrounds/halloween/mixkit-graveyard-under-the-moon-with-green-mist-14207-medium.mp4
+            - /local/backgrounds/halloween/mixkit-halloween-pumpkin-in-the-garden-33885.mp4
+            - /local/backgrounds/halloween/mixkit-halloween-pumpkin-lit-up-surrounded-by-spiders-webs-and-smoke-47946-medium.mp4
+            - /local/backgrounds/halloween/mixkit-scary-halloween-pumpkin-lit-up-in-the-dark-33882.mp4
+            - /local/backgrounds/halloween/mixkit-smiling-silhouette-of-a-halloween-pumpkin-33881.mp4
+            - /local/backgrounds/halloween/mixkit-spooky-illuminated-carved-pumpkins-48840-medium.mp4
           sunny:
             - https://cdn.flixel.com/flixel/hlhff0h8md4ev0kju5be.hd.mp4
             - https://cdn.flixel.com/flixel/zjqsoc6ecqhntpl5vacs.hd.mp4
@@ -617,12 +589,12 @@ button_card_templates:
         - font-size: 12px
         - margin-left: 0px
 views:
-  - theme: Derek Dark Theme
-    subview: false
-    type: panel
+  - path: room
     title: Room
-    path: room
     icon: mdi:floor-plan
+    theme: Derek Dark Theme
+    subview: false
+    type: panel    
     badges: []
     cards:
       - type: custom:layout-card
@@ -640,9 +612,8 @@ views:
               state_on: mdi:lightbulb-group
               state_off: mdi:lightbulb-group-outline
               template:
-                styles: >
-                  if (entity.state == 'on') return 'color: yellow'; else return
-                  'color: rgb(169, 177, 188)';
+                styles: |
+                  if (entity.state == 'on') return 'color: yellow'; else return 'color: rgb(169, 177, 188)';
             tap_action:
               action: toggle
             hold_action:
@@ -1286,8 +1257,7 @@ views:
                 entity: input_boolean.guest_mode
                 content: Guest Mode
                 icon: |
-                  {{ (states(entity)=="on") | iif("mdi:home",
-                  "mdi:home-off-outline") }}
+                  {{ (states(entity)=="on") | iif("mdi:home", "mdi:home-off-outline") }}
                 icon_color: |
                   {{ (states(entity)=="on") | iif("green", "red") }}
                 press_action:
@@ -1295,9 +1265,8 @@ views:
               - type: template
                 entity: input_boolean.automation_override
                 content: Automations
-                icon: >
-                  {{ (states(entity)=="off") | iif("mdi:lightbulb-auto",
-                  "mdi:lightbulb-auto-outline") }}
+                icon: |
+                  {{ (states(entity)=="off") | iif("mdi:lightbulb-auto", "mdi:lightbulb-auto-outline") }}
                 icon_color: |
                   {{ (states(entity)=="off") | iif("green", "red") }}
                 press_action:
@@ -1308,9 +1277,8 @@ views:
               - type: template
                 entity: input_boolean.automation_interior_motion_detectors
                 content: Motion Detectors
-                icon: >
-                  {{ (states(entity)=="on") | iif("mdi:motion-sensor",
-                  "mdi:motion-sensor-off") }}
+                icon: |
+                  {{ (states(entity)=="on") | iif("mdi:motion-sensor", "mdi:motion-sensor-off") }}
                 icon_color: |
                   {{ (states((entity))=="on") | iif("green", "red") }}
                 press_action:
@@ -1346,11 +1314,11 @@ views:
                     navigation_path: /fire-main/sensors
               - type: custom:state-switch
                 entity: template
-                template: >-
-                  {% if is_state('binary_sensor.living_room_door_on_off', 'on')
-                  and (as_timestamp(now()) -
-                  as_timestamp(states.binary_sensor.living_room_door_on_off.last_updated))|int
-                  > 30 %}  open_too_long  {% endif %}
+                template: |
+                  {% if is_state('binary_sensor.living_room_door_on_off', 'on') and (as_timestamp(now()) -
+                  as_timestamp(states.binary_sensor.living_room_door_on_off.last_updated)) | int > 30 %}  
+                    open_too_long  
+                  {% endif %}
                 states:
                   open_too_long:
                     type: custom:mushroom-chips-card
@@ -1361,8 +1329,8 @@ views:
                         card_mod:
                           style: |
                             ha-card { 
-                            animation: blink 1s linear infinite; 
-                            --chip-icon-size: 0.6em; 
+                              animation: blink 1s linear infinite; 
+                              --chip-icon-size: 0.6em; 
                             }
                         hold_action:
                           action: navigate
@@ -1501,7 +1469,7 @@ views:
                         style: |
                           :host {
                             height: 330px;
-                           }
+                          }
               - type: vertical-stack
                 cards:
                   - type: grid
@@ -1564,9 +1532,8 @@ views:
                         template: generic_custom_button
                         entity: light.all_lights
                         icon: mdi:lightbulb-group-outline
-                        name: >
-                          [[[ if ((entity.state === 'on')) return "All Lights
-                          Off"; else return "All Lights On"]]] 
+                        name: |
+                          [[[ if ((entity.state === 'on')) return "All Lights Off"; else return "All Lights On" ]]] 
                         hold_action:
                           action: navigate
                           navigation_path: /fire-main/all-lights
@@ -1578,7 +1545,6 @@ views:
                           background: transparent;
                           position: fixed;
                           bottom: 0px;
-                          
                         }
                     card:
                       type: vertical-stack
@@ -1721,8 +1687,8 @@ views:
                                                         background-color: transparent;
                                                         width: 50%;
                                                       }
-  - theme: Derek Dark Theme
-    path: kitchen
+  - path: kitchen
+    theme: Derek Dark Theme
     type: panel
     icon: mdi:stove
     badges: []
@@ -1874,9 +1840,8 @@ views:
                     template: generic_custom_button
                     entity: switch.smart_kettle_power_switch
                     name: Kettle
-                    icon: >
-                      [[[ return (entity.state == 'on') ? 'mdi:kettle' :
-                      'mdi:kettle-outline' ]]]
+                    icon: |
+                      [[[ return (entity.state == 'on') ? 'mdi:kettle' : 'mdi:kettle-outline' ]]]
                     extra_styles: |
                       @keyframes fade {
                         0%, 100% { opacity: 0.5; }
@@ -1884,11 +1849,8 @@ views:
                       }
                     styles:
                       icon:
-                        - animation: >-
-                            [[[ return
-                            (states['sensor.smart_kettle_temperature'].state >=
-                            150) ? 'fade 2s ease-in-out infinite alternate' :
-                            null ]]]
+                        - animation: | 
+                            [[[ return (states['sensor.smart_kettle_temperature'].state >= 150) ? 'fade 2s ease-in-out infinite alternate' : null ]]]
           - type: custom:layout-card
             view_layout:
               grid-area: footer2
@@ -1960,8 +1922,8 @@ views:
                       background-color: rgba(0, 0, 0, 0)
                     }
         square: false
-  - theme: Derek Dark Theme
-    path: bedroom
+  - path: bedroom
+    theme: Derek Dark Theme
     type: panel
     animated_background: weather
     visible:
@@ -2156,9 +2118,8 @@ views:
                     show_name: true
                     tap_action: none
                     hold_action: none
-                    name: >-
-                      [[[ return states["sensor.dashboard_date"].state + " / " +
-                      states["sensor.time"].state ]]]
+                    name: |
+                      [[[ return states["sensor.dashboard_date"].state + " / " + states["sensor.time"].state ]]]
                     styles:
                       card:
                         - font-size: 50px
@@ -2230,9 +2191,8 @@ views:
                     name: Fan
                     styles:
                       icon:
-                        - animation: >
-                            [[[ if ((entity.state === 'on')) return "rotating 5s
-                            linear infinite"]]] 
+                        - animation: |
+                            [[[ if ((entity.state === 'on')) return "rotating 5s linear infinite" ]]] 
                     hold_action:
                       action: fire-dom-event
                       browser_mod:
@@ -2240,20 +2200,12 @@ views:
                         data:
                           style: >
                             color: red;
-
-
                             --popup-max-width: 800px;
-
                             --popup-min-width: 600px;
-
                             --popup-border-width: 1px;
-
                             --popup-border-radius: 12px;
-
                             --popup-padding-x: 0px;
-
                             --popup-padding-y: 0px;
-
                             --dialog-backdrop-filter: blur(0.8em)
                             brightness(1.2);
                           timeout: 35000
@@ -2305,9 +2257,8 @@ views:
                     template: generic_custom_button
                     entity: light.all_lights
                     icon: mdi:lightbulb-group-outline
-                    name: >
-                      [[[ if ((entity.state === 'on')) return "All Lights Off";
-                      else return "All Lights On"]]] 
+                    name: |
+                      [[[ if ((entity.state === 'on')) return "All Lights Off"; else return "All Lights On" ]]] 
                     hold_action:
                       action: navigate
                       navigation_path: /fire-main/all-lights
@@ -2361,7 +2312,8 @@ views:
                         25% {transform: rotatez(30deg)}
                         50% {transform: rotatez(15deg)}
                         75% {transform: rotatez(0deg)}
-                        100% {transform: rotatez(15deg)}}
+                        100% {transform: rotatez(15deg)}
+                      }
           - type: grid
             view_layout:
               grid-area: footer2
@@ -2387,8 +2339,8 @@ views:
           - type: custom:gap-card
             view_layout:
               grid-area: gap
-  - theme: Derek Dark Theme
-    path: bathroom
+  - path: bathroom
+    theme: Derek Dark Theme
     type: panel
     icon: mdi:bathtub-outline
     badges: []
@@ -2494,7 +2446,6 @@ views:
                       width: 49%;
                       z-index: 0;
                     }
-                    card:
                 card:
                   type: entities
                   entities:
@@ -2504,10 +2455,8 @@ views:
                     - type: custom:template-entity-row
                       icon: mdi:thermometer
                       name: Temperature
-                      state: >-
-                        {{
-                        (states('sensor.bathroom_motion_detector_temperature') |
-                        float * 1) | round(0) }} °F
+                      state: |
+                        {{ (states('sensor.bathroom_motion_detector_temperature') | float * 1) | round(0) }} °F
                     - entity: sensor.bathroom_motion_detector_illuminance
                   show_header_toggle: false
                   state_color: true
@@ -2555,9 +2504,9 @@ views:
                       controls: false
                       volume: false
                       progress: true
-  - theme: Derek Dark Theme
+  - path: office
+    theme: Derek Dark Theme
     panel: true
-    path: office
     type: panel
     icon: mdi:desktop-classic
     badges: []
@@ -2689,9 +2638,9 @@ views:
                   action: navigate
                   navigation_path: /fire-main/bathroom
         square: false
-  - theme: Derek Dark Theme
+  - path: sensors
     title: Sensors
-    path: sensors
+    theme: Derek Dark Theme
     type: panel
     icon: mdi:battery-unknown
     badges: []
@@ -3011,8 +2960,8 @@ views:
                       letter-spacing: 3px;
                       font-family: Times New Roman
                     }
-  - title: Automations
-    path: automations
+  - path: automations
+    title: Automations
     type: panel
     theme: Derek Dark Theme
     icon: mdi:robot-outline
@@ -3030,9 +2979,8 @@ views:
               card_margin: 0
             cards:
               - type: markdown
-                content: >
-                  <ha-icon icon="mdi:robot-outline"></ha-icon><font size=6> 
-                  Automations</font>
+                content: |
+                  <ha-icon icon="mdi:robot-outline"></ha-icon><font size=6>Automations</font>
                 card_mod:
                   style: |
                     ha-card {
@@ -3092,7 +3040,7 @@ views:
                     style: |
                       ha-card {
                         border: solid 1px var(--primary-text-color);
-                        background-color: rgba(0, 0, 0, 0)
+                        background-color: rgba(0, 0, 0, 0);
                       }
                 filter:
                   include:
@@ -3112,7 +3060,7 @@ views:
                     style: |
                       ha-card {
                         border: solid 1px var(--primary-text-color);
-                        background-color: rgba(0, 0, 0, 0)
+                        background-color: rgba(0, 0, 0, 0);
                       }
                 filter:
                   include:
@@ -3132,7 +3080,7 @@ views:
                     style: |
                       ha-card {
                         border: solid 1px var(--primary-text-color);
-                        background-color: rgba(0, 0, 0, 0)
+                        background-color: rgba(0, 0, 0, 0);
                       }
                 filter:
                   include:
@@ -3152,7 +3100,7 @@ views:
                     style: |
                       ha-card {
                         border: solid 1px var(--primary-text-color);
-                        background-color: rgba(0, 0, 0, 0)
+                        background-color: rgba(0, 0, 0, 0);
                       }
                 filter:
                   include:
@@ -3195,10 +3143,8 @@ views:
                   markdown:
                     card:
                       type: markdown
-                      content: >
-                        {{-
-                        states.input_number.automation_auto_bathroom_lights_duration.state
-                        | int | string +" minutes"-}}
+                      content: |
+                        {{- states.input_number.automation_auto_bathroom_lights_duration.state | int | string +" minutes" -}}
                       card_mod:
                         style: |
                           ha-card {
@@ -3236,10 +3182,8 @@ views:
                   markdown:
                     card:
                       type: markdown
-                      content: >
-                        {{-
-                        states.input_number.automation_auto_office_lights_duration.state
-                        | int | string +" minutes"-}}
+                      content: |
+                        {{- states.input_number.automation_auto_office_lights_duration.state | int | string +" minutes" -}}
                       card_mod:
                         style: |
                           ha-card {
@@ -3277,10 +3221,8 @@ views:
                   markdown:
                     card:
                       type: markdown
-                      content: >
-                        {{-
-                        states.input_number.automation_auto_kitchen_lights_duration.state
-                        | int | string +" minutes"-}}
+                      content: |
+                        {{- states.input_number.automation_auto_kitchen_lights_duration.state | int | string +" minutes" -}}
                       card_mod:
                         style: |
                           ha-card {
@@ -3318,19 +3260,17 @@ views:
                   markdown:
                     card:
                       type: markdown
-                      content: >
-                        {{-
-                        states.input_number.automation_auto_hallway_lights_duration.state
-                        | int | string + " minutes"-}}
+                      content: |
+                        {{- states.input_number.automation_auto_hallway_lights_duration.state | int | string + " minutes" -}}
                       card_mod:
                         style: |
                           ha-card {
                             border: none;
                             background-color: transparent;
                           }
-  - theme: Derek Dark Theme
+  - path: system
+    theme: Derek Dark Theme
     title: System
-    path: system
     icon: mdi:desktop-classic
     type: panel
     badges: []
@@ -3495,5 +3435,5 @@ views:
                   style: |
                     ha-card {
                       border: solid 1px var(--primary-text-color);
-                      background-color: rgba(0, 0, 0, 0)
+                      background-color: rgba(0, 0, 0, 0);
                     }
