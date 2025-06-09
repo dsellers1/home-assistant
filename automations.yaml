@@ -1,29 +1,65 @@
 - id: '1591135786183'
-  alias: Startup_Flasher
-  description: Flashes Bedroom Light 1 when HA starts or shutsdown
+  alias: Startup_or_Shutdown
+  description: 'Triggers when HA starts or shuts-down.
+
+    On shutdown, creates a scene of the hallway light, turns it on and sets it to
+    blue.
+
+    On startup, applies the scene for the hallway light.'
   trigger:
   - event: start
     platform: homeassistant
+    id: Startup
   - event: shutdown
     platform: homeassistant
-  condition:
-  - condition: time
-    after: 07:00
-    before: '23:59'
+    id: Shutdown
+  condition: []
   action:
-  - type: toggle
-    device_id: 38c4e9564c27d1f7c071158bfef917f7
-    entity_id: light.bedroom1
-    domain: light
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 1
-      milliseconds: 0
-  - type: toggle
-    device_id: 38c4e9564c27d1f7c071158bfef917f7
-    entity_id: light.bedroom1
-    domain: light
+  - alias: Startup
+    if:
+    - condition: trigger
+      id:
+      - Startup
+    then:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.automation_override
+      data: {}
+    - service: scene.turn_on
+      target:
+        entity_id: scene.automation_shutdown
+      data: {}
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+        - input_boolean.automation_override
+      data: {}
+  - alias: Shutdown
+    if:
+    - condition: trigger
+      id:
+      - Shutdown
+    then:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.automation_override
+      data: {}
+    - service: scene.create
+      data:
+        scene_id: automation_shutdown
+        snapshot_entities:
+        - light.hallway
+    - service: light.turn_on
+      target:
+        entity_id: light.hallway
+      data:
+        color_name: blue
+        brightness: 255
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+        - input_boolean.automation_override
+      data: {}
   mode: single
 - id: '1614322694397'
   alias: Wake-up light alarm with sunrise effect
@@ -32,56 +68,23 @@
     path: Sbyx/wake-up-light-alarm-with-sunrise-effect.yaml
     input:
       min_mired: 0
-      light_entity: light.bedroom1
-      timestamp_sensor: sensor.derek_s20_next_alarm
-      manual_time: '6:30:00'
-- id: '1637621643620'
-  alias: Aqara Magic Cube
-  description: ''
-  use_blueprint:
-    path: rvaidya/aqara_magic_cube.yaml
-    input:
-      remote: 63d5505f47d28fcfe75443d89ca5abed
-      active_face: input_number.cube_helper
-      rotate_any_side: true
-      rotate_right:
-      - device_id: d8993f914b26650d3e3da2e440d10b5c
-        domain: light
-        entity_id: light.bedroom2
-        type: brightness_increase
-      - device_id: 38c4e9564c27d1f7c071158bfef917f7
-        domain: light
-        entity_id: light.bedroom1
-        type: brightness_increase
-      rotate_left:
-      - device_id: 38c4e9564c27d1f7c071158bfef917f7
-        domain: light
-        entity_id: light.bedroom1
-        type: brightness_decrease
-      - device_id: d8993f914b26650d3e3da2e440d10b5c
-        domain: light
-        entity_id: light.bedroom2
-        type: brightness_decrease
-      slide_any_side: false
-      cube_slide_any: []
-      cube_shake:
-      - type: toggle
-        device_id: 38c4e9564c27d1f7c071158bfef917f7
-        entity_id: light.bedroom1
-        domain: light
-      - type: toggle
-        device_id: d8993f914b26650d3e3da2e440d10b5c
-        entity_id: light.bedroom2
-        domain: light
+      light_entity: light.bedroom_lights
+      timestamp_sensor: sensor.s22_ultra_next_alarm
+      manual_time: 05:30:00
 - id: '1693377513197'
   alias: Download satelite animations
   description: Downloads the lastest satelite animations from NOAA.org
   trigger:
   - platform: time_pattern
     enabled: true
-    hours: /1
+    minutes: /15
   condition: []
   action:
+  - service: downloader.download_file
+    data:
+      overwrite: true
+      url: https://s.w-x.co/staticmaps/wu/wu/wxtype1200_cur/usday/animate.png
+      filename: WU-animated.png
   - service: downloader.download_file
     data:
       overwrite: true
@@ -92,6 +95,11 @@
       overwrite: true
       url: https://cdn.star.nesdis.noaa.gov/GOES16/ABI/SECTOR/cgl/Sandwich/GOES16-CGL-Sandwich-600x600.gif
       filename: CGL-Sandwich.gif
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 30
+      milliseconds: 0
   mode: single
 - id: '1694571017571'
   alias: Auto Office Lights
@@ -434,14 +442,12 @@
   - platform: state
     entity_id:
     - binary_sensor.kitchen_motion_detector
-    - binary_sensor.kitchen_motion_detector_2
     from: 'off'
     to: 'on'
     id: motion_detected
   - platform: state
     entity_id:
     - binary_sensor.kitchen_motion_detector
-    - binary_sensor.kitchen_motion_detector_2
     from: 'on'
     to: 'off'
     id: motion_cleared
@@ -462,6 +468,13 @@
     from: 'on'
     to: 'off'
     id: toggle_automation_on_to_off
+  - platform: state
+    entity_id:
+    - timer.automation_auto_kitchen_lights
+    - timer.tester
+    attribute: remaining
+    to: '1:00'
+    id: still_motion
   condition:
   - alias: Automation enabled or just recently turned off
     condition: or
@@ -503,27 +516,56 @@
         id:
         - motion_detected
       sequence:
-      - if:
-        - condition: state
-          entity_id: light.kitchen_lights
-          state: 'off'
-        then:
-        - service: light.turn_on
-          data: {}
-          target:
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: media_player.mini_pc_plex
+            state: movie
+            attribute: media_content_type
+            alias: Confirm Plex is playing a movie
+          - condition: state
             entity_id: light.kitchen_lights
-        else: []
-        alias: Are the lights on or off?
-      - alias: Is the timer already running?
-        if:
-        - condition: state
-          entity_id: timer.automation_auto_kitchen_lights
-          state: active
-        then:
-        - service: timer.cancel
-          data: {}
-          target:
+            state: 'off'
+          sequence:
+          - service: light.turn_on
+            metadata: {}
+            data:
+              brightness_pct: 50
+            target:
+              entity_id: light.stove
+          - service: timer.start
+            metadata: {}
+            data:
+              duration: '300'
+            target:
+              entity_id: timer.automation_auto_kitchen_lights
+            alias: Start timer
+          alias: Plex is playing and kitchen lights are off
+        - conditions:
+          - condition: state
+            entity_id: light.kitchen_lights
+            state: 'off'
+          sequence:
+          - service: light.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: light.kitchen_lights
+          alias: Kitchen lights are off
+        - conditions:
+          - condition: state
             entity_id: timer.automation_auto_kitchen_lights
+            state: active
+          - condition: state
+            entity_id: light.kitchen_lights
+            state: 'on'
+          sequence:
+          - service: timer.start
+            metadata: {}
+            data: {}
+            target:
+              entity_id: timer.automation_auto_kitchen_lights
+          alias: Kitchen lights are on and timer is running
     - conditions:
       - condition: trigger
         id:
@@ -581,28 +623,43 @@
         data: {}
         target:
           entity_id: timer.automation_auto_kitchen_lights
+    - conditions:
+      - condition: trigger
+        id:
+        - still_motion
+      - condition: state
+        entity_id: binary_sensor.kitchen_motion_detector
+        state: 'on'
+        enabled: false
+      sequence:
+      - service: timer.start
+        metadata: {}
+        data:
+          duration: '5:00'
+        target:
+          entity_id: timer.automation_auto_kitchen_lights
   mode: single
 - id: '1694666178669'
   alias: Arriving/leaving home
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - device_tracker.s22_ultra
+  triggers:
+  - entity_id:
+    - device_tracker.s25_ultra
     from: not_home
     to: home
     id: arriving_home
-  - platform: state
-    entity_id:
-    - device_tracker.s22_ultra
+    trigger: state
+  - entity_id:
+    - device_tracker.s25_ultra
     from: home
     to: not_home
     id: leaving_home
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: input_boolean.guest_mode
     state: 'off'
-  action:
+  actions:
   - alias: Arriving home or leaving home
     choose:
     - conditions:
@@ -611,114 +668,139 @@
         - arriving_home
         alias: Arriving home
       sequence:
-      - service: light.turn_on
-        data: {}
+      - data: {}
         target:
           entity_id:
           - light.fire_living_room_screen
           - light.fire_computer_desk_screen
         alias: Turn on tablet screens
+        action: light.turn_on
       - if:
         - condition: numeric_state
           entity_id: sensor.living_room_motion_detector_illuminance
           below: 5
         then:
-        - service: light.turn_on
-          data: {}
+        - data: {}
           target:
             entity_id:
             - light.living_room_lights
+          action: light.turn_on
         alias: Turn on living room lights, if needed
       - if:
         - condition: numeric_state
           entity_id: sensor.bedroom_motion_detector_illuminance
           below: 5
         then:
-        - service: light.turn_on
-          data: {}
+        - data: {}
           target:
             entity_id:
             - light.bedroom_lights
+          action: light.turn_on
         alias: Turn on bedroom lights, if needed
+      - if:
+        - condition: state
+          entity_id: media_player.xbox
+          state: 'off'
+        - condition: state
+          entity_id: input_boolean.guest_mode
+          state: 'off'
+        then:
+        - action: media_player.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: media_player.xbox
+        alias: Turn on Xbox, if no guests
     - conditions:
       - condition: trigger
         id:
         - leaving_home
         alias: Leaving home
       sequence:
-      - alias: Turn off tablet screens and living room lights
-        service: light.turn_off
+      - alias: Turn off tablet screens and all lights
         data:
           transition: 10
         target:
           entity_id:
           - light.fire_living_room_screen
           - light.fire_computer_desk_screen
-          - light.living_room_lights
           - light.fire_office_screen
           - light.fire_bedside_screen
-          - light.bathroom_lights
-          - light.office_lights
-          - light.kitchen_lights
+          - light.all_lights
+        action: light.turn_off
   mode: single
 - id: '1694734074409'
   alias: Auto Bathroom Lights
   description: Handle automatic bathroom lights based on motion, light and door sensor
-    states, and enabling/disabling toggle while lights are on.
-  trigger:
-  - platform: state
-    id: light_off_to_on
+    states, if music starts/stops, and enabling/disabling toggle while lights are
+    on.
+  triggers:
+  - id: light_off_to_on
     entity_id:
     - light.bathroom_lights
     from: 'off'
     to: 'on'
-  - platform: state
-    id: light_on_to_off
+    trigger: state
+  - id: light_on_to_off
     entity_id:
     - light.bathroom_lights
     from: 'on'
     to: 'off'
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.bathroom_motion_detector
     from: 'off'
     to: 'on'
     id: motion_detected
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.bathroom_motion_detector
     from: 'on'
     to: 'off'
     id: motion_cleared
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - binary_sensor.bathroom_door
     to: 'on'
     id: door_opened
-  - platform: state
-    entity_id:
+    from: 'off'
+    trigger: state
+  - entity_id:
     - binary_sensor.bathroom_door
     to: 'off'
     id: door_closed
-  - platform: event
+    from: 'on'
+    trigger: state
+  - alias: When Bathroom timer expires
     event_type: timer.finished
     event_data:
       entity_id: timer.automation_auto_bathroom_lights
     id: timer_finished
-    alias: When Bathroom timer expires
-  - platform: state
-    entity_id:
+    trigger: event
+  - entity_id:
     - input_boolean.automation_auto_bathroom_lights
     from: 'off'
     to: 'on'
     id: toggle_automation_off_to_on
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - input_boolean.automation_auto_bathroom_lights
     from: 'on'
     to: 'off'
     id: toggle_automation_on_to_off
-  condition:
+    trigger: state
+  - trigger: state
+    entity_id:
+    - media_player.bathroom_alexa
+    to: playing
+    id: alexa_starts_playing
+  - trigger: state
+    entity_id:
+    - media_player.bathroom_alexa
+    to: paused
+    from: playing
+    id: alexa_stops_playing
+  conditions:
   - alias: Automation enabled or just recently turned off
     condition: or
     conditions:
@@ -726,47 +808,44 @@
       entity_id: input_boolean.automation_auto_bathroom_lights
       state: 'on'
     - condition: template
-      value_template: "{{ is_state('input_boolean.automation_auto_bathroom_lights',
-        'off') and\n       (now() - states.input_boolean.automation_auto_bathroom_lights.last_changed).total_seconds()
-        < 10 }}"
-  action:
+      value_template: '{{ is_state(''input_boolean.automation_auto_bathroom_lights'',
+        ''off'') and (now() - states.input_boolean.automation_auto_bathroom_lights.last_changed).total_seconds()
+        < 10 }}'
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - light_off_to_on
+        - door_opened
       sequence:
-      - service: timer.start
-        data:
+      - data:
           duration: '{{ states.input_number.automation_auto_bathroom_lights_duration.state
             | int(0)*60 }}'
         target:
           entity_id:
           - timer.automation_auto_bathroom_lights
+        action: timer.start
     - conditions:
       - condition: trigger
         id:
         - light_on_to_off
       sequence:
-      - service: timer.cancel
-        data: {}
+      - data: {}
         target:
           entity_id:
           - timer.automation_auto_bathroom_lights
+        action: timer.cancel
     - conditions:
       - condition: trigger
         id:
         - motion_detected
       sequence:
-      - if:
-        - condition: state
+      - metadata: {}
+        data: {}
+        target:
           entity_id: light.bathroom_lights
-          state: 'off'
-        then:
-        - service: light.turn_on
-          data: {}
-          target:
-            entity_id: light.bathroom_lights
+        action: light.turn_on
     - conditions:
       - condition: trigger
         id:
@@ -777,54 +856,42 @@
           entity_id: binary_sensor.bathroom_door
           state: 'on'
         then:
-        - service: timer.start
-          data:
+        - data:
             duration: '{{ states.input_number.automation_auto_bathroom_lights_duration.state
               | int(0)*60 }}'
           target:
             entity_id:
             - timer.automation_auto_bathroom_lights
+          action: timer.start
     - conditions:
       - condition: trigger
         id:
         - timer_finished
       sequence:
-      - service: light.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id:
           - light.bathroom_lights
+        action: light.turn_off
     - conditions:
       - condition: trigger
         id:
         - door_closed
+        - alexa_starts_playing
       sequence:
       - if:
         - condition: state
           entity_id: light.bathroom_lights
           state: 'off'
         then:
-        - service: light.turn_on
-          data: {}
+        - data: {}
           target:
             entity_id: light.bathroom_lights
-        else: []
-      - service: timer.cancel
-        data: {}
+          action: light.turn_on
+      - data: {}
         target:
           entity_id: timer.automation_auto_bathroom_lights
-    - conditions:
-      - condition: trigger
-        id:
-        - door_opened
-      sequence:
-      - service: timer.start
-        data:
-          duration: '{{ states.input_number.automation_auto_bathroom_lights_duration.state
-            | int(0)*60 }}'
-        target:
-          entity_id:
-          - timer.automation_auto_bathroom_lights
+        action: timer.cancel
     - conditions:
       - condition: trigger
         id:
@@ -835,14 +902,14 @@
           entity_id: light.bathroom_lights
           state: 'on'
         then:
-        - service: timer.start
-          data: {}
+        - data: {}
           target:
             entity_id: timer.automation_auto_bathroom_lights
-      - service: notify.alexa_media_bathroom
-        data:
+          action: timer.start
+      - data:
           message: '{{ ["The timer has been started.", "Automatic lights enabled.",
             "The timer for the lights has been turned on."] | random }}'
+        action: notify.alexa_media_bathroom
     - conditions:
       - condition: trigger
         id:
@@ -853,14 +920,28 @@
           entity_id: light.bathroom_lights
           state: 'on'
         then:
-        - service: timer.cancel
-          data: {}
+        - data: {}
           target:
             entity_id: timer.automation_auto_bathroom_lights
-      - service: notify.alexa_media_bathroom
-        data:
+          action: timer.cancel
+      - data:
           message: '{{ ["The timer has been stopped.", "Automatic lights disabled.",
             "The timer for the lights has been turned off."] | random }}'
+        action: notify.alexa_media_bathroom
+    - conditions:
+      - condition: trigger
+        id:
+        - alexa_stops_playing
+      - condition: state
+        entity_id: binary_sensor.bathroom_door
+        state: 'on'
+      sequence:
+      - action: timer.start
+        metadata: {}
+        data: {}
+        target:
+          entity_id: timer.automation_auto_bathroom_lights
+      alias: If trigger by alexa_stops_playing and the door is open
   mode: single
 - id: '1696213571336'
   alias: Unraid is Down
@@ -871,6 +952,10 @@
     - binary_sensor.unraid
     from: 'on'
     to: 'off'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
   condition: []
   action:
   - service: notify.mobile_app_s22_ultra
@@ -918,35 +1003,33 @@
       title: Test
       timeout: 36000
       content:
-        type: entities
-        state_color: true
-        show_header_toggle: false
-        entities:
-        - type: custom:slider-entity-row
-          entity: light.living_room1
-          hide_state: true
-          toggle: true
-          step: 1
+        type: custom:button-card
+        entity: '[[[ return variables.test_var ]]]'
+        show_label: true
+        label: '[[[ return variables.test_label ]]]'
+        variables:
+          test_var: person.derek
+          test_label: Variables work for me.
     target:
-      device_id: bb9abaffe1cda49a7737ab66a382d2cd
+      device_id:
+      - 6b3c1fe87e30630ffd8d05915f1350ac
   mode: single
 - id: '1701031425363'
   alias: There is a problem
   description: This automation watches a template sensor that watches various sensors
     to determine if a problem exists.
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.problem
     from: OK
     to: Problem
     for:
       hours: 0
-      minutes: 0
-      seconds: 30
+      minutes: 1
+      seconds: 0
     id: Problem Detected
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - sensor.problem
     from: Problem
     to: OK
@@ -955,48 +1038,151 @@
       minutes: 0
       seconds: 0
     id: Problem Resolved
-  condition: []
-  action:
+    trigger: state
+  - entity_id:
+    - sensor.problem
+    from: Problem
+    to: OK
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    id: Problem Resolved
+    trigger: state
+  - trigger: time_pattern
+    hours: /1
+    id: Hourly Check
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - Problem Detected
       sequence:
-      - service: input_boolean.turn_on
-        data: {}
+      - data: {}
         target:
           entity_id: input_boolean.automation_override
-      - service: light.turn_on
-        data:
+        action: input_boolean.turn_on
+      - data:
           color_name: red
           brightness_pct: 100
         target:
           entity_id: light.hallway
+        action: light.turn_on
       - delay:
           hours: 0
           minutes: 0
           seconds: 10
           milliseconds: 0
-      - service: input_boolean.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id: input_boolean.automation_override
-      - service: light.turn_on
-        data:
+        action: input_boolean.turn_off
+      - data:
           color_name: red
           brightness_pct: 100
         target:
           entity_id: light.hallway
+        action: light.turn_on
+      - if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.problem
+            attribute: freezer
+            state: OK
+        then:
+        - action: notify.mobile_app_s25_ultra
+          metadata: {}
+          data:
+            message: The freezer is {{ states('sensor.freezer_temperature') | int}}{{state_attr('sensor.freezer_temperature',
+              'unit_of_measurement')}}.
+            title: Problem Watchdog
+        alias: Freezer Notifier
+      - alias: Refrigerator Notifier
+        if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.problem
+            attribute: refrigerator
+            state: OK
+        then:
+        - action: notify.mobile_app_s25_ultra
+          metadata: {}
+          data:
+            message: The refrigerator is {{ states('sensor.refrigerator_temperature')
+              | int}}{{state_attr('sensor.refrigerator_temperature', 'unit_of_measurement')}}.
+            title: Problem Watchdog
+      - alias: Unraid Notifier
+        if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.problem
+            attribute: freezer
+            state: OK
+        then:
+        - action: notify.mobile_app_s25_ultra
+          metadata: {}
+          data:
+            message: Unraid has stopped responding.
+            title: Problem Watchdog
+        enabled: true
+      - alias: Internet Notifier
+        if:
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: sensor.problem
+            attribute: freezer
+            state: OK
+        then:
+        - action: notify.mobile_app_s25_ultra
+          metadata: {}
+          data:
+            message: The internet appears to be unreachable.
+            title: Problem Watchdog
+        enabled: true
     - conditions:
       - condition: trigger
         id:
         - Problem Resolved
       sequence:
-      - service: light.turn_off
-        data: {}
+      - data: {}
         target:
           entity_id: light.hallway
+        action: light.turn_off
+      - action: notify.mobile_app_s25_ultra
+        metadata: {}
+        data:
+          message: The problem has been resolved.
+          title: Problem Watchdog
+    - conditions:
+      - condition: trigger
+        id:
+        - Hourly Check
+      sequence:
+      - if:
+        - condition: state
+          entity_id: sensor.problem
+          state: OK
+        - condition: and
+          conditions:
+          - condition: state
+            entity_id: automation.auto_hallway_lights
+            state: 'on'
+          - condition: state
+            entity_id: light.hallway
+            attribute: rgb_color
+            state: ''
+        then:
+        - action: light.turn_off
+          metadata: {}
+          data: {}
+          target:
+            entity_id: light.hallway
   mode: single
 - id: '1703210723141'
   alias: Integration Watchdog
@@ -1004,17 +1190,41 @@
     if not, it will restart it.
 
     '
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - weather.home
+    - weather.openweathermap
+    - switch.nodered_all_lights_to_rgb
     to: unavailable
-  condition: []
-  action:
-  - service: homeassistant.reload_config_entry
-    target:
-      entity_id: '{{ trigger.entity_id }}'
-    data: {}
+    trigger: state
+  - at: 00:00:00
+    trigger: time
+  conditions: []
+  actions:
+  - alias: Restart Node-RED
+    if:
+    - condition: template
+      value_template: '{{ true if trigger.entity_id == ''switch.nodered_all_lights_to_rgb''
+        }}'
+    then:
+    - target:
+        entity_id: switch.nodered_all_lights_to_rgb
+      data: {}
+      enabled: false
+      action: homeassistant.reload_core_config
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 30
+        milliseconds: 0
+    - data:
+        addon: a0d7b954_nodered
+      action: hassio.addon_restart
+    else:
+    - action: homeassistant.reload_config_entry
+      target:
+        entity_id: '{{ trigger.entity_id }}'
+      data: {}
   mode: single
 - id: '1703380210771'
   alias: Tablet Handler - Bedroom
@@ -1026,17 +1236,17 @@
     entity_id: 673bdd66fe132d43df8b13aee55b7ae8
     domain: binary_sensor
     id: detected
-  - type: no_motion
+  - alias: Bedroom Motion Detector stopped detecting motion for 15 minutes
+    type: no_motion
     platform: device
     device_id: 7768bc76b4cf7564de4069f54e91ba10
-    entity_id: 79a5988d76df5038001c2f110bb034e1
+    entity_id: 673bdd66fe132d43df8b13aee55b7ae8
     domain: binary_sensor
+    id: clear
     for:
       hours: 0
       minutes: 15
       seconds: 0
-    id: clear
-    alias: Bedroom Motion Detector stopped detecting motion
   - alias: Fire Bedside Battery Level high
     type: battery_level
     platform: device
@@ -1057,6 +1267,11 @@
     entity_id:
     - sensor.bedroom_motion_detector_illuminance
     id: illum_change
+  - platform: state
+    entity_id:
+    - sensor.fire_bedside_battery_level
+    to: unavailable
+    id: unavailable
   condition: []
   action:
   - alias: Detected
@@ -1065,18 +1280,27 @@
       id:
       - detected
     then:
-    - if:
+    - alias: Turn on Fire Bedside Screen if off
+      if:
       - condition: device
         type: is_off
         device_id: d5b9cae0114b1c1b101a436665dc491f
         entity_id: de242ee287ce83011d0ca4eb361012d9
         domain: light
       then:
+      - service: number.set_value
+        metadata: {}
+        data:
+          value: "{% set illum = states('sensor.bedroom_motion_detector_illuminance')
+            | int %} \n{% if (illum >= 3) %} 255 \n{% elif (illum == 2) %} 64 \n{%
+            elif (illum < 2) %} 5 \n{% endif %}\n"
+        target:
+          entity_id: number.fire_bedside_screen_brightness
+        alias: Set screen brightness based on illumination
       - type: turn_on
         device_id: d5b9cae0114b1c1b101a436665dc491f
         entity_id: de242ee287ce83011d0ca4eb361012d9
         domain: light
-      alias: Turn on Fire Bedside Screen if off
     - alias: Turn on Fire Computer Desk Screen if off
       if:
       - condition: device
@@ -1118,6 +1342,7 @@
     - condition: trigger
       id:
       - battery_low_bedside
+      - unavailable
     then:
     - type: turn_on
       device_id: 95b9e9b525ab5b2ca6611e0bc8a09234
@@ -1227,6 +1452,15 @@
     domain: sensor
     id: battery_low
     below: 30
+  - platform: state
+    entity_id:
+    - light.fire_office_screen
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+    id: unavailable
   condition: []
   action:
   - alias: Detected
@@ -1267,11 +1501,12 @@
       device_id: 644ec1c2a13079455b32c0583b4ce84e
       entity_id: bd1d2e736255ff1d5c74f813b70b49e1
       domain: switch
-  - alias: battery_low
+  - alias: battery_low or unavailable
     if:
     - condition: trigger
       id:
       - battery_low
+      - unavailable
     then:
     - type: turn_on
       device_id: 644ec1c2a13079455b32c0583b4ce84e
@@ -1303,7 +1538,7 @@
     - delay:
         hours: 0
         minutes: 0
-        seconds: 3
+        seconds: 10
         milliseconds: 0
     - service: button.press
       target:
@@ -1316,24 +1551,309 @@
         area_id: []
       data: {}
       alias: FKB Load Start URL
-  - if:
+    - if:
+      - condition: state
+        entity_id: sensor.mini_pc_browser_path
+        state: /lovelace-yaml/0
+      then:
+      - service: browser_mod.refresh
+        metadata: {}
+        data: {}
+        target:
+          device_id: 6b3c1fe87e30630ffd8d05915f1350ac
+      else:
+      - service: browser_mod.navigate
+        metadata: {}
+        data:
+          path: '/lovelace-yaml/0 '
+        target:
+          device_id: 6b3c1fe87e30630ffd8d05915f1350ac
+  - alias: HA_shutdown
+    if:
     - condition: trigger
       id:
       - HA_shutdown
     then:
+    - service: light.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id:
+        - light.fire_bedside_screen
+        - light.fire_computer_desk_screen
+        - light.fire_living_room_screen
+        - light.fire_office_screen
     - service: fully_kiosk.load_url
       data:
         url: http://10.10.10.6:81/restarting.html
       target:
         device_id:
-        - 2323c900e9b980c080e61690aee749cd
-        - 1cbba9ced32718bf0833b79584b5c1af
         - d5b9cae0114b1c1b101a436665dc491f
-        - e4cda3b30481585c4855db66e71a23c7
+    - service: browser_mod.navigate
+      target:
+        device_id: 6b3c1fe87e30630ffd8d05915f1350ac
+      data:
+        path: http://10.10.10.6:81/restarting.html
     - delay:
         hours: 0
         minutes: 0
         seconds: 3
         milliseconds: 0
-    alias: HA_shutdown
+  mode: single
+- id: '1704122467342'
+  alias: Tablet Handler - Living Room
+  description: ''
+  triggers:
+  - alias: Living Room Motion Detector started detecting motion
+    type: motion
+    device_id: bc4e628eacf9d4a29ad844ee0e7a8742
+    entity_id: df33ece661e5b95570527bb241e5be81
+    domain: binary_sensor
+    trigger: device
+    id: detected
+  - alias: Living Room Motion Detector stopped detecting motion
+    type: no_motion
+    device_id: bc4e628eacf9d4a29ad844ee0e7a8742
+    entity_id: df33ece661e5b95570527bb241e5be81
+    domain: binary_sensor
+    id: clear
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    trigger: device
+  - alias: Fire Living Room Battery Level high
+    type: battery_level
+    device_id: 1cbba9ced32718bf0833b79584b5c1af
+    entity_id: ce248c5fc411aae21d76463203cb359c
+    domain: sensor
+    id: battery_high
+    above: 90
+    trigger: device
+  - alias: Fire Living Room Battery Level low
+    type: battery_level
+    device_id: 1cbba9ced32718bf0833b79584b5c1af
+    entity_id: ce248c5fc411aae21d76463203cb359c
+    domain: sensor
+    id: battery_low
+    below: 30
+    trigger: device
+  - entity_id:
+    - light.fire_living_room_screen
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+    id: unavailable
+    trigger: state
+  conditions: []
+  actions:
+  - alias: Detected
+    if:
+    - condition: trigger
+      id:
+      - detected
+    then:
+    - metadata: {}
+      data:
+        value: "{% set illum = states('sensor.living_room_motion_detector_illuminance')
+          | int %} \n{% if (illum >= 3) %} 255 \n{% elif (illum == 2) %} 64 \n{% elif
+          (illum < 2) %} 5 \n{% endif %}"
+      target:
+        entity_id: number.fire_living_room_screen_brightness
+      alias: Set screen brightness based on illumination
+      action: number.set_value
+    - alias: Turn on Fire Living Room Screen if off
+      if:
+      - condition: device
+        type: is_off
+        device_id: 1cbba9ced32718bf0833b79584b5c1af
+        entity_id: 69995a9c5c39d075e7e9aa4bdf4e2cef
+        domain: light
+      then:
+      - type: turn_on
+        device_id: 1cbba9ced32718bf0833b79584b5c1af
+        entity_id: 69995a9c5c39d075e7e9aa4bdf4e2cef
+        domain: light
+      - action: switch.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.apolosign_calendar_screen
+  - alias: Cleared
+    if:
+    - condition: trigger
+      id:
+      - clear
+    then:
+    - type: turn_off
+      device_id: 1cbba9ced32718bf0833b79584b5c1af
+      entity_id: 69995a9c5c39d075e7e9aa4bdf4e2cef
+      domain: light
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id: switch.apolosign_calendar_screen
+  - alias: battery_high
+    if:
+    - condition: trigger
+      id:
+      - battery_high
+    then:
+    - type: turn_off
+      device_id: 885d457dc97caeba319bb0fe0f79c20e
+      entity_id: d344f9f59d99072efe0d123914814532
+      domain: switch
+  - alias: battery_low or unavailable
+    if:
+    - condition: trigger
+      id:
+      - battery_low
+      - unavailable
+    then:
+    - type: turn_on
+      device_id: 885d457dc97caeba319bb0fe0f79c20e
+      entity_id: d344f9f59d99072efe0d123914814532
+      domain: switch
+  mode: single
+- id: '1705890738770'
+  alias: NFC Tag Handler
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: 831fa5ca-0fa6-4924-85c7-7e8fea316839
+    alias: When Emptied Litter Box is scanned
+    id: emptied_litter_box
+  condition: []
+  action:
+  - if:
+    - condition: trigger
+      id:
+      - emptied_litter_box
+    then:
+    - service: counter.reset
+      metadata: {}
+      data: {}
+      target:
+        entity_id: counter.task_empty_litter_box
+    alias: Emptied Litter Box
+  mode: single
+- id: '1705892421952'
+  alias: Daily Notifications
+  description: ''
+  trigger:
+  - platform: tag
+    tag_id: ''
+  condition: []
+  action:
+  - if:
+    - condition: numeric_state
+      entity_id: counter.task_empty_litter_box
+      above: input_number.task_empty_litter_box_duration
+    then:
+    - service: notify.mobile_app_s22_ultra
+      metadata: {}
+      data:
+        message: Litter box
+        title: Overdue
+  mode: single
+- id: '1709100898227'
+  alias: When a light is turned on
+  description: ''
+  trigger:
+  - alias: light.turn_on called
+    platform: event
+    event_type: call_service
+    event_data:
+      domain: light
+      service: turn_on
+    enabled: false
+  - platform: state
+    entity_id:
+    - light.living_room1
+    - light.living_room2
+    from: 'off'
+    to: 'on'
+    enabled: true
+  - platform: template
+    value_template: '{{ expand(''light.all_lights'') | sort(attribute = ''entity_id'')
+      | map(attribute = ''entity_id'') | list }}'
+    enabled: false
+  - alias: light.turn_on called
+    platform: event
+    event_type: state_changed
+    enabled: false
+    event_data: {}
+  condition:
+  - condition: template
+    value_template: '{{ trigger.to_state.state == ''on'' and trigger.from_state.state
+      == ''off'' and trigger.from_state.state != trigger.to_state.state }}
+
+      '
+  - condition: template
+    value_template: '{{ trigger.entity_id in expand(''light.all_lights'') | rejectattr
+      (''entity_id'', ''in'', integration_entities(''group'')) | sort(attribute =
+      ''entity_id'') | map(attribute = ''entity_id'') | list }}'
+    enabled: true
+  action: []
+  mode: single
+- id: '1711865497073'
+  alias: Set attribute
+  description: Test to use python script to set an attribute
+  triggers: []
+  conditions: []
+  actions:
+  - data:
+      action: set_attributes
+      entity_id: light.living_room1
+      attributes:
+      - icon: mdi:phone
+    action: python_script.hass_entities
+  mode: single
+- id: '1717384051188'
+  alias: webhook
+  description: ''
+  trigger:
+  - platform: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    local_only: true
+    webhook_id: -plex-skip-ending-credits
+  condition: []
+  action: []
+  mode: single
+- id: '1729400732412'
+  alias: Plex Series test
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - media_player.xbox_plex
+    attribute: media_series_title
+    to: Manifest
+  conditions: []
+  actions:
+  - action: light.turn_on
+    data:
+      brightness_pct: 20
+    target:
+      entity_id: light.living_room_lights
+  mode: single
+- id: '1737974858229'
+  alias: Template automation
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{  now().month in [1, 5, 8] and now().day == 27 and now().hour
+      == 5 and now().minute == 48 }}'
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      message: This is a test of the template automation.
+      title: Template automation test
   mode: single
