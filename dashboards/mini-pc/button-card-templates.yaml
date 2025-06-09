@@ -292,6 +292,7 @@ brightness_selector:
         card:
           - box-shadow: inset 0px 0px 5px 1px yellow
           - border: 1px solid yellow
+
   styles:
     card:
       - height: 75px
@@ -468,7 +469,7 @@ temperature_sensor:
   template: generic_custom_button
   show_icon: false
   show_label: true
-  label: "[[[ return parseFloat(entity.state).toFixed(1) + ' °F' ]]]"
+  label: "[[[ return `${parseFloat(entity.state).toFixed(0)} ${entity.attributes.unit_of_measurement}` ]]]"
   styles:
     name:
       - color: rgb(128, 128, 128)
