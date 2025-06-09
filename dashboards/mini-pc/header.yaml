@@ -25,6 +25,8 @@ type: custom:layout-card
 layout_type: grid
 layout:
   grid-template-columns: 25% 50% 25%
+view_layout:
+  grid-area: header
 cards:
   - type: custom:gap-card
   - type: custom:mushroom-chips-card
@@ -40,20 +42,17 @@ cards:
               --chip-background: none;
               --chip-font-size: 16px;
               --chip-padding: 0 0.3em;
-              --chip-box-shadow: none;
-              display: flex;
-              justify-content: center;
-              align-items: center;
+              --chip-box-shadow: none;              
             }
       - type: template
         <<: *battery_chip_template
-        entity: sensor.s22_ultra_battery_level
+        entity: sensor.s25_ultra_battery_level
         icon: |
-          {% set battery_level = states('sensor.s22_ultra_battery_level') | int // 10 * 10 %}  
-          {% set charging_state = states('sensor.s22_ultra_charger_type') %}  
-          {% set is_charging = is_state('binary_sensor.s22_ultra_is_charging', 'on') | iif(True, False) %} 
+          {% set battery_level = states('sensor.s25_ultra_battery_level') | int // 10 * 10 %}  
+          {% set charging_state = states('sensor.s25_ultra_charger_type') %}  
+          {% set is_charging = is_state('binary_sensor.s25_ultra_is_charging', 'on') | iif(True, False) %} 
           {% set map = {"none":"", "ac":"charging-", "wireless":"charging-wireless-"} %} 
-          {% set charging = map[states('sensor.s22_ultra_charger_type')] %}
+          {% set charging = map[states('sensor.s25_ultra_charger_type')] %}
           {% if battery_level == 100 and is_charging == True %} mdi:battery-charging  
           {% elif battery_level == 100 %} mdi:battery    
           {% elif battery_level >= 10 %} mdi:battery-{{charging}}{{battery_level}}    
@@ -141,8 +140,8 @@ cards:
                 card_mod:
                   style: |
                     ha-card { 
-                    animation: blink 1s linear infinite; 
-                    --chip-icon-size: 0.6em; 
+                      animation: blink 1s linear infinite; 
+                      --chip-icon-size: 0.6em; 
                     }
                 hold_action:
                   action: navigate
@@ -178,7 +177,7 @@ cards:
       card:
         - border: none
         - background: transparent
-        - font-size: 50px
+        - font-size: 40px
         - font-family: stencil
         - height: 65px
         - padding-right: 20px
@@ -186,5 +185,3 @@ cards:
         - right: 0%
       name:
         - justify-self: right
-      
-
