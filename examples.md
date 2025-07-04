@@ -823,12 +823,9 @@ card_mod:
 ### Stack in Card
 [Stack in Card](https://github.com/custom-cards/stack-in-card) by [@RomRider](https://github.com/romrider) allows you to to group multiple cards into one card without the borders. 
 
+**UPDATE**: https://github.com/stickpin/stack-in-card Use [@stickpin](https://github.com/stickpin)'s fork instead. It has been updated to fix hiding the backgrounds and borders which is an issue with RomRider's version. Add this repository to HACS to download it: `https://github.com/stickpin/stack-in-card`. (For the purposes of this example, I'm leaving the card_mod code in place, but it is not needed with stickpin's fork.)
+
 This example shows how to combine multiple cards and give the appearance of being a single card. Adding various layout-type cards inside the Stack in Card can allow more advanced card placement. 
-
-(Note: While I believe the Stack in Card was designed to handle the backgrounds and borders of the cards, it seems recent updates have broke that feature. To fix this, adding some card_mod code will assist in the overall appearance.)
-
-> [!TIP]
-> I recently started using a fork which has fixed handling the backgrounds and borders by [@ov1d1u](https://github.com/ov1d1u). Add this repository to HACS to download it: https://github.com/ov1d1u/stack-in-card. For the purposes of this example, the card_mod code will be left in place although not needed with this fork. 
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/d6d05461-ea35-4624-9e5e-a1f4d2f8b3d9)
 
