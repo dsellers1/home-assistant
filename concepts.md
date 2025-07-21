@@ -1,12 +1,12 @@
 # Lovelace templating concepts
-When it comes to customizing Lovelace cards in Home Assistance, there are some basics to understand in order to be able to create the customization. This guide will focus on the included Home Assistant cards, Mushroom cards, and custom:button-cards. These three examples should cover most use cases but the concepts should apply to most cards.
+When it comes to customizing Lovelace cards in Home Assistance, there are some basics to understand in order to be able to create the customization using templates. This guide will focus on the included Home Assistant cards, Mushroom cards, and custom:button-cards. These three examples should cover most use cases but the concepts should apply to most cards. This guide is intended to show the basics of templating. I've intentionally left out some options available and some of the advanced concepts. See the [official Templating documentation](https://www.home-assistant.io/docs/configuration/templating/) for more information.
 
 - stock HA cards - least customizable; customization can usually be done with [card_mod](https://github.com/thomasloven/lovelace-card-mod). 
 - [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) - somewhat customizable; Mushroom Template cards can be used; card-mod is another option
 - [custom:button-card](https://github.com/custom-cards/button-card) - the most customizable of the bunch; card-mod is an option but usually not needed
 
 ### Jinja vs Python
-Why are two third-party cards used in this guide? These two cards are probably the most commonly used but they rely on different languages. The Mushroom cards (and most cards used in HA) use Jinja while the custom:button-card uses JavaScript. The concepts will be the same but the syntax will be different.
+Why are two third-party cards used in this guide? These two cards are probably the most commonly used but they rely on different languages. The Mushroom cards (and most cards used in HA) use Jinja while the custom:button-card uses JavaScript. The general concepts will be the same but the syntax will be different. Also, there are some useful functions available in Jinja but similar function are not available in JavaScript.
 
 ## Some basics to get started
 
@@ -35,7 +35,7 @@ name: "[[[ return states['light.living_room_lights'].state ]]]"
 </details>
 
 > [!CAUTION]
-> It is important to remember that states (and attributes) are stored as strings even if the value is a number. See [Working with Numbers](#working-with-numbers) for more information.
+> It is important to remember that states (and attributes) are stored as strings even if the value is a number which will be relevant when perfoming comparisons. See [Working with Numbers](#working-with-numbers) for more information.
 
 ### Getting an attribute
 Attributes of an entity can be friendly_name, brightness, color_mode, color_temp, rgb_color, icon, device_class, hvac_modes, min_temp, max_temp, and more. Check Developer Tools > States to see an entity's attributes.
@@ -193,66 +193,42 @@ name: |
 
 </details>
 
-## Working with numbers
 
-### Converting strings to Intergers and Floats
-Before moving on to some more advanced comparisons, it should be noted that states and attributes are stored as strings. This can complicate operations that compare values to numbers because it won't work. To overcome this, you have to convert the string to a number, more specifically, an integer or a float. Basically, intergers are whole numbers while floats can have decimals.
+### Using is_state/is_state_attr comparison
+Previously, we talked about getting a state/attribute and then comparing it in an IF statement. The is_state() and is_state_attr() functions can compare the entity's state/attribute and return a true or false. This is a Jinja function and cannot be used with the custom:button-card. They cannot perform logical comparison (greater-than/less-than). They can compare against a list of items such as `is_state('device_tracker.entity_name', ['home', 'work'])`; any match will return true.
 
-Jinja: `value | int` or `value | float`<br>
-JavaScript: `parseInt(value)` or `parseFloat(value)`
+Jinja: `is_state('domain.entity_name','state_to_compare')`<br>
+Jinja: `is_state_attr('domain.entity_name','attribute_to_compare','value_to_compare')`<br>
 
-![image](https://github.com/dsellers1/temp/assets/67642332/39ebedae-9296-42c2-a6b2-a7c933504a21)
+<img width="252" height="80" alt="image" src="https://github.com/user-attachments/assets/aa44e293-bce9-4348-8e41-c23017afecfb" />
 
-<details><summary>Jinja example</summary>
+<details><summary>Jinja is_state example</summary>
   
 ```yaml
 type: custom:mushroom-template-card
-primary: "{{ 123.456 | int }}"
-```
-
-</details><details><summary>JavaScript example</summary>
-  
-```yaml
-type: custom:button-card
-name: "[[[ return parseInt(123.456) ]]]"
+primary: |
+  {% if is_state('light.living_room_lights','on') %}
+    Lights are on.
+  {% else %}
+    Lights are off.
+  {% endif %}
 ```
 
 </details>
 
-> [!NOTE]
-> The `int` and `float` filters in Jinja have precendence over mathematical operations which could result in an undesired value. For example, assuming the operation `12.34 + 56.78 | int`, 56.78 will get converted to an integer before being added to 12.34. Enclosing the mathematical operation in parentheses can fix this: `(12.34 + 56.78) | int`.
-
-### Rounding floats to a certain number of decimal places
-
-Jinja: `value | round(number_of_decimal_places)`<br>
-JavaScript: `value.toFixed(number_of_decimal_places)`
-
-![image](https://github.com/dsellers1/temp/assets/67642332/b5c2ad22-dc64-446f-ada7-6a3803800fd1)
-
-<details><summary>Jinja example</summary>
+<details><summary>Jinja is_state_attr example</summary>
   
 ```yaml
 type: custom:mushroom-template-card
-primary: "{{ 123.456 | round(1) }}"
-```
-
-</details><details><summary>JavaScript example</summary>
-  
-```yaml
-type: custom:button-card
-name: "[[[ return parseFloat(123.456).toFixed(1) ]]]"
+primary: |
+  {% if is_state_attr('light.living_room_lights', 'brightness', 254) %}
+    Lights are at full brightness.
+  {% else %}
+    Lights are not a full brightness.
+  {% endif %}
 ```
 
 </details>
-
-> [!NOTE]
-> Just like the `int` and `float` filters in Jinja, the `round` filter has precendence over mathematical operations which could result in an undesired value. For example, assuming the operation `12.34 + 56.78 | round(1)`, 56.78 will get rounded to one decimal place before being added to 12.34. Enclosing the mathematical operation in parentheses can fix this: `(12.34 + 56.78) | round(1)`.
-
-> [!TIP]
-> Don't forget that Home Assistant stores states and attributes as strings so values would need to be converted to floats before being able to perform the rounding.
-
-> [!CAUTION]
-> Rounding floats can generally be *problematic* given how computers deal with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately." Just be aware of this possibility.
 
 ### Using variables with templates
 So far, entities have been specifically defined in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This can be used to minimize having to repeat the entity name.
@@ -332,6 +308,114 @@ variables:
 > [!CAUTION]
 > Variables are evaluated in their alphabetical order based on their name. That means a variable named b can depend on a variable named a, but variable named a can't depend on a variable named b.
 
+### Using logical expressions and operators
+Using logical expressions, such as AND, OR, and NOT, can evaluate multiple expressions at one time. JavaScript uses `&&` for AND, `||` for OR, and `!=` for NOT (technically, does not equal.)
+
+| Operator | Descripton | Example | Returns |
+|:---:|:---:|:---:|:---:|
+| && | AND | true && false | false |
+| \|\| | OR | true \|\| false | true |
+| ! | NOT| true && !false | true |
+
+Jinja: `{% if (condition) AND (condition) %} value_to_return {% endif %}`<br>
+JavaScript:`[[[ if (condition) && (condition) return value_to_return ]]]`
+
+<details><summary>Jinja AND and NOT example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: |
+  {% set entity = 'light.living_room_lights' %}
+  {% if is_state(entity, 'on') and is_state_attr(entity, 'brightness', 254) %}
+    Lights are at full brightness.
+  {% elif is_state(entity, 'on') and not is_state_attr(entity, 'brightness', 254) %}
+    Lights are on but not at full brightness.
+  {% else %}
+    Lights are off.
+  {% endif %}
+```
+
+</details>
+
+<details><summary>JavaScript && and != example</summary>
+  
+```yaml
+type: custom:button-card
+variables:
+  var_name: light.living_room_lights
+name: |
+  [[[ 
+    if (states[variables.var_name].state == 'on' && states[variables.var_name].attributes.brightness == '254')
+      return "Lights are at full brightness.";
+    else if (states[variables.var_name].state == 'on' && states[variables.var_name].attributes.brightness != '254')
+      return "Lights are on but not at full brightness";
+    else return "The lights are off."
+   ]]]
+```
+
+</details>
+
+## Working with numbers
+
+### Converting strings to Intergers and Floats
+Before moving on to some more advanced comparisons, it should be noted that states and attributes are stored as strings. This can complicate operations that compare values to numbers because it won't work. To overcome this, you have to convert the string to a number, more specifically, an integer or a float. Basically, intergers are whole numbers while floats can have decimals.
+
+Jinja: `value | int` or `value | float`<br>
+JavaScript: `parseInt(value)` or `parseFloat(value)`
+
+![image](https://github.com/dsellers1/temp/assets/67642332/39ebedae-9296-42c2-a6b2-a7c933504a21)
+
+<details><summary>Jinja example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: "{{ 123.456 | int }}"
+```
+
+</details><details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+name: "[[[ return parseInt(123.456) ]]]"
+```
+
+</details>
+
+> [!NOTE]
+> The `int` and `float` filters in Jinja have precendence over mathematical operations which could result in an undesired value. For example, assuming the operation `12.34 + 56.78 | int`, 56.78 will get converted to an integer before being added to 12.34. Enclosing the mathematical operation in parentheses can fix this: `(12.34 + 56.78) | int`.
+
+### Rounding floats to a certain number of decimal places
+
+Jinja: `value | round(number_of_decimal_places)`<br>
+JavaScript: `value.toFixed(number_of_decimal_places)`
+
+![image](https://github.com/dsellers1/temp/assets/67642332/b5c2ad22-dc64-446f-ada7-6a3803800fd1)
+
+<details><summary>Jinja example</summary>
+  
+```yaml
+type: custom:mushroom-template-card
+primary: "{{ 123.456 | round(1) }}"
+```
+
+</details><details><summary>JavaScript example</summary>
+  
+```yaml
+type: custom:button-card
+name: "[[[ return parseFloat(123.456).toFixed(1) ]]]"
+```
+
+</details>
+
+> [!NOTE]
+> Just like the `int` and `float` filters in Jinja, the `round` filter has precendence over mathematical operations which could result in an undesired value. For example, assuming the operation `12.34 + 56.78 | round(1)`, 56.78 will get rounded to one decimal place before being added to 12.34. Enclosing the mathematical operation in parentheses can fix this: `(12.34 + 56.78) | round(1)`.
+
+> [!TIP]
+> Don't forget that Home Assistant stores states and attributes as strings so values would need to be converted to floats before being able to perform the rounding.
+
+> [!CAUTION]
+> Rounding floats can generally be *problematic* given how computers deal with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately." Just be aware of this possibility.
+
 ## Working with operators
 Operators are used to assign values, compare values, perform arithmetic operations, and more. They can be classified as arthmetic, assignment, comparison, logical, conditional, and type.[^5]
 
@@ -362,13 +446,6 @@ Operators are used to assign values, compare values, perform arithmetic operatio
 
 > [!CAUTION]
 > The equal sign (=) is an assignment operator, not an *equal to* comparison operator.
-
-### Using logical operators
-| Operator | Descripton | Example | Returns |
-|:---:|:---:|:---:|:---:|
-| && | AND | true && false | false |
-| \|\| | OR | true \|\| false | true |
-| ! | NOT| true && !false | true |
 
 ### Using conditional (ternary) operators
 A conditional (ternary) operator assigns a value based on a condition. They are also known as shorthand IF/ELSE statements.<br>
@@ -438,7 +515,7 @@ Using multiline code requires a *block style indicator* to indicate how new line
 - [x] Using variables/Internal variables
 - [ ] Working with last-updated/changed
     - https://www.home-assistant.io/docs/configuration/state_object/
-- [ ] is_state/state_attr/is_state_attr
+- [x] is_state/is_state_attr
     - not good for error handling
 - [x] Rounding
 - [ ] Link to example showing concept
