@@ -1,0 +1,68 @@
+## This version uses a Light Template instead of v0.1's Templated Light. This method allows a defined variable at the upper level of the code 
+## block rather than v0.1's need to define the variable each time it is needed. This cuts down on the code that gets repeated throughout the colde block. 
+## The only limitation that I've found with this method is that it does not allow a friendly_name to be defined. With the unique_id set, however, you can 
+## change the friendly_name within the UI. This template does not support light colors yet. I don't like how I had to use the time_pattern platform to get
+## this to work as this is probably very resource intensive. The lights variable template is designed to ignore light entities that should not be affected.
+## In this case, the dynamic light entity itself (this.entity_id would not work), the v0.1 dynamic light entity, and the various integrations that provide 
+## light entities.  Rejecting integrations can be done with a line per integration or combined using the + sign. I couldn't figure out a more graceful
+## method.
+
+template:
+  - trigger:
+      - platform: time_pattern
+        seconds: "/1"
+    light:
+      - name: "Dynamic Lights"
+        unique_id: 1fa038ce-6111-45e5-8ce0-1c2fb0567386
+        variables:
+          lights: |
+            {{ states.light 
+              | rejectattr('entity_id', 'eq', 'light.dynamic_lights')
+              | rejectattr('entity_id', 'eq', 'light.all_lights_on')
+              | rejectattr('entity_id', 'in', integration_entities('group'))
+              | rejectattr('entity_id', 'in', integration_entities('fullykiosk'))
+              | rejectattr('entity_id', 'in', integration_entities('demo'))
+              | rejectattr('entity_id', 'in', integration_entities('Demo'))
+              | rejectattr('entity_id', 'in', integration_entities('bambu_lab') + integration_entities('browser_mod'))
+              | selectattr('state' , 'eq' , 'on') 
+              | sort(attribute='name')
+              | map(attribute = 'entity_id') 
+              | list 
+            }}
+        state: "{{ lights | count > 0 }}"
+        level: |
+          {% set bright = lights | map('state_attr', 'brightness') | map('default', 255, true) | list %}
+          {{ bright | average | round(0) | int if bright else 0 }}
+        temperature: |
+          {% set temperature = lights | map('state_attr', 'color_temp') | map('default', 255, true) | list %}
+          {{ temperature | average | round(0) | int if temperature else 0 }}
+        supports_transition: "{{ true }}"
+        icon: |
+          {% set c = lights | count %}
+          {% if c == 0 %} mdi:lightbulb-outline
+          {% elif c == 1 %} mdi:lightbulb
+          {% elif c == 2 %} mdi:lightbulb-multiple
+          {% else %} mdi:lightbulb-group
+          {% endif %}
+        turn_on:
+          - service: light.turn_on
+            data:
+              entity_id: "{{ lights }}"
+        turn_off:
+          - service: light.turn_off
+            data:
+              entity_id: "{{ lights }}"
+        set_level:
+          - if: "{{ lights | count > 0 }}"
+            then:
+              - service: light.turn_on
+                data:
+                  entity_id: "{{ lights }}"
+                  brightness: "{{ brightness }}"
+        set_temperature:
+          - if: "{{ lights | count > 0 }}"
+            then:
+              - service: light.turn_on
+                data:
+                  entity_id: "{{ lights }}"
+                  color_temp: "{{ temperature }}"
