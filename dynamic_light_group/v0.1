@@ -6,12 +6,12 @@ light:
         value_template: >
           {% set lights = states.light
             | rejectattr('entity_id', 'eq', this.entity_id)
-                | rejectattr('entity_id', 'eq', 'light.dynamic_lights')
-                | rejectattr('entity_id', 'in', integration_entities('group'))
-                | rejectattr('entity_id', 'in', integration_entities('fullykiosk'))
-                | rejectattr('entity_id', 'in', integration_entities('demo'))
-                | rejectattr('entity_id', 'in', integration_entities('Demo'))
-                | rejectattr('entity_id', 'in', integration_entities('bambu_lab') + integration_entities('browser_mod'))
+            | rejectattr('entity_id', 'eq', 'light.dynamic_lights')
+            | rejectattr('entity_id', 'in', integration_entities('group'))
+            | rejectattr('entity_id', 'in', integration_entities('fullykiosk'))
+            | rejectattr('entity_id', 'in', integration_entities('demo'))
+            | rejectattr('entity_id', 'in', integration_entities('Demo'))
+            | rejectattr('entity_id', 'in', integration_entities('bambu_lab') + integration_entities('browser_mod'))
             | selectattr('state' , 'eq' , 'on') 
             | map (attribute='entity_id')
             | list
@@ -20,12 +20,12 @@ light:
         level_template: >
           {% set lights = states.light
             | rejectattr('entity_id', 'eq', this.entity_id)
-                | rejectattr('entity_id', 'eq', 'light.dynamic_lights')
-                | rejectattr('entity_id', 'in', integration_entities('group'))
-                | rejectattr('entity_id', 'in', integration_entities('fullykiosk'))
-                | rejectattr('entity_id', 'in', integration_entities('demo'))
-                | rejectattr('entity_id', 'in', integration_entities('Demo'))
-                | rejectattr('entity_id', 'in', integration_entities('bambu_lab') + integration_entities('browser_mod'))
+            | rejectattr('entity_id', 'eq', 'light.dynamic_lights')
+            | rejectattr('entity_id', 'in', integration_entities('group'))
+            | rejectattr('entity_id', 'in', integration_entities('fullykiosk'))
+            | rejectattr('entity_id', 'in', integration_entities('demo'))
+            | rejectattr('entity_id', 'in', integration_entities('Demo'))
+            | rejectattr('entity_id', 'in', integration_entities('bambu_lab') + integration_entities('browser_mod'))
             | selectattr('state' , 'eq' , 'on')
             | map(attribute='entity_id')
             | list
