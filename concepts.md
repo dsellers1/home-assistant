@@ -5,7 +5,7 @@ When it comes to customizing Lovelace cards in Home Assistance, there are some b
 - [Mushroom cards](https://github.com/piitaya/lovelace-mushroom) - somewhat customizable; Mushroom Template cards can be used; card-mod is another option
 - [custom:button-card](https://github.com/custom-cards/button-card) - the most customizable of the bunch; card-mod is an option but usually not needed
 
-### Jinja vs Python
+### Jinja vs JavaScript
 Why are two third-party cards used in this guide? These two cards are probably the most commonly used but they rely on different languages. The Mushroom cards (and most cards used in HA) use Jinja while the custom:button-card uses JavaScript. The general concepts will be the same but the syntax will be different. Also, there are some useful functions available in Jinja but similar function are not available in JavaScript.
 
 ## Some basics to get started
@@ -233,7 +233,7 @@ primary: |
 ### Using variables with templates
 So far, entities have been specifically defined in the IF statements. With the Mushroom cards and custom:button-cards, it is possible use the entity defined for the card by using *config.entity* and *entity*, respectively. This can be used to minimize having to repeat the entity name.
 
-Jinja: `state_attr(config.entity, 'friendly_name')`<br>
+Jinja: `state_attr('domain.entity_name', 'friendly_name')`<br>
 JavaScript: `entity.attributes.friendly_name`
 
 ![image](https://github.com/dsellers1/home-assistant/assets/67642332/ded73014-38d0-42b3-b874-6022047e995b)
@@ -414,7 +414,7 @@ name: "[[[ return parseFloat(123.456).toFixed(1) ]]]"
 > Don't forget that Home Assistant stores states and attributes as strings so values would need to be converted to floats before being able to perform the rounding.
 
 > [!CAUTION]
-> Rounding floats can generally be *problematic* given how computers deal with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately." Just be aware of this possibility.
+> Rounding floats can generally be *problematic* given how computers work with numbers and the method of rounding used.[^4] While outside the scope of this guide, floats may not round "accurately." Just be aware of this possibility.
 
 ## Working with operators
 Operators are used to assign values, compare values, perform arithmetic operations, and more. They can be classified as arthmetic, assignment, comparison, logical, conditional, and type.[^5]
@@ -431,9 +431,6 @@ Operators are used to assign values, compare values, perform arithmetic operatio
 | % | Modulus (Division Remainder) | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 5 % 2 | 1 |
 | ** | Exponentiation | $${\color{green}&#x2713;}$$ | $${\color{green}&#x2713;}$$ | 2 ** 3 | 8 |
 
-> [!CAUTION]
-> The equal sign (=) is an assignment operator, not an *equal to* arithemtic operator.
-
 ### Using comparison operators
 | Operator | Description | Example | Returns |
 |:---:|---|:---:|:---:|
@@ -445,7 +442,7 @@ Operators are used to assign values, compare values, perform arithmetic operatio
 | <= | less than or equal to | 2 <= 1 | true |
 
 > [!CAUTION]
-> The equal sign (=) is an assignment operator, not an *equal to* comparison operator.
+> A single equal sign (=) is an assignment operator, not an *equal to* comparison operator.
 
 ### Using conditional (ternary) operators
 A conditional (ternary) operator assigns a value based on a condition. They are also known as shorthand IF/ELSE statements.<br>
