@@ -195,7 +195,7 @@ name: |
 
 
 ### Using is_state/is_state_attr comparison
-Previously, we talked about getting a state/attribute and then comparing it in an IF statement. The is_state() and is_state_attr() functions can compare the entity's state/attribute and return a true or false. This is a Jinja function and cannot be used with the custom:button-card. They cannot perform logical comparison (greater-than/less-than). They can compare against a list of items such as `is_state('device_tracker.entity_name', ['home', 'work'])`; any match will return true.
+Similar to an IF statment, the is_state() and is_state_attr() functions can compare the entity's state/attribute and return a true or false. This is a Jinja function and cannot be used with the custom:button-card. It cannot perform logical comparison (greater-than/less-than). It can compare against a list of items such as `is_state('device_tracker.entity_name', ['home', 'work'])`; any match will return true.
 
 Jinja: `is_state('domain.entity_name','state_to_compare')`<br>
 Jinja: `is_state_attr('domain.entity_name','attribute_to_compare','value_to_compare')`<br>
@@ -224,7 +224,7 @@ primary: |
   {% if is_state_attr('light.living_room_lights', 'brightness', 254) %}
     Lights are at full brightness.
   {% else %}
-    Lights are not a full brightness.
+    Lights are not at full brightness.
   {% endif %}
 ```
 
