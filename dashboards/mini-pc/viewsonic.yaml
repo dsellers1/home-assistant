@@ -1,31 +1,33 @@
 anchors: 
   popup_style: &popup_style
+    style: |
+      --popup-min-width: 1600px;
+      --popup-max-width: 1700px;
+      --popup-border-radius: 0px;
     timeout: 10000
     card_mod: 
       style: | 
         ha-dialog {
-          --mdc-dialog-min-width: 1500px !important;
-          --mdc-dialog-max-width: 1500px !important;
+          --dialog-surface-margin-top: auto !important;
           --popup-border-width: 1px;
           --popup-border-radius: 12px;
           --popup-padding-x: 0px;
           --popup-padding-y: 0px;
-          --dialog-backdrop-filter: hue-rotate(120deg) blur(0.8em) brightness(1.2); 
-          --dialog-backdrop-background-color: rgb(255,0,0);
           --dialog-content-padding: 20px;
-        }
-        :host .content {
+          --vertical-align-dialog: center !important;
+          --ha-dialog-scrim-backdrop-filter: hue-rotate(120deg) blur(0.8em) brightness(1.2);
+          color: white;
           height: auto !important;
-          width: auto !important;
         }
+        :host .content { }
 
   popup_layout_card_options: &popup_layout_card_options
     layout_type: grid
     layout:
-      grid-template-columns: 5% 40% 10% 40% 5%
+      grid-template-columns: 2% 36% 4% 16% 4% 36% 2%
       grid-template-rows: auto
       grid-template-areas: |
-        ".  left  center  right  ."
+        ".  left . center . right  ."
 
   popup_entity_styling: &popup_entity
     type: custom:slider-entity-row
@@ -46,7 +48,7 @@ anchors:
   big-slider-card-style: &slider_style
       name: "\_"
       transition: 0.3
-      color: '#404040'
+      color: lightyellow
       colorize: false
       background_color: none
       icon: none
@@ -69,19 +71,45 @@ views:
     theme: dark-mode
     cards:
       - type: custom:layout-card
-        layout_type: grid
+        layout_type: custom:grid-layout
         layout:
           grid-template-columns: 50% 50% 
           grid-template-rows: auto
           grid-template-areas: |
             "header       header"
             "lights       media"
+            "printers     printers"
             "column1      column2"
             "bottom_left  bottom_right"
         cards:
           - !include header.yaml
 
-          # Lights section
+          # Printers area
+          - type: grid
+            columns: 6
+            view_layout:
+              grid-area: printers
+            cards:
+              - type: custom:webrtc-camera
+                entity: camera.p1s_alpha_camera
+                title: P1S Alpha
+                style: ".mode {display: none} .header {top: unset; left: 45%; bottom: 8px}"
+                card_mod:
+                  style: |
+                    ha-card {
+                      
+                    }
+              - type: custom:webrtc-camera
+                entity: camera.p1s_bravo_camera
+                title: P1S Bravo
+                style: ".mode {display: none} .header {top: unset; left: 45%; bottom: 8px}"
+                card_mod:
+                  style: |
+                    ha-card {
+                      
+                    }
+
+          # Lights area
           - type: horizontal-stack
             view_layout:
               grid-area: lights
@@ -117,6 +145,47 @@ views:
                                         <<: *popup_entity
                                       - entity: light.living_room_corner_led_2
                                         <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.living_room_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
                   - type: custom:big-slider-card
                     entity: light.living_room_lights
                     <<: *slider_style
@@ -149,12 +218,53 @@ views:
                                         <<: *popup_entity
                               - type: vertical-stack
                                 view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.kitchen_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
+                              - type: vertical-stack
+                                view_layout:
                                   grid-area: right
                                 cards:
                                   - type: entities
                                     <<: *popup_entity_card_styling
                                     entities:
-                                      - entity: automation.auto_kitchen_lights
+                                      - entity: input_boolean.automation_auto_kitchen_lights
                                       - type: custom:slider-entity-row
                                         entity: input_number.automation_auto_kitchen_lights_duration
                                         name: Auto Lights Duration
@@ -191,12 +301,53 @@ views:
                                         <<: *popup_entity
                               - type: vertical-stack
                                 view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.hallway
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
+                              - type: vertical-stack
+                                view_layout:
                                   grid-area: right
                                 cards:
                                   - type: entities
                                     <<: *popup_entity_card_styling
                                     entities:
-                                      - entity: automation.auto_hallway_lights
+                                      - entity: input_boolean.automation_auto_hallway_lights
                                       - type: custom:slider-entity-row
                                         entity: input_number.automation_auto_hallway_lights_duration
                                         name: Auto Lights Duration
@@ -233,7 +384,47 @@ views:
                                         <<: *popup_entity
                                       - entity: light.office2
                                         <<: *popup_entity
-
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.office_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
                               - type: vertical-stack
                                 view_layout:
                                   grid-area: right
@@ -241,7 +432,7 @@ views:
                                   - type: entities
                                     <<: *popup_entity_card_styling
                                     entities:
-                                      - entity: automation.auto_office_lights
+                                      - entity: input_boolean.automation_auto_office_lights
                                       - type: custom:slider-entity-row
                                         entity: input_number.automation_auto_office_lights_duration
                                         name: Auto Lights Duration
@@ -280,6 +471,47 @@ views:
                                         <<: *popup_entity
                                       - entity: light.bedroom_floor_lamp
                                         <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.bedroom_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
                   - type: custom:big-slider-card
                     entity: light.bedroom_lights
                     <<: *slider_style
@@ -316,12 +548,53 @@ views:
                                         <<: *popup_entity
                               - type: vertical-stack
                                 view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.bathroom_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
+                              - type: vertical-stack
+                                view_layout:
                                   grid-area: right
                                 cards:
                                   - type: entities
                                     <<: *popup_entity_card_styling
                                     entities:
-                                      - entity: automation.auto_bathroom_lights
+                                      - entity: input_boolean.automation_auto_bathroom_lights
                                       - type: custom:slider-entity-row
                                         entity: input_number.automation_auto_bathroom_lights_duration
                                         name: Auto Lights Duration
@@ -355,32 +628,80 @@ views:
                               entity_id:
                                 - light.all_lights
                           content:
-                            type: entities
-                            <<: *popup_entity_card_styling
-                            entities:
-                              - entity: light.living_room1
-                                <<: *popup_entity
-                              - entity: light.living_room2
-                                <<: *popup_entity
-                              - entity: light.kitchen
-                                <<: *popup_entity
-                              - entity: light.stove
-                                <<: *popup_entity
-                              - entity: light.hallway
-                                <<: *popup_entity
-                              - entity: light.office1
-                                <<: *popup_entity
-                              - entity: light.office2
-                                <<: *popup_entity
-                              - entity: light.bedroom_lights
-                                <<: *popup_entity
-                              - entity: light.bathroom_lights
-                                <<: *popup_entity
+                            type: custom:layout-card
+                            <<: *popup_layout_card_options
+                            cards:
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: left
+                                cards:
+                                  - type: entities
+                                    <<: *popup_entity_card_styling
+                                    entities:
+                                      - entity: light.living_room1
+                                        <<: *popup_entity
+                                      - entity: light.living_room2
+                                        <<: *popup_entity
+                                      - entity: light.kitchen
+                                        <<: *popup_entity
+                                      - entity: light.stove
+                                        <<: *popup_entity
+                                      - entity: light.hallway
+                                        <<: *popup_entity
+                                      - entity: light.office1
+                                        <<: *popup_entity
+                                      - entity: light.office2
+                                        <<: *popup_entity
+                                      - entity: light.bedroom_lights
+                                        <<: *popup_entity
+                                      - entity: light.bathroom_lights
+                                        <<: *popup_entity
+                              - type: vertical-stack
+                                view_layout:
+                                  grid-area: center
+                                cards:
+                                  - type: custom:light-entity-card
+                                    entity: light.dynamic_lights
+                                    shorten_cards: true
+                                    consolidate_entities: true
+                                    child_card: true
+                                    hide_header: true
+                                    show_header_icon: false
+                                    header: ""
+                                    persist_features: false
+                                    brightness: false
+                                    color_temp: false
+                                    white_value: false
+                                    warm_white_value: false
+                                    color_picker: true
+                                    effects_list: false
+                                    speed: false
+                                    intensity: false
+                                    force_features: false
+                                    show_slider_percent: false
+                                    full_width_sliders: false
+                                    color_temp_in_kelvin: false
+                                    transition: 0
+                                    brightness_icon: weather-sunny
+                                    white_icon: file-word-box
+                                    warm_white_icon: weather-sunset
+                                    temperature_icon: thermometer
+                                    speed_icon: speedometer
+                                    intensity_icon: transit-connection-horizontal
+                                    color_wheel: false
+                                    card_mod:
+                                      style: |
+                                        ha-card {
+                                          background-color: transparent;
+                                          border: none; 
+                                          width: 245px;
+                                          height: 250px
+                                        }
                   - type: custom:big-slider-card
-                    entity: light.all_lights_on
+                    entity: light.dynamic_lights
                     <<: *slider_style
 
-          # Media section
+          # Media area
           - type: conditional
             view_layout:
               grid-area: media
@@ -463,7 +784,7 @@ views:
                         attribute: media_position
                         units: seconds
 
-          # Bottom left section
+          # Bottom left area
           - type: custom:mod-card
             view_layout:
               grid-area: bottom_left
@@ -494,7 +815,7 @@ views:
             card:
               type: vertical-stack
               cards:
-                # Door section
+                # Door area
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -523,7 +844,7 @@ views:
                       variables:
                         var_battery_entity: sensor.hallway_closet_battery_level
 
-                # Motion detector section
+                # Motion detector area
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -562,7 +883,7 @@ views:
                       variables:
                         var_battery_entity: sensor.bedroom_motion_detector_battery_level
 
-                # Temperatures section
+                # Temperatures area
                 - type: grid
                   layout:
                     grid-template-columns: auto auto auto auto auto auto auto auto
@@ -591,7 +912,7 @@ views:
                       entity: sensor.bedroom_motion_detector_temperature
                       name: Bedroom
 
-          # Bottom_right section
+          # Bottom_right area
           - type: custom:mod-card
             view_layout:
               grid-area: bottom_right
@@ -608,7 +929,7 @@ views:
             card:
               type: vertical-stack
               cards:
-                # Camera section
+                # Camera area
                 - type: grid
                   columns: 3
                   square: false
@@ -651,7 +972,7 @@ views:
                             - height: 100%
                             - background: transparent
 
-                # Media player section
+                # Media player area
                 - type: conditional
                   view_layout:
                     grid-area: media
@@ -677,7 +998,7 @@ views:
                           height: 100px;
                         }
 
-                # Weather section
+                # Weather area
                 - type: custom:mod-card
                   card_mod:
                     style: |
